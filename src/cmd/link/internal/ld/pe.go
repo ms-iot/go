@@ -56,6 +56,7 @@ var (
 const (
 	IMAGE_FILE_MACHINE_I386              = 0x14c
 	IMAGE_FILE_MACHINE_AMD64             = 0x8664
+    IMAGE_FILE_MACHINE_ARM               = 0x1c0
 	IMAGE_FILE_RELOCS_STRIPPED           = 0x0001
 	IMAGE_FILE_EXECUTABLE_IMAGE          = 0x0002
 	IMAGE_FILE_LINE_NUMS_STRIPPED        = 0x0004
@@ -109,6 +110,13 @@ const (
 	IMAGE_REL_AMD64_ADDR32 = 0x0002
 	IMAGE_REL_AMD64_REL32  = 0x0004
 	IMAGE_REL_AMD64_SECREL = 0x000B
+
+    IMAGE_REL_ARM_ABSOLUTE = 0x0000
+    IMAGE_REL_ARM_ADDR32   = 0x0001
+    IMAGE_REL_ARM_ADDR32NB = 0x0002
+    IMAGE_REL_ARM_BRANCH24 = 0x0003
+    IMAGE_REL_ARM_BRANCH11 = 0x0004
+    IMAGE_REL_ARM_SECREL   = 0x000F
 )
 
 // Copyright 2009 The Go Authors. All rights reserved.
@@ -476,6 +484,8 @@ func (f *peFile) addInitArray(ctxt *Link) *peSection {
 		size = 4
 	case "amd64":
 		size = 8
+	case "arm":
+		size = 4
 	}
 	sect := f.addSection(".ctors", size, size)
 	sect.characteristics = IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ
@@ -490,6 +500,8 @@ func (f *peFile) addInitArray(ctxt *Link) *peSection {
 		ctxt.Out.Write32(uint32(addr))
 	case "amd64":
 		ctxt.Out.Write64(addr)
+	case "arm":
+		ctxt.Out.Write32(uint32(addr))
 	}
 	return sect
 }
@@ -588,6 +600,8 @@ dwarfLoop:
 			ctxt.Out.Write16(IMAGE_REL_I386_DIR32)
 		case "amd64":
 			ctxt.Out.Write16(IMAGE_REL_AMD64_ADDR64)
+		case "arm":
+			ctxt.Out.Write16(IMAGE_REL_ARM_ADDR32)
 		}
 		return 1
 	})
@@ -736,6 +750,8 @@ func (f *peFile) writeFileHeader(arch *sys.Arch, out *OutBuf, linkmode LinkMode)
 		fh.Machine = IMAGE_FILE_MACHINE_AMD64
 	case sys.I386:
 		fh.Machine = IMAGE_FILE_MACHINE_I386
+	case sys.ARM:
+		fh.Machine = IMAGE_FILE_MACHINE_ARM
 	}
 
 	fh.NumberOfSections = uint16(len(f.sections))
@@ -1316,7 +1332,7 @@ func Asmbpe(ctxt *Link) {
 	switch ctxt.Arch.Family {
 	default:
 		Exitf("unknown PE architecture: %v", ctxt.Arch.Family)
-	case sys.AMD64, sys.I386:
+	case sys.AMD64, sys.I386, sys.ARM:
 	}
 
 	t := pefile.addSection(".text", int(Segtext.Length), int(Segtext.Length))
