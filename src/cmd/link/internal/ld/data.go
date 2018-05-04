@@ -328,6 +328,7 @@ func relocsym(ctxt *Link, s *sym.Symbol) {
 					r.Done = true
 				}
 
+                // TODO add Windows/arm
 				// PE code emits IMAGE_REL_I386_SECREL and IMAGE_REL_AMD64_SECREL
 				// for R_DWARFSECREF relocations, while R_ADDR is replaced with
 				// IMAGE_REL_I386_DIR32, IMAGE_REL_AMD64_ADDR64 and IMAGE_REL_AMD64_ADDR32.
@@ -537,19 +538,24 @@ func windynrelocsym(ctxt *Link, s *sym.Symbol) {
 			r.Add = int64(targ.Plt)
 
 			// jmp *addr
-			if ctxt.Arch.Family == sys.I386 {
+            switch ctxt.Arch.Family {
+            default:
+                Errorf(s, "unsupported arch %v", ctxt.Arch.Family)
+                return
+            case sys.I386:
 				rel.AddUint8(0xff)
 				rel.AddUint8(0x25)
 				rel.AddAddr(ctxt.Arch, targ)
 				rel.AddUint8(0x90)
 				rel.AddUint8(0x90)
-			} else {
+            case sys.AMD64:
 				rel.AddUint8(0xff)
 				rel.AddUint8(0x24)
 				rel.AddUint8(0x25)
 				rel.AddAddrPlus4(targ, 0)
 				rel.AddUint8(0x90)
-			}
+            // TODO(iot) add case sys.ARM:
+            }
 		} else if r.Sym.Plt >= 0 {
 			r.Sym = rel
 			r.Add = int64(targ.Plt)

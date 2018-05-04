@@ -463,6 +463,15 @@ TEXT runtime·switchtothread(SB),NOSPLIT,$0
 */
 	RET
 
+TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
+	B	runtime·armPublicationBarrier(SB)
+
+// never called (cgo not supported)
+TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
+	MOVW	$0, R0
+	MOVW	R0, (R0)
+	RET
+
 // See http://www.dcl.hpi.uni-potsdam.de/research/WRK/2007/08/getting-os-information-the-kuser_shared_data-structure/
 // Must read hi1, then lo, then hi2. The snapshot is valid if hi1 == hi2.
 #define _INTERRUPT_TIME 0x7ffe0008
@@ -494,12 +503,15 @@ loop:
 	MOVW	DX, ret_hi+4(FP)
 	RET
 useQPC:
+*/
 	JMP	runtime·nanotimeQPC(SB)
 	RET
 
 TEXT time·now(SB),NOSPLIT,$0-20
-	CMPB	runtime·useQPCTime(SB), $0
-	JNE	useQPC
+    MOVW	runtime·useQPCTime(SB), R0
+    CMP     $0, R0
+	BNE	    useQPC
+/*
 loop:
 	MOVW	(_INTERRUPT_TIME+time_hi1), AX
 	MOVW	(_INTERRUPT_TIME+time_lo), CX
@@ -571,7 +583,7 @@ wall:
 	MOVW	AX, sec+0(FP)
 	MOVW	DX, sec+4(FP)
 	RET
+*/
 useQPC:
 	JMP	runtime·nowQPC(SB)
-*/
 	RET
