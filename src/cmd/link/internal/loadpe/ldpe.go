@@ -148,6 +148,7 @@ func (f *peBiobuf) ReadAt(p []byte, off int64) (int, error) {
 // Symbols are written into syms, and a slice of the text symbols is returned.
 // If an .rsrc section is found, its symbol is returned as rsrc.
 func Load(arch *sys.Arch, syms *sym.Symbols, input *bio.Reader, pkg string, length int64, pn string) (textp []*sym.Symbol, rsrc *sym.Symbol, err error) {
+    fmt.Println("In LDPE Load")
 	localSymVersion := syms.IncVersion()
 
 	sectsyms := make(map[*pe.Section]*sym.Symbol)
@@ -255,7 +256,7 @@ func Load(arch *sys.Arch, syms *sym.Symbols, input *bio.Reader, pkg string, leng
 			rp.Siz = 4
 			rp.Off = int32(r.VirtualAddress)
             if arch.Family == sys.I386 || arch.Family == sys.AMD64 {
-			    switch r.Type {
+                switch r.Type {
 			    default:
 				    return nil, nil, fmt.Errorf("%s: %v: unknown relocation type %v", pn, sectsyms[rsect], r.Type)
 
@@ -281,9 +282,15 @@ func Load(arch *sys.Arch, syms *sym.Symbols, input *bio.Reader, pkg string, leng
 				    rp.Add = int64(binary.LittleEndian.Uint64(sectdata[rsect][rp.Off:]))
                 }
             } else {
+                if arch.Family != sys.ARM {
+                    return nil, nil, fmt.Errorf("%s: unsupported arch %v", pn, arch.Family)
+                }
+
+                // Stub stub: verify section type/relocation type translation
+
                 switch r.Type {
                 default:
-                return nil, nil, fmt.Errorf("%s: %v: unknown ARM relocation type %v", pn, sectsyms[rsect], r.Type)
+                    return nil, nil, fmt.Errorf("%s: %v: unknown ARM relocation type %v", pn, sectsyms[rsect], r.Type)
 
                 case IMAGE_REL_ARM_SECREL:
 				    rp.Type = objabi.R_PCREL
