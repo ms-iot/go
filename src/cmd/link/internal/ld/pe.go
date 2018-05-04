@@ -57,6 +57,7 @@ const (
 	IMAGE_FILE_MACHINE_I386              = 0x14c
 	IMAGE_FILE_MACHINE_AMD64             = 0x8664
     IMAGE_FILE_MACHINE_ARM               = 0x1c0
+    IMAGE_FILE_MACHINE_ARMNT             = 0x1c4
 	IMAGE_FILE_RELOCS_STRIPPED           = 0x0001
 	IMAGE_FILE_EXECUTABLE_IMAGE          = 0x0002
 	IMAGE_FILE_LINE_NUMS_STRIPPED        = 0x0004
@@ -758,7 +759,7 @@ func (f *peFile) writeFileHeader(arch *sys.Arch, out *OutBuf, linkmode LinkMode)
 	case sys.I386:
 		fh.Machine = IMAGE_FILE_MACHINE_I386
 	case sys.ARM:
-		fh.Machine = IMAGE_FILE_MACHINE_ARM
+		fh.Machine = IMAGE_FILE_MACHINE_ARMNT
 	}
 
 	fh.NumberOfSections = uint16(len(f.sections))
