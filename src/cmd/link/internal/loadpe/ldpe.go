@@ -148,7 +148,6 @@ func (f *peBiobuf) ReadAt(p []byte, off int64) (int, error) {
 // Symbols are written into syms, and a slice of the text symbols is returned.
 // If an .rsrc section is found, its symbol is returned as rsrc.
 func Load(arch *sys.Arch, syms *sym.Symbols, input *bio.Reader, pkg string, length int64, pn string) (textp []*sym.Symbol, rsrc *sym.Symbol, err error) {
-    fmt.Println("In LDPE Load")
 	localSymVersion := syms.IncVersion()
 
 	sectsyms := make(map[*pe.Section]*sym.Symbol)

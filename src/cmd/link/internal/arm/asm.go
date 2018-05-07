@@ -408,7 +408,6 @@ func machoreloc1(arch *sys.Arch, out *ld.OutBuf, s *sym.Symbol, r *sym.Reloc, se
 }
 
 func pereloc1(arch *sys.Arch, out *ld.OutBuf, s *sym.Symbol, r *sym.Reloc, sectoff int64) bool {
-    fmt.Println("pereloc1 called %d\n" , r.Type)
 	var v uint32
 
 	rs := r.Xsym
@@ -432,10 +431,10 @@ func pereloc1(arch *sys.Arch, out *ld.OutBuf, s *sym.Symbol, r *sym.Reloc, secto
 	case objabi.R_ADDR:
 		v = ld.IMAGE_REL_ARM_ADDR32
 
-	case objabi.R_CALLARM:
+	case objabi.R_CALLARM: // FIXME (IOT) not supported in Windows 
 		v = ld.IMAGE_REL_ARM_BRANCH24
 
-    case objabi.R_PCREL:
+    case objabi.R_PCREL: // FIXME (IOT) incorrect
 		v = ld.IMAGE_REL_ARM_ADDR32NB
 	}
 
