@@ -8,7 +8,7 @@
 // Stub stub stub
 
 // void runtime·asmstdcall(void *c);
-TEXT runtime·asmstdcall(SB),NOSPLIT,$12-0
+TEXT runtime·asmstdcall(SB),NOSPLIT|NOFRAME,$0
 	MOVM.DB.W [R4, R5, R14], (R13)	// push {r4, r5, lr}
 	MOVW	R0, R4			// put libcall * in r4
 	MOVW	R13, R5			// save stack pointer in r5
