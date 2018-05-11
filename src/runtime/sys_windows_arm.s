@@ -8,39 +8,70 @@
 // Stub stub stub
 
 // void runtime·asmstdcall(void *c);
-TEXT runtime·asmstdcall(SB),NOSPLIT,$0
+TEXT runtime·asmstdcall(SB),NOSPLIT,$12-0
+	MOVM.DB.W [R4, R5, R14], (R13)	// push {r4, r5, lr}
+	MOVW	R0, R4			// put libcall * in r4
+	MOVW	R13, R5			// save stack pointer in r5
 
-	MOVW	fn+0(FP), R0
-/*
-	// SetLastError(0).
-	MOVW	$0, 0x34(FS)
+	// SetLastError(0)
+	MOVW	$0, R0
+	MRC	15, 0, R1, C13, C0, 2
+	MOVW	R0, 0x34(R1)
 
-	// Copy args to the stack.
-	MOVW	SP, BP
-	MOVW	libcall_n(BX), CX	// words
-	MOVW	CX, AX
-	SLL	    $2, AX
-	SUB	    AX, SP			// room for args
-	MOVW	SP, DI
-	MOVW	libcall_args(BX), SI
-	//CLD
-	//REP; MOVSL
+	MOVW	8(R4), R12	// libcall->args
 
-	// Call stdcall or cdecl function.
-	// DI SI BP BX are preserved, SP is not
-	CALL	libcall_fn(BX)
-	MOVW	BP, SP
+	// Do we have more than 4 arguments?
+	MOVW	4(R4), R0	// libcall->n
+	SUB.S	$4, R0, R2
+	BLE	loadregs
 
-	// Return result.
-	MOVW	fn+0(FP), BX
-	MOVW	AX, libcall_r1(BX)
-	MOVW	DX, libcall_r2(BX)
+	// Reserve stack space for remaining args
+	SUB	R2<<2, R13
+	BIC	$0x7, R13	// alignment for ABI
 
-	// GetLastError().
-	MOVW	0x34(FS), AX
-	MOVW	AX, libcall_err(BX)
-*/
-	RET
+	// R0: count of arguments
+	// R1:
+	// R2: loop counter, from 0 to (n-4)
+	// R3: scratch
+	// R4: pointer to libcall struct
+	// R12: libcall->args
+	MOVW	$0, R2
+stackargs:
+	ADD	$4, R2, R3		// r3 = args[4 + i]
+	MOVW	R3<<2(R12), R3
+	MOVW	R3, R2<<2(R13)		// stack[i] = r3
+
+	ADD	$1, R2			// i++
+	SUB	$4, R0, R3		// while (i < (n - 4))
+	CMP	R3, R2
+	BLT	stackargs
+
+loadregs:
+	CMP	$3, R0
+	MOVW.GT 12(R12), R3
+
+	CMP	$2, R0
+	MOVW.GT 8(R12), R2
+
+	CMP	$1, R0
+	MOVW.GT 4(R12), R1
+
+	CMP	$0, R0
+	MOVW.GT 0(R12), R0
+
+	MOVW	0(R4), R12		// branch to libcall->fn
+	BL	(R12)
+
+	MOVW	R5, R13			// free stack space
+	MOVW	R0, 12(R4)		// save return value to libcall->r1
+	MOVW	R1, 16(R4)
+
+	// GetLastError
+	MRC	15, 0, R1, C13, C0, 2
+	MOVW	0x34(R1), R0
+	MOVW	R0, 20(R4)		// store in libcall->err
+
+	MOVM.IA.W (R13), [R4, R5, R15]
 
 TEXT	runtime·badsignal2(SB),NOSPLIT,$24
 /*
