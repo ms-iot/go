@@ -12,7 +12,7 @@
 // kernel for an ordinary -buildmode=exe program. The stack holds the
 // number of arguments and the C-style argv.
 TEXT _rt0_arm_windows(SB),NOSPLIT|NOFRAME,$0
-    B	_rt0_arm(SB)
+	B	·rt0_go(SB)
 
 // When building with -buildmode=(c-shared or c-archive), this
 // symbol is called. For dynamic libraries it is called when the
