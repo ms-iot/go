@@ -96,18 +96,14 @@ TEXT	runtime·badsignal2(SB),NOSPLIT,$24
 	RET
 
 // faster get/set last error
-TEXT runtime·getlasterror(SB),NOSPLIT,$0
-/*
-	MOVW	0x34(FS), AX
-	MOVW	AX, ret+0(FP)
-*/
+TEXT runtime·getlasterror(SB),NOSPLIT|NOFRAME,$0
+	MRC	15, 0, R1, C13, C0, 2
+	MOVW	0x34(R1), R0
 	RET
 
-TEXT runtime·setlasterror(SB),NOSPLIT,$0
-/*
-	MOVW	err+0(FP), AX
-	MOVW	AX, 0x34(FS)
-*/
+TEXT runtime·setlasterror(SB),NOSPLIT|NOFRAME,$0
+	MRC	15, 0, R1, C13, C0, 2
+	MOVW	R0, 0x34(R1)
 	RET
 
 // Called by Windows as a Vectored Exception Handler (VEH).
