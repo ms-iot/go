@@ -93,6 +93,8 @@ TEXT	runtime·badsignal2(SB),NOSPLIT,$24
 	CALL	*runtime·_WriteFile(SB)
 	MOVW	BP, SI
 */
+	MOVW	$0, R12
+	MOVW	R12, (R12)
 	RET
 
 // faster get/set last error
@@ -188,17 +190,25 @@ done:
 	// RET 4 (return and pop 4 bytes parameters)
 	BYTE $0xC2; WORD $4
 */
+	MOVW	$1, R12
+	MOVW	R12, (R12)
 	RET // unreached; make assembler happy
 
 TEXT runtime·exceptiontramp(SB),NOSPLIT,$0
 //	MOVW	$runtime·exceptionhandler(SB), AX
+	MOVW	$2, R12
+	MOVW	R12, (R12)
 	JMP	runtime·sigtramp(SB)
 
 TEXT runtime·firstcontinuetramp(SB),NOSPLIT,$0-0
+	MOVW	$3, R12
+	MOVW	R12, (R12)
 	// is never called
 //	INT	$3
 
 TEXT runtime·lastcontinuetramp(SB),NOSPLIT,$0-0
+	MOVW	$4, R12
+	MOVW	R12, (R12)
 //	MOVW	$runtime·lastcontinuehandler(SB), AX
 	JMP	runtime·sigtramp(SB)
 
@@ -211,7 +221,9 @@ TEXT runtime·ctrlhandler(SB),NOSPLIT,$0
 	JMP	CX
 */
     // Stub
-    RET
+	MOVW	$5, R12
+	MOVW	R12, (R12)
+	RET
 
 TEXT runtime·profileloop(SB),NOSPLIT,$0
 /*
@@ -221,8 +233,10 @@ TEXT runtime·profileloop(SB),NOSPLIT,$0
 	ADDL	$12, SP
 	JMP	CX
 */
-    // Stub
-    RET
+	// Stub
+	MOVW	$6, R12
+	MOVW	R12, (R12)
+	RET
 
 TEXT runtime·externalthreadhandler(SB),NOSPLIT,$0
 /*
@@ -275,6 +289,8 @@ TEXT runtime·externalthreadhandler(SB),NOSPLIT,$0
 	POPL	BX
 	POPL	BP
 */
+	MOVW	$7, R12
+	MOVW	R12, (R12)
 	RET
 
 GLOBL runtime·cbctxts(SB), NOPTR, $4
@@ -353,6 +369,8 @@ TEXT runtime·callbackasm1+0(SB),NOSPLIT,$0
 
 	//CLD
 */
+	MOVW	$8, R12
+	MOVW	R12, (R12)
 	RET
 
 // void tstart(M *newm);
@@ -382,6 +400,8 @@ TEXT runtime·tstart(SB),NOSPLIT,$0
 	CALL	runtime·stackcheck(SB)	// clobbers AX,CX
 	CALL	runtime·mstart(SB)
 */
+	MOVW	$9, R12
+	MOVW	R12, (R12)
 	RET
 
 // uint32 tstart_stdcall(M *newm);
@@ -400,6 +420,8 @@ TEXT runtime·tstart_stdcall(SB),NOSPLIT,$0
 
 	XORL	AX, AX			// return 0 == success
 */
+	MOVW	$10, R12
+	MOVW	R12, (R12)
 	RET
 
 // setldt(int entry, int address, int limit)
@@ -408,6 +430,8 @@ TEXT runtime·setldt(SB),NOSPLIT,$0
 	MOVW	address+4(FP), CX
 	MOVW	CX, 0x14(FS)
 */
+	MOVW	$11, R12
+	MOVW	R12, (R12)
 	RET
 
 // onosstack calls fn on OS stack.
@@ -460,6 +484,8 @@ ret:
 	MOVW	g_m(BP), BP
 	MOVW	$0, m_libcallsp(BP)
 */
+	MOVW	$12, R12
+	MOVW	R12, (R12)
 	RET
 
 // Runs on OS stack. duration (in 100ns units) is in BX.
@@ -478,6 +504,8 @@ TEXT runtime·usleep2(SB),NOSPLIT,$20
 	CALL	AX
 	MOVW	BP, SP
 */
+	MOVW	$13, R12
+	MOVW	R12, (R12)
 	RET
 
 // Runs on OS stack.
@@ -488,6 +516,8 @@ TEXT runtime·switchtothread(SB),NOSPLIT,$0
 	CALL	AX
 	MOVW	BP, SP
 */
+	MOVW	$14, R12
+	MOVW	R12, (R12)
 	RET
 
 TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
@@ -508,6 +538,9 @@ TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
 #define time_hi2 8
 
 TEXT runtime·nanotime(SB),NOSPLIT,$0-8
+	MOVW	$16, R12
+	MOVW	R12, (R12)
+	RET
 /*
 	CMPB	runtime·useQPCTime(SB), $0
 	JNE	useQPC
@@ -530,15 +563,18 @@ loop:
 	MOVW	DX, ret_hi+4(FP)
 	RET
 useQPC:
-*/
 	JMP	runtime·nanotimeQPC(SB)
 	RET
+*/
 
 TEXT time·now(SB),NOSPLIT,$0-20
-    MOVW	runtime·useQPCTime(SB), R0
-    CMP     $0, R0
-	BNE	    useQPC
+	MOVW	$17, R12
+	MOVW	R12, (R12)
 /*
+	MOVW	runtime·useQPCTime(SB), R0
+    	CMP     $0, R0
+	BNE	    useQPC
+
 loop:
 	MOVW	(_INTERRUPT_TIME+time_hi1), AX
 	MOVW	(_INTERRUPT_TIME+time_lo), CX
@@ -610,7 +646,7 @@ wall:
 	MOVW	AX, sec+0(FP)
 	MOVW	DX, sec+4(FP)
 	RET
-*/
 useQPC:
 	JMP	runtime·nowQPC(SB)
 	RET
+*/
