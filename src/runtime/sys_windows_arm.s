@@ -472,25 +472,16 @@ noswitch:
 	B	(R5)
 
 // Runs on OS stack. duration (in 100ns units) is in BX.
-TEXT runtime·usleep2(SB),NOSPLIT,$0
-	RET
-/*
-	// Want negative 100ns units.
-	NEGL	BX
-	MOVW	$-1, hi-4(SP)
-	MOVW	BX, lo-8(SP)
-	LEAL	lo-8(SP), BX
-	MOVW	BX, ptime-12(SP)
-	MOVW	$0, alertable-16(SP)
-	MOVW	$-1, handle-20(SP)
-	MOVW	SP, BP
-	MOVW	runtime·_NtWaitForSingleObject(SB), AX
-	CALL	AX
-	MOVW	BP, SP
-*/
-	MOVW	$13, R12
-	MOVW	R12, (R12)
-	RET
+TEXT runtime·usleep2(SB),NOSPLIT,$12
+        RSB     $0, R0, R3		// R3 = -R0
+        MOVW    $0, R1			// R1 = FALSE (alertable)
+        MOVW    $-1, R0         	// R0 = handle
+        MOVW    $pTime-12(FP), R2	// R2 = pTime
+        MOVW    R3, 0(R2)		// time_lo
+        MOVW    R0, 4(R2)		// time_hi
+        MOVW    runtime·_NtWaitForSingleObject(SB), R3
+        BL      (R3)
+        RET
 
 // Runs on OS stack.
 TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
