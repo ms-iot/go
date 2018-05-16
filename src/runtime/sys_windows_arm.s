@@ -484,21 +484,10 @@ TEXT runtime·usleep2(SB),NOSPLIT,$0
 
 // Runs on OS stack.
 TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
-	MOVM.DB.W [R4, R14], (R13)  // push {r13, lr}
-	MOVW	R13, R4
+	MOVM.DB.W [R14], (R13)  // push {lr}
 	MOVW	runtime·_SwitchToThread(SB), R0
 	BL	(R0)
-	MOVW	R4, R13
-	MOVM.IA.W (R13), [R4, R15]	// pop {r4, pc}
-/*
-	MOVW	SP, BP
-	MOVW	runtime·_SwitchToThread(SB), AX
-	CALL	AX
-	MOVW	BP, SP
-*/
-	MOVW	$14, R12
-	MOVW	R12, (R12)
-	RET
+	MOVM.IA.W (R13), [R15]	// pop {pc}
 
 TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	B	runtime·armPublicationBarrier(SB)
