@@ -93,7 +93,7 @@ TEXT	runtime·badsignal2(SB),NOSPLIT,$24
 	CALL	*runtime·_WriteFile(SB)
 	MOVW	BP, SI
 */
-	MOVW	$0, R12
+	MOVW	$1234, R12
 	MOVW	R12, (R12)
 	RET
 
@@ -373,56 +373,25 @@ TEXT runtime·callbackasm1+0(SB),NOSPLIT,$0
 	MOVW	R12, (R12)
 	RET
 
-// void tstart(M *newm);
-TEXT runtime·tstart(SB),NOSPLIT,$0
-/*
-	MOVW	newm+0(FP), CX		// m
-	MOVW	m_g0(CX), DX		// g
+// uint32 tstart_stdcall(M *newm);
+TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
+	MOVM.DB.W [R14], (R13)		// push {lr}
+
+	MOVW	m_g0(R0), g
 
 	// Layout new m scheduler stack on os stack.
-	MOVW	SP, AX
-	MOVW	AX, (g_stack+stack_hi)(DX)
-	SUB	    $(64*1024), AX		// stack size
-	MOVW	AX, (g_stack+stack_lo)(DX)
-	ADDL	$const__StackGuard, AX
-	MOVW	AX, g_stackguard0(DX)
-	MOVW	AX, g_stackguard1(DX)
+	MOVW	R13, R0
+	MOVW	R0, g_stack+stack_hi(g)
+	SUB	$(64*1024), R0
+	MOVW	R0, (g_stack+stack_lo)(g)
+	MOVW	R0, g_stackguard0(g)
+	MOVW	R0, g_stackguard1(g)
 
-	// Set up tls.
-	LEAL	m_tls(CX), SI
-	MOVW	SI, 0x14(FS)
-	MOVW	CX, g_m(DX)
-	MOVW	DX, g(SI)
+	BL	runtime·mstart(SB)
 
-	// Someday the convention will be D is always cleared.
-	//CLD
-
-	CALL	runtime·stackcheck(SB)	// clobbers AX,CX
-	CALL	runtime·mstart(SB)
-*/
-	MOVW	$9, R12
-	MOVW	R12, (R12)
-	RET
-
-// uint32 tstart_stdcall(M *newm);
-TEXT runtime·tstart_stdcall(SB),NOSPLIT,$0
-/*
-	MOVW	newm+0(FP), BX
-
-	PUSHL	BX
-	CALL	runtime·tstart(SB)
-	POPL	BX
-
-	// Adjust stack for stdcall to return properly.
-	MOVW	(SP), AX		// save return address
-	ADDL	$4, SP			// remove single parameter
-	MOVW	AX, (SP)		// restore return address
-
-	XORL	AX, AX			// return 0 == success
-*/
-	MOVW	$10, R12
-	MOVW	R12, (R12)
-	RET
+	// Exit the thread.
+	MOVW	$0, R0
+	MOVM.IA.W (R13), [R15]		// pop {pc}
 
 // setldt(int entry, int address, int limit)
 TEXT runtime·setldt(SB),NOSPLIT,$0
@@ -538,8 +507,6 @@ TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
 #define time_hi2 8
 
 TEXT runtime·nanotime(SB),NOSPLIT,$0-8
-	MOVW	$16, R12
-	MOVW	R12, (R12)
 	RET
 /*
 	CMPB	runtime·useQPCTime(SB), $0
@@ -563,9 +530,9 @@ loop:
 	MOVW	DX, ret_hi+4(FP)
 	RET
 useQPC:
-	JMP	runtime·nanotimeQPC(SB)
-	RET
 */
+	BL	runtime·nanotimeQPC(SB)
+	RET
 
 TEXT time·now(SB),NOSPLIT,$0-20
 	MOVW	$17, R12
