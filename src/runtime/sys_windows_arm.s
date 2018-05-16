@@ -404,62 +404,72 @@ TEXT runtime·setldt(SB),NOSPLIT,$0
 	RET
 
 // onosstack calls fn on OS stack.
+// adapted from asm_arm.s : systemstack
 // func onosstack(fn unsafe.Pointer, arg uint32)
 TEXT runtime·onosstack(SB),NOSPLIT,$0
-	MOVW	fn+0(FP), R1
-	MOVW	arg+4(FP), R0
-	BL	(R1)
-	RET
-/*
-	MOVW	fn+0(FP), AX		// to hide from 8l
-	MOVW	arg+4(FP), BX
+	MOVW	fn+0(FP), R5	// R5 = fn
+	MOVW	arg+4(FP), R6	// R6 = arg
+	MOVW	g_m(g), R1	// R1 = m
 
-	// Execute call on m->g0 stack, in case we are not actually
-	// calling a system call wrapper, like when running under WINE.
-	get_tls(CX)
-	CMPL	CX, $0
-	JNE	3(PC)
-	// Not a Go-managed thread. Do not switch stack.
-	CALL	AX
-	RET
+	MOVW	m_gsignal(R1), R2	// R2 = gsignal
+	CMP	g, R2
+	B.EQ	noswitch
 
-	MOVW	g(CX), BP
-	MOVW	g_m(BP), BP
+	MOVW	m_g0(R1), R2	// R2 = g0
+	CMP	g, R2
+	B.EQ	noswitch
 
-	// leave pc/sp for cpu profiler
-	MOVW	(SP), SI
-	MOVW	SI, m_libcallpc(BP)
-	MOVW	g(CX), SI
-	MOVW	SI, m_libcallg(BP)
-	// sp must be the last, because once async cpu profiler finds
-	// all three values to be non-zero, it will use them
-	LEAL	usec+0(FP), SI
-	MOVW	SI, m_libcallsp(BP)
+	MOVW	m_curg(R1), R3
+	CMP	g, R3
+	B.EQ	switch
 
-	MOVW	m_g0(BP), SI
-	CMPL	g(CX), SI
-	JNE	switch
-	// executing on m->g0 already
-	CALL	AX
-	JMP	ret
+	// Bad: g is not gsignal, not g0, not curg. What is it?
+	// Hide call from linker nosplit analysis.
+	MOVW	$runtime·badsystemstack(SB), R0
+	BL	(R0)
+	B	runtime·abort(SB)
 
 switch:
-	// Switch to m->g0 stack and back.
-	MOVW	(g_sched+gobuf_sp)(SI), SI
-	MOVW	SP, -4(SI)
-	LEAL	-4(SI), SP
-	CALL	AX
-	MOVW	0(SP), SP
+	// save our state in g->sched. Pretend to
+	// be systemstack_switch if the G stack is scanned.
+	MOVW	$runtime·systemstack_switch(SB), R3
+	ADD	$4, R3, R3 // get past push {lr}
+	MOVW	R3, (g_sched+gobuf_pc)(g)
+	MOVW	R13, (g_sched+gobuf_sp)(g)
+	MOVW	LR, (g_sched+gobuf_lr)(g)
+	MOVW	g, (g_sched+gobuf_g)(g)
 
-ret:
-	get_tls(CX)
-	MOVW	g(CX), BP
-	MOVW	g_m(BP), BP
-	MOVW	$0, m_libcallsp(BP)
-*/
-	MOVW	$12, R12
-	MOVW	R12, (R12)
+	// switch to g0
+	MOVW	R2, R0
+	MOVW	$runtime·setg(SB), R1
+	BL	(R1)
+	MOVW	(g_sched+gobuf_sp)(R2), R3
+	// make it look like mstart called systemstack on g0, to stop traceback
+	SUB	$4, R3, R3
+	MOVW	$runtime·mstart(SB), R4
+	MOVW	R4, 0(R3)
+	MOVW	R3, R13
+
+	// call target function
+	MOVW	R6, R0		// arg
+	BL	(R5)
+
+	// switch back to g
+	MOVW	g_m(g), R1
+	MOVW	m_curg(R1), R0
+	MOVW	$runtime·setg(SB), R2
+	BL	(R2)
+	MOVW	(g_sched+gobuf_sp)(g), R13
+	MOVW	$0, R3
+	MOVW	R3, (g_sched+gobuf_sp)(g)
 	RET
+
+noswitch:
+	// Using a tail call here cleans up tracebacks since we won't stop
+	// at an intermediate systemstack.
+	MOVW.P	4(R13), R14	// restore LR
+	MOVW	R6, R0		// arg
+	B	(R5)
 
 // Runs on OS stack. duration (in 100ns units) is in BX.
 TEXT runtime·usleep2(SB),NOSPLIT,$0
