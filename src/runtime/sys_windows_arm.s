@@ -406,6 +406,10 @@ TEXT runtime·setldt(SB),NOSPLIT,$0
 // onosstack calls fn on OS stack.
 // func onosstack(fn unsafe.Pointer, arg uint32)
 TEXT runtime·onosstack(SB),NOSPLIT,$0
+	MOVW	fn+0(FP), R1
+	MOVW	arg+4(FP), R0
+	BL	(R1)
+	RET
 /*
 	MOVW	fn+0(FP), AX		// to hide from 8l
 	MOVW	arg+4(FP), BX
@@ -458,7 +462,8 @@ ret:
 	RET
 
 // Runs on OS stack. duration (in 100ns units) is in BX.
-TEXT runtime·usleep2(SB),NOSPLIT,$20
+TEXT runtime·usleep2(SB),NOSPLIT,$0
+	RET
 /*
 	// Want negative 100ns units.
 	NEGL	BX
@@ -478,7 +483,13 @@ TEXT runtime·usleep2(SB),NOSPLIT,$20
 	RET
 
 // Runs on OS stack.
-TEXT runtime·switchtothread(SB),NOSPLIT,$0
+TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
+	MOVM.DB.W [R4, R14], (R13)  // push {r13, lr}
+	MOVW	R13, R4
+	MOVW	runtime·_SwitchToThread(SB), R0
+	BL	(R0)
+	MOVW	R4, R13
+	MOVM.IA.W (R13), [R4, R15]	// pop {r4, pc}
 /*
 	MOVW	SP, BP
 	MOVW	runtime·_SwitchToThread(SB), AX
