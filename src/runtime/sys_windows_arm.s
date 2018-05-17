@@ -394,16 +394,6 @@ TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$0, R0
 	MOVM.IA.W (R13), [R15]		// pop {pc}
 
-// setldt(int entry, int address, int limit)
-TEXT runtime·setldt(SB),NOSPLIT,$0
-/*
-	MOVW	address+4(FP), CX
-	MOVW	CX, 0x14(FS)
-*/
-	MOVW	$11, R12
-	MOVW	R12, (R12)
-	RET
-
 // onosstack calls fn on OS stack.
 // adapted from asm_arm.s : systemstack
 // func onosstack(fn unsafe.Pointer, arg uint32)
