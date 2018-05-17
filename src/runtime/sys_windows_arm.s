@@ -538,85 +538,82 @@ useQPC:
 	RET
 
 TEXT time·now(SB),NOSPLIT,$0-20
-	MOVW	$17, R12
-	MOVW	R12, (R12)
-/*
-	MOVW	runtime·useQPCTime(SB), R0
-    	CMP     $0, R0
-	BNE	    useQPC
-
+	MOVW    $0, R0
+	MOVB    runtime·useQPCTime(SB), R0
+	CMP	$0, R0
+	BNE	useQPC
+	MOVW	$_INTERRUPT_TIME, R3
 loop:
-	MOVW	(_INTERRUPT_TIME+time_hi1), AX
-	MOVW	(_INTERRUPT_TIME+time_lo), CX
-	MOVW	(_INTERRUPT_TIME+time_hi2), DI
-	CMPL	AX, DI
-	JNE	loop
+	MOVW	time_hi1(R3), R1
+	MOVW	time_lo(R3), R0
+	MOVW	time_hi2(R3), R2
+	CMP R1, R2
+	BNE	loop
 
-	// w = DI:CX
-	// multiply by 100
-	MOVW	$100, AX
-	MULL	CX
-	IMULL	$100, DI
-	ADDL	DI, DX
-	// w*100 = DX:AX
-	// subtract startNano and save for return
-	SUB	    runtime·startNano+0(SB), AX
-	SBBL	runtime·startNano+4(SB), DX
-	MOVW	AX, mono+12(FP)
-	MOVW	DX, mono+16(FP)
+	// wintime = R1:R0, multiply by 100
+	MOVW	$100, R2
+	MULLU	R0, R2, (R4, R3)    // R4:R3 = R1:R0 * R2
+	MULA	R1, R2, R4, R4
 
+	// wintime*100 = R4:R3, subtract startNano and return
+	MOVW    runtime·startNano+0(SB), R0
+	MOVW    runtime·startNano+4(SB), R1
+	SUB.S   R0, R3
+	SBC	    R1, R4
+	MOVW	R3, mono+12(FP)
+	MOVW	R4, mono+16(FP)
+
+	MOVW	$_SYSTEM_TIME, R3
 wall:
-	MOVW	(_SYSTEM_TIME+time_hi1), CX
-	MOVW	(_SYSTEM_TIME+time_lo), AX
-	MOVW	(_SYSTEM_TIME+time_hi2), DX
-	CMPL	CX, DX
-	JNE	wall
-	
-	// w = DX:AX
+	MOVW	time_hi1(R3), R2
+	MOVW	time_lo(R3), R0
+	MOVW	time_hi2(R3), R2
+	CMP R1, R2
+	BNE	loop
+
+	// w = R1:R0 in 100ns untis
 	// convert to Unix epoch (but still 100ns units)
 	#define delta 116444736000000000
-	SUB	$(delta & 0xFFFFFFFF), AX
-	SBBL $(delta >> 32), DX
-	
-	// nano/100 = DX:AX
-	// split into two decimal halves by div 1e9.
-	// (decimal point is two spots over from correct place,
-	// but we avoid overflow in the high word.)
-	MOVW	$1000000000, CX
-	DIVL	CX
-	MOVW	AX, DI
-	MOVW	DX, SI
-	
-	// DI = nano/100/1e9 = nano/1e11 = sec/100, DX = SI = nano/100%1e9
-	// split DX into seconds and nanoseconds by div 1e7 magic multiply.
-	MOVW	DX, AX
-	MOVW	$1801439851, CX
-	MULL	CX
-	SHRL	$22, DX
-	MOVW	DX, BX
-	IMULL	$10000000, DX
-	MOVW	SI, CX
-	SUB	DX, CX
-	
-	// DI = sec/100 (still)
-	// BX = (nano/100%1e9)/1e7 = (nano/1e9)%100 = sec%100
-	// CX = (nano/100%1e9)%1e7 = (nano%1e9)/100 = nsec/100
-	// store nsec for return
-	IMULL	$100, CX
-	MOVW	CX, nsec+8(FP)
+	SUB.S   $(delta & 0xFFFFFFFF), R0
+	SBC     $(delta >> 32), R1
 
-	// DI = sec/100 (still)
-	// BX = sec%100
-	// construct DX:AX = 64-bit sec and store for return
-	MOVW	$0, DX
-	MOVW	$100, AX
-	MULL	DI
-	ADDL	BX, AX
-	ADCL	$0, DX
-	MOVW	AX, sec+0(FP)
-	MOVW	DX, sec+4(FP)
+	// Convert to nSec
+	MOVW    $100, R2
+	MULLU   R0, R2, (R4, R3)    // R4:R3 = R1:R0 * R2
+	MULA    R1, R2, R4, R4
+	// w = R2:R1 in nSec
+	MOVW    R3, R1              // R4:R3 -> R2:R1
+	MOVW    R4, R2
+
+	// multiply nanoseconds by reciprocal of 10**9 (scaled by 2**61)
+	// to get seconds (96 bit scaled result)
+	MOVW	$0x89705f41, R3		// 2**61 * 10**-9
+	MULLU	R1,R3,(R6,R5)		// R7:R6:R5 = R2:R1 * R3
+	MOVW	$0,R7
+	MULALU	R2,R3,(R7,R6)
+
+	// unscale by discarding low 32 bits, shifting the rest by 29
+	MOVW	R6>>29,R6		// R7:R6 = (R7:R6:R5 >> 61)
+	ORR	R7<<3,R6
+	MOVW	R7>>29,R7
+
+	// subtract (10**9 * sec) from nsec to get nanosecond remainder
+	MOVW	$1000000000, R5	// 10**9
+	MULLU	R6,R5,(R9,R8)   // R9:R8 = R7:R6 * R5
+	MULA	R7,R5,R9,R9
+	SUB.S	R8,R1		// R2:R1 -= R9:R8
+	SBC	R9,R2
+
+	// because reciprocal was a truncated repeating fraction, quotient
+	// may be slightly too small -- adjust to make remainder < 10**9
+	CMP	R5,R1	// if remainder > 10**9
+	SUB.HS	R5,R1   //    remainder -= 10**9
+	ADD.HS	$1,R6	//    sec += 1
+
+	MOVW	R6,sec_lo+0(FP)
+	MOVW	R7,sec_hi+4(FP)
+	MOVW	R1,nsec+8(FP)
 	RET
 useQPC:
-	JMP	runtime·nowQPC(SB)
+	B	runtime·nanotimeQPC(SB)
 	RET
-*/
