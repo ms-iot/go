@@ -569,7 +569,7 @@ wall:
 	MOVW	time_lo(R3), R0
 	MOVW	time_hi2(R3), R2
 	CMP R1, R2
-	BNE	loop
+	BNE	wall
 
 	// w = R1:R0 in 100ns untis
 	// convert to Unix epoch (but still 100ns units)
