@@ -508,31 +508,33 @@ TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
 #define time_hi2 8
 
 TEXT runtime·nanotime(SB),NOSPLIT,$0-8
-	RET
-/*
-	CMPB	runtime·useQPCTime(SB), $0
-	JNE	useQPC
+	MOVW    $0, R0
+	MOVB    runtime·useQPCTime(SB), R0
+	CMP	$0, R0
+	BNE	useQPC
+	MOVW	$_INTERRUPT_TIME, R3
 loop:
-	MOVW	(_INTERRUPT_TIME+time_hi1), AX
-	MOVW	(_INTERRUPT_TIME+time_lo), CX
-	MOVW	(_INTERRUPT_TIME+time_hi2), DI
-	CMPL	AX, DI
-	JNE	loop
+	MOVW	time_hi1(R3), R1
+	MOVW	time_lo(R3), R0
+	MOVW	time_hi2(R3), R2
+	CMP R1, R2
+	BNE	loop
 
-	// wintime = DI:CX, multiply by 100
-	MOVW	$100, AX
-	MULL	CX
-	IMULL	$100, DI
-	ADDL	DI, DX
-	// wintime*100 = DX:AX, subtract startNano and return
-	SUB	    runtime·startNano+0(SB), AX
-	SBBL	runtime·startNano+4(SB), DX
-	MOVW	AX, ret_lo+0(FP)
-	MOVW	DX, ret_hi+4(FP)
+	// wintime = R1:R0, multiply by 100
+	MOVW	$100, R2
+	MULLU	R0, R2, (R4, R3)    // R4:R3 = R1:R0 * R2
+	MULA	R1, R2, R4, R4
+
+	// wintime*100 = R4:R3, subtract startNano and return
+	MOVW    runtime·startNano+0(SB), R0
+	MOVW    runtime·startNano+4(SB), R1
+	SUB.S   R0, R3
+	SBC	R1, R4
+	MOVW	R3, ret_lo+0(FP)
+	MOVW	R4, ret_hi+4(FP)
 	RET
 useQPC:
-*/
-	BL	runtime·nanotimeQPC(SB)
+	B	runtime·nanotimeQPC(SB)
 	RET
 
 TEXT time·now(SB),NOSPLIT,$0-20
