@@ -59,6 +59,7 @@ loadregs:
 	CMP	$0, R0
 	MOVW.GT 0(R12), R0
 
+	BIC	$0x7, R13		// alignment for ABI
 	MOVW	0(R4), R12		// branch to libcall->fn
 	BL	(R12)
 
