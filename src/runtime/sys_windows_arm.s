@@ -476,10 +476,13 @@ TEXT runtime·usleep2(SB),NOSPLIT,$12
 
 // Runs on OS stack.
 TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
-	MOVM.DB.W [R14], (R13)  // push {lr}
+	MOVM.DB.W [R5, R14], (R13)  	// push {R5, lr}
+	MOVW    R13, R5
+	BIC	$0x7, R13		// alignment for ABI
 	MOVW	runtime·_SwitchToThread(SB), R0
 	BL	(R0)
-	MOVM.IA.W (R13), [R15]	// pop {pc}
+	MOVW 	R5, R13			// free extra stack space
+	MOVM.IA.W (R13), [R5, R15]	// pop {R5, pc}
 
 TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	B	runtime·armPublicationBarrier(SB)
@@ -550,13 +553,13 @@ loop:
 	MOVW    runtime·startNano+0(SB), R0
 	MOVW    runtime·startNano+4(SB), R1
 	SUB.S   R0, R3
-	SBC	    R1, R4
+	SBC	R1, R4
 	MOVW	R3, mono+12(FP)
 	MOVW	R4, mono+16(FP)
 
 	MOVW	$_SYSTEM_TIME, R3
 wall:
-	MOVW	time_hi1(R3), R2
+	MOVW	time_hi1(R3), R1
 	MOVW	time_lo(R3), R0
 	MOVW	time_hi2(R3), R2
 	CMP R1, R2
@@ -608,3 +611,4 @@ wall:
 useQPC:
 	B	runtime·nanotimeQPC(SB)
 	RET
+
