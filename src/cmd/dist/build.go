@@ -401,11 +401,12 @@ func isGitRepo() bool {
 	// NB: simply checking the exit code of `git rev-parse --git-dir` would
 	// suffice here, but that requires deviating from the infrastructure
 	// provided by `run`.
-	gitDir := chomp(run(goroot, 0, "git", "rev-parse", "--git-dir"))
-	if !filepath.IsAbs(gitDir) {
-		gitDir = filepath.Join(goroot, gitDir)
-	}
-	return isdir(gitDir)
+	//gitDir := chomp(run(goroot, 0, "git", "rev-parse", "--git-dir"))
+	//if !filepath.IsAbs(gitDir) {
+	//	gitDir = filepath.Join(goroot, gitDir)
+	//}
+	//return isdir(gitDir)
+	return false
 }
 
 /*
