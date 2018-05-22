@@ -431,9 +431,7 @@ switch:
 	MOVW	g, (g_sched+gobuf_g)(g)
 
 	// switch to g0
-	MOVW	R2, R0
-	MOVW	$runtime·setg(SB), R1
-	BL	(R1)
+	MOVW	R2, g
 	MOVW	(g_sched+gobuf_sp)(R2), R3
 	// make it look like mstart called systemstack on g0, to stop traceback
 	SUB	$4, R3, R3
@@ -447,9 +445,7 @@ switch:
 
 	// switch back to g
 	MOVW	g_m(g), R1
-	MOVW	m_curg(R1), R0
-	MOVW	$runtime·setg(SB), R2
-	BL	(R2)
+	MOVW	m_curg(R1), g
 	MOVW	(g_sched+gobuf_sp)(g), R13
 	MOVW	$0, R3
 	MOVW	R3, (g_sched+gobuf_sp)(g)
