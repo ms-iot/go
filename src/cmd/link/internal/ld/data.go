@@ -128,15 +128,6 @@ func relocsym(ctxt *Link, s *sym.Symbol) {
 			continue
 		}
 
-        // Debug debug (link issue)
-        if false {
-            //if r.Sym != nil && strings.HasPrefix(r.Sym.Name, "go.info.") {
-            if r.Sym != nil && r.Sym.Name == "type.uintptr" {
-                fmt.Println("ri, r.Sym.Name, r.Type, r.Sym.Type, r.Sym.Type, r.Sym.Attr.Reachable(), s.Type, r.Sym.Attr, s.Attr, s.File :", 
-                    ri, r.Sym.Name, r.Type, r.Sym.Type, r.Sym.Attr.Reachable(), s.Type, r.Sym.Attr, s.Attr, s.File)
-            }
-        }
-
 		if r.Sym != nil && ((r.Sym.Type == 0 && !r.Sym.Attr.VisibilityHidden()) || r.Sym.Type == sym.SXREF) {
 			// When putting the runtime but not main into a shared library
 			// these symbols are undefined and that's OK.
