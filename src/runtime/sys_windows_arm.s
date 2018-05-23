@@ -99,9 +99,10 @@ TEXT	runtime·badsignal2(SB),NOSPLIT,$24
 	RET
 
 // faster get/set last error
-TEXT runtime·getlasterror(SB),NOSPLIT|NOFRAME,$0
-	MRC	15, 0, R1, C13, C0, 2
-	MOVW	0x34(R1), R0
+TEXT runtime·getlasterror(SB),NOSPLIT,$0
+	MRC	15, 0, R0, C13, C0, 2
+	MOVW	0x34(R0), R0
+	MOVW	R0, ret+0(FP)
 	RET
 
 TEXT runtime·setlasterror(SB),NOSPLIT|NOFRAME,$0
