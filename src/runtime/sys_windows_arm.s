@@ -74,7 +74,7 @@ loadregs:
 
 	MOVM.IA.W (R13), [R4, R5, R15]
 
-TEXT	runtime·badsignal2(SB),NOSPLIT,$24
+TEXT	runtime·badsignal2(SB),NOSPLIT|NOFRAME,$0
 /*
 	// stderr
 	MOVW	$-12, 0(SP)
@@ -94,7 +94,7 @@ TEXT	runtime·badsignal2(SB),NOSPLIT,$24
 	CALL	*runtime·_WriteFile(SB)
 	MOVW	BP, SI
 */
-	MOVW	$1234, R12
+	MOVW	$0x1234, R12
 	MOVW	R12, (R12)
 	RET
 
@@ -113,106 +113,81 @@ TEXT runtime·setlasterror(SB),NOSPLIT|NOFRAME,$0
 // Called by Windows as a Vectored Exception Handler (VEH).
 // First argument is pointer to struct containing
 // exception record and context pointers.
-// Handler function is stored in AX.
+// Handler function is stored in R1
 // Return 0 for 'not handled', -1 for handled.
-TEXT runtime·sigtramp(SB),NOSPLIT,$0-0
-/*
-	MOVW	ptrs+0(FP), CX
-	SUB	    $40, SP
+// int32_t sigtramp(
+//     PEXCEPTION_POINTERS ExceptionInfo,
+//     func *GoExceptionHandler);
+TEXT runtime·sigtramp(SB),NOSPLIT|NOFRAME,$0
+	MOVM.DB.W [R4-R11, R14], (R13)	// push {r4-r11, lr} (SP-=36)
+	SUB	$(8+20), R13		// reserve space for g, sp, and
+					// parameters/retval to go call
 
-	// save callee-saved registers
-	MOVW	BX, 28(SP)
-	MOVW	BP, 16(SP)
-	MOVW	SI, 20(SP)
-	MOVW	DI, 24(SP)
+	MOVW	R0, R6			// Save param0
+	MOVW	R1, R7			// Save param1
 
-	MOVW	AX, SI	// save handler address
-
-	// find g
-	get_tls(DX)
-	CMPL	DX, $0
-	JNE	3(PC)
-	MOVW	$0, AX // continue
-	JMP	done
-	MOVW	g(DX), DX
-	CMPL	DX, $0
-	JNE	2(PC)
-	CALL	runtime·badsignal2(SB)
+	BL      runtime·load_g(SB)
+	CMP	$0, g			// is there a current g?
+	BL.EQ	runtime·badsignal2(SB)
 
 	// save g and SP in case of stack switch
-	MOVW	DX, 32(SP)	// g
-	MOVW	SP, 36(SP)
+	MOVW	R13, 24(R13)
+	MOVW	g, 20(R13)
 
 	// do we need to switch to the g0 stack?
-	MOVW	g_m(DX), BX
-	MOVW	m_g0(BX), BX
-	CMPL	DX, BX
-	JEQ	g0
+	MOVW	g, R5			// R5 = g
+	MOVW	g_m(R5), R2		// R2 = m
+	MOVW	m_g0(R2), R4		// R4 = g0
+	CMP	R5, R4			// if curg == g0
+	BEQ	g0
 
-	// switch to the g0 stack
-	get_tls(BP)
-	MOVW	BX, g(BP)
-	MOVW	(g_sched+gobuf_sp)(BX), DI
+	// switch to g0 stack
+	MOVW	R4, g				// g = g0
+	MOVW	(g_sched+gobuf_sp)(g), R3	// R3 = g->gobuf.sp
+	BL      runtime·save_g(SB)
+
 	// make it look like mstart called us on g0, to stop traceback
-	SUB	    $4, DI
-	MOVW	$runtime·mstart(SB), 0(DI)
-	// traceback will think that we've done SUB
-	// on this stack, so subtract them here to match.
-	// (we need room for sighandler arguments anyway).
-	// and re-save old SP for restoring later.
-	SUB	    $40, DI
-	MOVW	SP, 36(DI)
-	MOVW	DI, SP
+	SUB	$4, R3
+	MOVW    $runtime·mstart(SB), R2
+	MOVW	R2, 0(R3)
+	// traceback will think that we've done PUSHFQ and SUBQ
+        // on this stack, so subtract them here to match.
+        // (we need room for sighandler arguments anyway).
+        // and re-save old SP for restoring later.
+	SUB	$(36+8+20), R3
+	MOVW	R13, 24(R3)		// save old stack pointer
+	MOVW	R3, R13			// switch stack
 
 g0:
-	MOVW	0(CX), BX // ExceptionRecord*
-	MOVW	4(CX), CX // Context*
-	MOVW	BX, 0(SP)
-	MOVW	CX, 4(SP)
-	MOVW	DX, 8(SP)
-	CALL	SI	// call handler
-	// AX is set to report result back to Windows
-	MOVW	12(SP), AX
+	MOVW	0(R6), R2	// R2 = ExceptionPointers->ExceptionRecord
+	MOVW	4(R6), R3	// R3 = ExceptionPointers->ContextRecord
+	MOVW	R2, 4(R13)	// Move arg0 (ExceptionRecord) into position
+	MOVW	R3, 8(R13)	// Move arg1 (ContextRecord) into position
+	MOVW	R5, 12(R13)	// Move arg2 (original g) into position
+	BL	(R7)		// Call the go routine
+	MOVW	16(R13), R4	// Fetch return value from stack
 
 	// switch back to original stack and g
-	// no-op if we never left.
-	MOVW	36(SP), SP
-	MOVW	32(SP), DX
-	get_tls(BP)
-	MOVW	DX, g(BP)
+	MOVW	24(R13), R13
+	MOVW	20(R13), g
+	BL      runtime·save_g(SB)
 
 done:
-	// restore callee-saved registers
-	MOVW	24(SP), DI
-	MOVW	20(SP), SI
-	MOVW	16(SP), BP
-	MOVW	28(SP), BX
+	MOVW	R4, R0
+	ADD	$(8 + 20), R13
+	MOVM.IA.W (R13), [R4-R11, R15]	// pop {r4-r11, pc}
 
-	ADDL	$40, SP
-	// RET 4 (return and pop 4 bytes parameters)
-	BYTE $0xC2; WORD $4
-*/
-	MOVW	$1, R12
-	MOVW	R12, (R12)
-	RET // unreached; make assembler happy
+TEXT runtime·exceptiontramp(SB),NOSPLIT|NOFRAME,$0
+	MOVW	$runtime·exceptionhandler(SB), R1
+	B	runtime·sigtramp(SB)
 
-TEXT runtime·exceptiontramp(SB),NOSPLIT,$0
-//	MOVW	$runtime·exceptionhandler(SB), AX
-	MOVW	$2, R12
-	MOVW	R12, (R12)
-	JMP	runtime·sigtramp(SB)
+TEXT runtime·firstcontinuetramp(SB),NOSPLIT|NOFRAME,$0
+	MOVW	$runtime·firstcontinuehandler(SB), R1
+	B	runtime·sigtramp(SB)
 
-TEXT runtime·firstcontinuetramp(SB),NOSPLIT,$0-0
-	MOVW	$3, R12
-	MOVW	R12, (R12)
-	// is never called
-//	INT	$3
-
-TEXT runtime·lastcontinuetramp(SB),NOSPLIT,$0-0
-	MOVW	$4, R12
-	MOVW	R12, (R12)
-//	MOVW	$runtime·lastcontinuehandler(SB), AX
-	JMP	runtime·sigtramp(SB)
+TEXT runtime·lastcontinuetramp(SB),NOSPLIT|NOFRAME,$0
+	MOVW	$runtime·lastcontinuehandler(SB), R1
+	B	runtime·sigtramp(SB)
 
 TEXT runtime·ctrlhandler(SB),NOSPLIT,$0
 /*
@@ -380,6 +355,7 @@ TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
 	MOVM.DB.W [R14], (R13)		// push {lr}
 
 	MOVW	m_g0(R0), g
+	MOVW	R0, g_m(g)
 
 	// Layout new m scheduler stack on os stack.
 	MOVW	R13, R0
@@ -389,6 +365,10 @@ TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
 	MOVW	R0, g_stackguard0(g)
 	MOVW	R0, g_stackguard1(g)
 
+	// Set up tls
+	BL      runtime·save_g(SB)
+
+	BL	runtime·emptyfunc(SB)	// fault if stack check is wrong
 	BL	runtime·mstart(SB)
 
 	// Exit the thread.
@@ -491,7 +471,7 @@ TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 
 // never called (cgo not supported)
 TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
-	MOVW	$0, R0
+	MOVW	$0xabcd, R0
 	MOVW	R0, (R0)
 	RET
 
