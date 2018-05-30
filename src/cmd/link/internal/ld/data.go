@@ -523,24 +523,24 @@ func windynrelocsym(ctxt *Link, s *sym.Symbol) {
 			r.Add = int64(targ.Plt)
 
 			// jmp *addr
-            switch ctxt.Arch.Family {
-            default:
-                Errorf(s, "unsupported arch %v", ctxt.Arch.Family)
-                return
-            case sys.I386:
+			switch ctxt.Arch.Family {
+			default:
+				Errorf(s, "unsupported arch %v", ctxt.Arch.Family)
+				return
+			case sys.I386:
 				rel.AddUint8(0xff)
 				rel.AddUint8(0x25)
 				rel.AddAddr(ctxt.Arch, targ)
 				rel.AddUint8(0x90)
 				rel.AddUint8(0x90)
-            case sys.AMD64:
+			case sys.AMD64:
 				rel.AddUint8(0xff)
 				rel.AddUint8(0x24)
 				rel.AddUint8(0x25)
 				rel.AddAddrPlus4(targ, 0)
 				rel.AddUint8(0x90)
-            // TODO(iot) add case sys.ARM:
-            }
+			// TODO(iot) add case sys.ARM:
+			}
 		} else if r.Sym.Plt >= 0 {
 			r.Sym = rel
 			r.Add = int64(targ.Plt)
