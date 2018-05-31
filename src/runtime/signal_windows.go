@@ -27,7 +27,7 @@ func lastcontinuetramp()
 
 func initExceptionHandler() {
 	stdcall2(_AddVectoredExceptionHandler, 1, funcPC(exceptiontramp))
-	if _AddVectoredContinueHandler == nil || unsafe.Sizeof(&_AddVectoredContinueHandler) == 4 {
+	if  _AddVectoredContinueHandler == nil || GOARCH == "386" {
 		// use SetUnhandledExceptionFilter for windows-386 or
 		// if VectoredContinueHandler is unavailable.
 		// note: SetUnhandledExceptionFilter handler won't be called, if debugging.

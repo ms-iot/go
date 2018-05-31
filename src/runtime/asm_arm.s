@@ -752,6 +752,9 @@ TEXT setg<>(SB),NOSPLIT|NOFRAME,$0-0
 	MOVW	R0, g
 
 	// Save g to thread-local storage.
+#ifdef GOOS_windows
+	B	runtime·save_g(SB)
+#else
 	MOVB	runtime·iscgo(SB), R0
 	CMP	$0, R0
 	B.EQ	2(PC)
@@ -759,6 +762,7 @@ TEXT setg<>(SB),NOSPLIT|NOFRAME,$0-0
 
 	MOVW	g, R0
 	RET
+#endif
 
 TEXT runtime·getcallerpc(SB),NOSPLIT|NOFRAME,$0-4
 	MOVW	0(R13), R0		// LR saved by caller
