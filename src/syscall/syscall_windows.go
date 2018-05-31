@@ -12,6 +12,7 @@ import (
 	"sync"
 	"unicode/utf16"
 	"unsafe"
+	"runtime"
 )
 
 type Handle uintptr
@@ -342,10 +343,12 @@ func setFilePointerEx(handle Handle, distToMove int64, newFilePointer *int64, wh
 	var e1 Errno
 	if ptrSize == 8 {
 		_, _, e1 = Syscall6(procSetFilePointerEx.Addr(), 4, uintptr(handle), uintptr(distToMove), uintptr(unsafe.Pointer(newFilePointer)), uintptr(whence), 0, 0)
-	} else {
+	} else if runtime.GOARCH == "arm" {
 		// distToMove is a LARGE_INTEGER:
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa383713(v=vs.85).aspx
 		_, _, e1 = Syscall6(procSetFilePointerEx.Addr(), 6, uintptr(handle), 0, uintptr(distToMove), uintptr(distToMove>>32), uintptr(unsafe.Pointer(newFilePointer)), uintptr(whence))
+	} else {
+		 _, _, e1 = Syscall6(procSetFilePointerEx.Addr(), 5, uintptr(handle), uintptr(distToMove), uintptr(distToMove>>32), uintptr(unsafe.Pointer(newFilePointer)), uintptr(whence), 0)
 	}
 	if e1 != 0 {
 		return errnoErr(e1)
