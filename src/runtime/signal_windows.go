@@ -145,9 +145,12 @@ func lastcontinuehandler(info *exceptionrecord, r *context, gp *g) int32 {
 	}
 	print("\n")
 
+	_g_.m.throwing = 1
+	_g_.m.caughtsig.set(gp)
+
 	level, _, docrash := gotraceback()
 	if level > 0 {
-		tracebacktrap(r.ip(), r.sp(), 0, gp)
+		tracebacktrap(r.ip(), r.sp(), r.lr(), gp)
 		tracebackothers(gp)
 		dumpregs(r)
 	}

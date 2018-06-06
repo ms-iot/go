@@ -84,7 +84,7 @@ type context struct {
 	r12               uint32
 
 	spr               uint32
-	lr                uint32
+	r14               uint32
 	pc                uint32
 	cpsr              uint32
 
@@ -129,6 +129,7 @@ func (c *context) s(i uint32) uint32 {
 
 func (c *context) ip() uintptr { return uintptr(c.pc) }
 func (c *context) sp() uintptr { return uintptr(c.spr) }
+func (c *context) lr() uintptr { return uintptr(c.r14) }
 
 func (c *context) setip(x uintptr) { c.pc = uint32(x) }
 func (c *context) setsp(x uintptr) { c.spr = uint32(x) }
@@ -148,7 +149,7 @@ func dumpregs(r *context) {
 	print("r11  ", hex(r.r11),  "\n")
 	print("r12  ", hex(r.r12),  "\n")
 	print("sp   ", hex(r.spr),  "\n")
-	print("lr   ", hex(r.lr),   "\n")
+	print("lr   ", hex(r.r14),   "\n")
 	print("pc   ", hex(r.pc),   "\n")
 	print("cpsr ", hex(r.cpsr), "\n")
 }

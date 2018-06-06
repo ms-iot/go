@@ -146,10 +146,6 @@ TEXT runtime·sigtramp(SB),NOSPLIT|NOFRAME,$0
 	MOVW	(g_sched+gobuf_sp)(g), R3	// R3 = g->gobuf.sp
 	BL      runtime·save_g(SB)
 
-	// make it look like mstart called us on g0, to stop traceback
-	SUB	$4, R3
-	MOVW    $runtime·mstart(SB), R2
-	MOVW	R2, 0(R3)
 	// traceback will think that we've done PUSHFQ and SUBQ
         // on this stack, so subtract them here to match.
         // (we need room for sighandler arguments anyway).
@@ -161,6 +157,11 @@ TEXT runtime·sigtramp(SB),NOSPLIT|NOFRAME,$0
 g0:
 	MOVW	0(R6), R2	// R2 = ExceptionPointers->ExceptionRecord
 	MOVW	4(R6), R3	// R3 = ExceptionPointers->ContextRecord
+
+	// make it look like mstart called us on g0, to stop traceback
+	MOVW    $runtime·mstart(SB), R4
+
+	MOVW	R4, 0(R13)	// Save link register for traceback
 	MOVW	R2, 4(R13)	// Move arg0 (ExceptionRecord) into position
 	MOVW	R3, 8(R13)	// Move arg1 (ContextRecord) into position
 	MOVW	R5, 12(R13)	// Move arg2 (original g) into position
