@@ -103,6 +103,7 @@ type context struct {
 
 func (c *context) ip() uintptr { return uintptr(c.eip) }
 func (c *context) sp() uintptr { return uintptr(c.esp) }
+func (c *context) lr() uintptr { return 0 }
 
 func (c *context) setip(x uintptr) { c.eip = uint32(x) }
 func (c *context) setsp(x uintptr) { c.esp = uint32(x) }
