@@ -5,8 +5,6 @@
 #include "go_tls.h"
 #include "textflag.h"
 
-// Stub stub stub
-
 // void runtime·asmstdcall(void *c);
 TEXT runtime·asmstdcall(SB),NOSPLIT|NOFRAME,$0
 	MOVM.DB.W [R4, R5, R14], (R13)	// push {r4, r5, lr}
@@ -119,7 +117,7 @@ TEXT runtime·setlasterror(SB),NOSPLIT|NOFRAME,$0
 //     PEXCEPTION_POINTERS ExceptionInfo,
 //     func *GoExceptionHandler);
 TEXT runtime·sigtramp(SB),NOSPLIT|NOFRAME,$0
-	MOVM.DB.W [R4-R11, R14], (R13)	// push {r4-r11, lr} (SP-=36)
+	MOVM.DB.W [R0, R4-R11, R14], (R13)	// push {r0, r4-r11, lr} (SP-=40)
 	SUB	$(8+20), R13		// reserve space for g, sp, and
 					// parameters/retval to go call
 
@@ -146,26 +144,29 @@ TEXT runtime·sigtramp(SB),NOSPLIT|NOFRAME,$0
 	MOVW	(g_sched+gobuf_sp)(g), R3	// R3 = g->gobuf.sp
 	BL      runtime·save_g(SB)
 
-	// make it look like mstart called us on g0, to stop traceback
-	SUB	$4, R3
-	MOVW    $runtime·mstart(SB), R2
-	MOVW	R2, 0(R3)
 	// traceback will think that we've done PUSHFQ and SUBQ
         // on this stack, so subtract them here to match.
         // (we need room for sighandler arguments anyway).
         // and re-save old SP for restoring later.
-	SUB	$(36+8+20), R3
+	SUB	$(40+8+20), R3
 	MOVW	R13, 24(R3)		// save old stack pointer
 	MOVW	R3, R13			// switch stack
 
 g0:
 	MOVW	0(R6), R2	// R2 = ExceptionPointers->ExceptionRecord
 	MOVW	4(R6), R3	// R3 = ExceptionPointers->ContextRecord
+
+	// make it look like mstart called us on g0, to stop traceback
+	MOVW    $runtime·mstart(SB), R4
+
+	MOVW	R4, 0(R13)	// Save link register for traceback
 	MOVW	R2, 4(R13)	// Move arg0 (ExceptionRecord) into position
 	MOVW	R3, 8(R13)	// Move arg1 (ContextRecord) into position
 	MOVW	R5, 12(R13)	// Move arg2 (original g) into position
 	BL	(R7)		// Call the go routine
 	MOVW	16(R13), R4	// Fetch return value from stack
+
+	ADD	$(40+20), R13, R12 	// save current g0 stack pointer and reserve 8 bytes
 
 	// switch back to original stack and g
 	MOVW	24(R13), R13
@@ -175,7 +176,39 @@ g0:
 done:
 	MOVW	R4, R0
 	ADD	$(8 + 20), R13
-	MOVM.IA.W (R13), [R4-R11, R15]	// pop {r4-r11, pc}
+	MOVM.IA.W (R13), [R3, R4-R11, R14]	// pop {r3, r4-r11, lr}
+
+	// if return value is CONTINUE_SEARCH, do not trampoline
+	CMP	$0, R0
+	BEQ	return
+
+	// Check if we need to trampoline
+	MOVW	4(R3), R3			// PEXCEPTION_POINTERS->Context
+	MOVW	0x40(R3), R2			// load PC from context record
+	MOVW	$runtime·returntramp(SB), R1
+	CMP	R1, R2
+	B.EQ	return				// do not clobber saved SP/PC if already armed
+
+	// Save return SP and PC onto g0 stack
+	MOVW	0x38(R3), R2			// load SP from context record
+	MOVW	R2, 0(R12)			// Store resume SP on g0 stack
+	MOVW	0x40(R3), R2			// load PC from context record
+	MOVW	R2, 4(R12)			// Store resume PC on g0 stack
+
+	// Set up context record to return to returntramp on g0 stack
+	MOVW	R12, 0x38(R3)			// save g0 stack pointer in context record
+	MOVW	$runtime·returntramp(SB), R2
+	MOVW	R2, 0x40(R3)			// set continuation address in context record
+
+return:
+	B	(R14)				// return
+
+//
+// Function to resume execution from exception handler.
+// It switches stacks and jumps to the continuation address
+//
+TEXT runtime·returntramp(SB),NOSPLIT|NOFRAME,$0
+	MOVM.IA	(R13), [R13, R15]		// ldm sp, [sp, pc]
 
 TEXT runtime·exceptiontramp(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$runtime·exceptionhandler(SB), R1
