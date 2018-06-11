@@ -29,11 +29,23 @@ func genasm() {
 // appropriately so different callbacks start with different
 // CALL instruction in runtime·callbackasm. This determines
 // which Go callback function is executed later on.
+#include "textflag.h"
+#ifdef GOARCH_arm
+TEXT runtime·callbackasm(SB),NOSPLIT|NOFRAME,$0
+`)
+	for i := 0; i < maxCallback; i++ {
+		buf.WriteString(fmt.Sprintf("\tMOVW\t$%d, R12\n", i))
+		buf.WriteString("\tB\truntime·callbackasm1(SB)\n")
+	}
+
+	buf.WriteString(`
+#else
 TEXT runtime·callbackasm(SB),7,$0
 `)
 	for i := 0; i < maxCallback; i++ {
 		buf.WriteString("\tCALL\truntime·callbackasm1(SB)\n")
 	}
+	buf.WriteString("#endif\n")
 
 	err := ioutil.WriteFile("zcallback_windows.s", buf.Bytes(), 0666)
 	if err != nil {
