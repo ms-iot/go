@@ -305,83 +305,45 @@ TEXT runtime·externalthreadhandler(SB),NOSPLIT,$0
 
 GLOBL runtime·cbctxts(SB), NOPTR, $4
 
-TEXT runtime·callbackasm1+0(SB),NOSPLIT,$0
-/*
-  	MOVW	0(SP), AX	// will use to find our callback context
+TEXT runtime·callbackasm1(SB),NOSPLIT|NOFRAME,$0
+	MOVM.DB.W [R4-R11, R14], (R13)	// push {r4-r11, lr}
+	SUB	$36, R13		// space for locals
 
-	// remove return address from stack, we are not returning there
-	ADDL	$4, SP
+	// save callback arguments to stack. We currently support up to 4 arguments
+	ADD	$16, R13, R4
+	MOVM.IA	[R0-R3], (R4)
 
-	// address to callback parameters into CX
-	LEAL	4(SP), CX
-
-	// save registers as required for windows callback
-	PUSHL	DI
-	PUSHL	SI
-	PUSHL	BP
-	PUSHL	BX
-
-	// determine index into runtime·cbctxts table
-	SUB	    $runtime·callbackasm(SB), AX
-	MOVW	$0, DX
-	MOVW	$5, BX	// divide by 5 because each call instruction in runtime·callbacks is 5 bytes long
-	DIVL	BX
-
-	// find correspondent runtime·cbctxts table entry
-	MOVW	runtime·cbctxts(SB), BX
-	MOVW	-4(BX)(AX*4), BX
+	// load cbctxts[i]. The trampoline in zcallback_windows.s puts the callback
+	// index in R12
+	MOVW	runtime·cbctxts(SB), R4
+	MOVW	R12<<2(R4), R4		// R4 holds pointer to wincallbackcontext structure
 
 	// extract callback context
-	MOVW	wincallbackcontext_gobody(BX), AX
-	MOVW	wincallbackcontext_argsize(BX), DX
+	MOVW	wincallbackcontext_argsize(R4), R5
+	MOVW	wincallbackcontext_gobody(R4), R4
 
-	// preserve whatever's at the memory location that
-	// the callback will use to store the return value
-	PUSHL	0(CX)(DX*1)
+	// we currently support up to 4 arguments
+	CMP	$(4 * 4), R5
+	BL.GT	runtime·badsignal2(SB)
 
 	// extend argsize by size of return value
-	ADDL	$4, DX
+	ADD	$4, R5
 
-	// remember how to restore stack on return
-	MOVW	wincallbackcontext_restorestack(BX), BX
-	PUSHL	BX
+	// Build 'type args struct'
+	MOVW	R4, 4(R13)		// fn
+	ADD	$16, R13, R0		// arg (points to r0-r3, ret on stack)
+	MOVW	R0, 8(R13)
+	MOVW	R5, 12(R13)		// argsize
 
-	// call target Go function
-	PUSHL	DX			// argsize (including return value)
-	PUSHL	CX			// callback parameters
-	PUSHL	AX			// address of target Go function
-	//CLD
-	CALL	runtime·cgocallback_gofunc(SB)
-	POPL	AX
-	POPL	CX
-	POPL	DX
+	BL	runtime·cgocallback_gofunc(SB)
 
-	// how to restore stack on return
-	POPL	BX
-
-	// return value into AX (as per Windows spec)
-	// and restore previously preserved value
-	MOVW	-4(CX)(DX*1), AX
-	POPL	-4(CX)(DX*1)
-
-	MOVW	BX, CX			// cannot use BX anymore
-
-	// restore registers as required for windows callback
-	POPL	BX
-	POPL	BP
-	POPL	SI
-	POPL	DI
-
-	// remove callback parameters before return (as per Windows spec)
-	POPL	DX
-	ADDL	CX, SP
-	PUSHL	DX
-
-	//CLD
-*/
-	MOVW	$8, R12
-	MOVW	R12, (R12)
-	RET
+	ADD	$16, R13, R0		// load arg
+	MOVW	12(R13), R1		// load argsize
+	SUB	$4, R1			// offset to return value
+	MOVW	R1<<0(R0), R0		// load return value
+	
+	ADD	$36, R13		// free locals
+	MOVM.IA.W (R13), [R4-R11, R15]	// pop {r4-r11, pc}
 
 // uint32 tstart_stdcall(M *newm);
 TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0

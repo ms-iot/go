@@ -36,7 +36,12 @@ var (
 // correspondent call instruction instead of start of
 // runtime.callbackasm.
 func callbackasmAddr(i int) uintptr {
-	return uintptr(add(unsafe.Pointer(&callbackasm), uintptr(i*5)))
+	sizeof_entry := 5
+	if GOARCH == "arm" {
+		// On ARM, each entry is a MOV instruction followed by a branch instruction
+		sizeof_entry = 8
+	}
+	return uintptr(add(unsafe.Pointer(&callbackasm), uintptr(i*sizeof_entry)))
 }
 
 //go:linkname compileCallback syscall.compileCallback
