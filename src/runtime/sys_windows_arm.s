@@ -376,6 +376,12 @@ TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
 TEXT runtime·onosstack(SB),NOSPLIT,$0
 	MOVW	fn+0(FP), R5	// R5 = fn
 	MOVW	arg+4(FP), R6	// R6 = arg
+	
+	// This function can be called when there is no g
+    // This indicates that we're already on the g0 stack
+    CMP             $0, g
+    BEQ             noswitch
+	
 	MOVW	g_m(g), R1	// R1 = m
 
 	MOVW	m_gsignal(R1), R2	// R2 = gsignal
