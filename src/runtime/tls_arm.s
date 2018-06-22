@@ -38,7 +38,7 @@ TEXT runtime·save_g(SB),NOSPLIT|NOFRAME,$0
 #else
 #ifdef GOOS_windows
 	MRC	15, 0, R0, C13, C0, 2
-	MOVW	g, 0xe10(R0)
+	MOVW	g, 0xf08(R0)	// 0xe10 + (62 * 4)  XXX need to TlsAlloc
 	MOVW	g, R0	// preserve R0 accross call to setg<>
 	RET
 #else
@@ -65,7 +65,7 @@ TEXT runtime·load_g(SB),NOSPLIT,$0
 #else
 #ifdef GOOS_windows
 	MRC	15, 0, R0, C13, C0, 2
-	MOVW	0xe10(R0), g
+	MOVW	0xf08(R0), g	// XXX need to TlsAlloc
 	RET
 #else
 	// See save_g
