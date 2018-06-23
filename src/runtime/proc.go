@@ -1247,7 +1247,7 @@ func mstart1(dummy int32) {
 //go:yeswritebarrierrec
 func mstartm0() {
 	// Create an extra M for callbacks on threads not created by Go.
-	if iscgo && !cgoHasExtraM {
+	if (iscgo || GOOS == "windows") && !cgoHasExtraM {
 		cgoHasExtraM = true
 		newextram()
 	}
