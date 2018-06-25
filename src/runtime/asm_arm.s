@@ -677,7 +677,7 @@ TEXT	·cgocallback_gofunc(SB),NOSPLIT,$8-16
 	// Load m and g from thread-local storage.
 	MOVB	runtime·iscgo(SB), R0
 	CMP	$0, R0
-	BL	runtime·load_g(SB) // XXX
+	BL.NE	runtime·load_g(SB)
 
 	// If g is nil, Go did not create the current thread.
 	// Call needm to obtain one for temporary use.
