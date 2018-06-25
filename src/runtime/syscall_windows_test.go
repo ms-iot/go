@@ -251,7 +251,28 @@ func TestBlockingCallback(t *testing.T) {
 }
 
 func TestCallbackInAnotherThread(t *testing.T) {
-	// TODO: test a function which calls back in another thread: QueueUserAPC() or CreateThread()
+	d := GetDLL(t, "kernel32.dll")
+	ch := make(chan int)
+	cbfunc := func(instance uintptr, context uintptr,
+			 work uintptr) uintptr {
+
+		t.Log("Hello from callback")
+		if context != 0x12345678 {
+			t.Error("Incorrect context. Expected = 0x12345678, ",
+				"Actual = ", context)
+		}
+		ch <- 0
+		return 0
+	}
+
+	createThreadpoolWork := d.Proc("CreateThreadpoolWork")
+	submitThreadpoolWork := d.Proc("SubmitThreadpoolWork")
+	cb := syscall.NewCallback(cbfunc)
+	work, _, _ := createThreadpoolWork.Call(cb, uintptr(0x12345678), 0)
+	t.Log("Waiting for callback")
+	submitThreadpoolWork.Call(work)
+	<-ch
+	t.Log("Callback received")
 }
 
 type cbDLLFunc int // int determines number of callback parameters

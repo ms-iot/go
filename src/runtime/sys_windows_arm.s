@@ -335,6 +335,7 @@ TEXT runtime·callbackasm1(SB),NOSPLIT|NOFRAME,$0
 	MOVW	R0, 8(R13)
 	MOVW	R5, 12(R13)		// argsize
 
+	BL	runtime·load_g(SB)
 	BL	runtime·cgocallback_gofunc(SB)
 
 	ADD	$16, R13, R0		// load arg
@@ -378,9 +379,9 @@ TEXT runtime·onosstack(SB),NOSPLIT,$0
 	MOVW	arg+4(FP), R6	// R6 = arg
 	
 	// This function can be called when there is no g
-    // This indicates that we're already on the g0 stack
-    CMP             $0, g
-    BEQ             noswitch
+	// This indicates that we're already on the g0 stack
+	CMP	$0, g
+	BEQ	noswitch
 	
 	MOVW	g_m(g), R1	// R1 = m
 
