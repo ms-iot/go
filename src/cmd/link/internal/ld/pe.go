@@ -774,7 +774,7 @@ func (f *peFile) writeFileHeader(arch *sys.Arch, out *OutBuf, linkmode LinkMode)
 
 	switch arch.Family {
 	default:
-		Exitf("write COFF: unknown PE architecture: %v", arch.Family)
+		Exitf("unknown PE architecture: %v", arch.Family)
 	case sys.AMD64:
 		fh.Machine = IMAGE_FILE_MACHINE_AMD64
 	case sys.I386:

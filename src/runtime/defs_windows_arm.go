@@ -1,6 +1,6 @@
-// created by cgo -godefs and then converted to Go
-// cgo -godefs defs_windows.go
-// this file was manually crafted
+// Copyright 2018 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
 
 package runtime
 

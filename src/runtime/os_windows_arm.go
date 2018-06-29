@@ -1,9 +1,8 @@
+// Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package runtime
-
-// Stub stub
 
 const (
 	_AT_PLATFORM = 15 //  introduced in at least 2.6.11
