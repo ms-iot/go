@@ -14,7 +14,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"os"
 )
 
 type IMAGE_IMPORT_DESCRIPTOR struct {
@@ -1376,14 +1375,13 @@ func (rt *BaseRelocTable) write(ctxt *Link) {
 		return rt.pages[i] < rt.pages[j]
 	})
 
-	bn := 1
 	for _, p := range rt.pages {
 		b := rt.blocks[p]
 		blockSize := uint32(binary.Size(&PEbaseRelocBlock{}) + len(b.entries) * 2)
 		out.Write32(p)
 		out.Write32(blockSize)
 
-		for ei, e := range b.entries {
+		for _, e := range b.entries {
 			out.Write16(e.typeOff)
 		}
     }
