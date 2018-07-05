@@ -97,7 +97,6 @@ TEXT	runtime·badsignal2(SB),NOSPLIT|NOFRAME,$0
 	MOVW	R12, (R12)
 	RET
 
-// faster get/set last error
 TEXT runtime·getlasterror(SB),NOSPLIT,$0
 	MRC	15, 0, R0, C13, C0, 2
 	MOVW	0x34(R0), R0
@@ -145,10 +144,10 @@ TEXT runtime·sigtramp(SB),NOSPLIT|NOFRAME,$0
 	MOVW	(g_sched+gobuf_sp)(g), R3	// R3 = g->gobuf.sp
 	BL      runtime·save_g(SB)
 
-	// traceback will think that we've done PUSHFQ and SUBQ
-        // on this stack, so subtract them here to match.
-        // (we need room for sighandler arguments anyway).
-        // and re-save old SP for restoring later.
+	// traceback will think that we've done PUSH and SUB
+	// on this stack, so subtract them here to match.
+	// (we need room for sighandler arguments anyway).
+	// and re-save old SP for restoring later.
 	SUB	$(40+8+20), R3
 	MOVW	R13, 24(R3)		// save old stack pointer
 	MOVW	R3, R13			// switch stack
@@ -167,7 +166,11 @@ g0:
 	BL	(R7)		// Call the go routine
 	MOVW	16(R13), R4	// Fetch return value from stack
 
-	ADD	$(40+20), R13, R12 	// save current g0 stack pointer and reserve 8 bytes
+	// Compute the value of the g0 stack pointer after deallocating
+	// this frame, then allocating 8 bytes. We may need to store
+	// the resume SP and PC on the g0 stack to work around
+	// control flow guard when we resume from the exception.
+	ADD	$(40+20), R13, R12
 
 	// switch back to original stack and g
 	MOVW	24(R13), R13
@@ -175,38 +178,49 @@ g0:
 	BL      runtime·save_g(SB)
 
 done:
-	MOVW	R4, R0
-	ADD	$(8 + 20), R13
+	MOVW	R4, R0				// move retval into position
+	ADD	$(8 + 20), R13			// free locals
 	MOVM.IA.W (R13), [R3, R4-R11, R14]	// pop {r3, r4-r11, lr}
 
-	// if return value is CONTINUE_SEARCH, do not trampoline
+	// if return value is CONTINUE_SEARCH, do not set up control
+	// flow guard workaround
 	CMP	$0, R0
 	BEQ	return
 
-	// Check if we need to trampoline
+	// Check if we need to set up the control flow guard workaround.
+	// On Windows/ARM, the stack pointer must lie within system
+	// stack limits when we resume from exception.
+	// Store the resume SP and PC on the g0 stack,
+	// and return to returntramp on the g0 stack. returntramp
+	// pops the saved PC and SP from the g0 stack, resuming execution
+	// at the desired location.
+	// If returntramp has already been set up by a previous exception
+	// handler, don't clobber the stored SP and PC on the stack.
 	MOVW	4(R3), R3			// PEXCEPTION_POINTERS->Context
 	MOVW	0x40(R3), R2			// load PC from context record
 	MOVW	$runtime·returntramp(SB), R1
 	CMP	R1, R2
-	B.EQ	return				// do not clobber saved SP/PC if already armed
+	B.EQ	return				// do not clobber saved SP/PC
 
-	// Save return SP and PC onto g0 stack
+	// Save resume SP and PC on g0 stack
 	MOVW	0x38(R3), R2			// load SP from context record
 	MOVW	R2, 0(R12)			// Store resume SP on g0 stack
 	MOVW	0x40(R3), R2			// load PC from context record
 	MOVW	R2, 4(R12)			// Store resume PC on g0 stack
 
 	// Set up context record to return to returntramp on g0 stack
-	MOVW	R12, 0x38(R3)			// save g0 stack pointer in context record
-	MOVW	$runtime·returntramp(SB), R2
-	MOVW	R2, 0x40(R3)			// set continuation address in context record
+	MOVW	R12, 0x38(R3)			// save g0 stack pointer
+						// in context record
+	MOVW	$runtime·returntramp(SB), R2	// save resume address
+	MOVW	R2, 0x40(R3)			// in context record
 
 return:
 	B	(R14)				// return
 
 //
-// Function to resume execution from exception handler.
-// It switches stacks and jumps to the continuation address
+// Trampoline to resume execution from exception handler.
+// This is part of the control flow guard workaround.
+// It switches stacks and jumps to the continuation address.
 //
 TEXT runtime·returntramp(SB),NOSPLIT|NOFRAME,$0
 	MOVM.IA	(R13), [R13, R15]		// ldm sp, [sp, pc]
@@ -353,6 +367,7 @@ TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
 
 	MOVW	m_g0(R0), g
 	MOVW	R0, g_m(g)
+	BL	runtime·save_g(SB)
 
 	// Layout new m scheduler stack on os stack.
 	MOVW	R13, R0
@@ -361,9 +376,6 @@ TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
 	MOVW	R0, (g_stack+stack_lo)(g)
 	MOVW	R0, g_stackguard0(g)
 	MOVW	R0, g_stackguard1(g)
-
-	// Set up tls
-	BL      runtime·save_g(SB)
 
 	BL	runtime·emptyfunc(SB)	// fault if stack check is wrong
 	BL	runtime·mstart(SB)
@@ -379,8 +391,9 @@ TEXT runtime·onosstack(SB),NOSPLIT,$0
 	MOVW	fn+0(FP), R5	// R5 = fn
 	MOVW	arg+4(FP), R6	// R6 = arg
 	
-	// This function can be called when there is no g
-	// This indicates that we're already on the g0 stack
+	// This function can be called when there is no g,
+	// for example, when we are handling a callback on a non-go thread.
+	// In this case we're already on the system stack.
 	CMP	$0, g
 	BEQ	noswitch
 	
@@ -461,13 +474,13 @@ TEXT runtime·usleep2(SB),NOSPLIT|NOFRAME,$0
 
 // Runs on OS stack.
 TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
-	MOVM.DB.W [R5, R14], (R13)  	// push {R5, lr}
-	MOVW    R13, R5
+	MOVM.DB.W [R4, R14], (R13)  	// push {R4, lr}
+	MOVW    R13, R4
 	BIC	$0x7, R13		// alignment for ABI
 	MOVW	runtime·_SwitchToThread(SB), R0
 	BL	(R0)
-	MOVW 	R5, R13			// free extra stack space
-	MOVM.IA.W (R13), [R5, R15]	// pop {R5, pc}
+	MOVW 	R4, R13			// free extra stack space
+	MOVM.IA.W (R13), [R4, R15]	// pop {R4, pc}
 
 TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	B	runtime·armPublicationBarrier(SB)
@@ -487,8 +500,8 @@ TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
 #define time_hi2 8
 
 TEXT runtime·nanotime(SB),NOSPLIT,$0-8
-	MOVW    $0, R0
-	MOVB    runtime·useQPCTime(SB), R0
+	MOVW	$0, R0
+	MOVB	runtime·useQPCTime(SB), R0
 	CMP	$0, R0
 	BNE	useQPC
 	MOVW	$_INTERRUPT_TIME, R3
@@ -561,7 +574,7 @@ wall:
 	MULLU   R0, R2, (R4, R3)    // R4:R3 = R1:R0 * R2
 	MULA    R1, R2, R4, R4
 	// w = R2:R1 in nSec
-	MOVW    R3, R1              // R4:R3 -> R2:R1
+	MOVW    R3, R1	      // R4:R3 -> R2:R1
 	MOVW    R4, R2
 
 	// multiply nanoseconds by reciprocal of 10**9 (scaled by 2**61)
