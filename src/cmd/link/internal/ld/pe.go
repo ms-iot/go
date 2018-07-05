@@ -297,15 +297,6 @@ var (
 	nexport     int
 )
 
-func pedebugflag(mask uint32) bool {
-	if pedbg, ok := os.LookupEnv("pedbg"); ok {
-		if pedbgmsk, err := strconv.Atoi(pedbg); err == nil {
-			return (uint32(pedbgmsk) & mask) != 0
-		}
-	}
-	return false
-}
-
 // peStringTable is a COFF string table.
 type peStringTable struct {
 	strings    []string
@@ -1322,12 +1313,10 @@ func addexports(ctxt *Link) {
 	sect.pad(out, uint32(size))
 }
 
-var relocdbg bool = false
-
 // Not used, just for size info
 type PEbaseRelocBlock struct {
 	pageRVA		uint32
-	blockSize	uint32 
+	blockSize	uint32
 }
 
 type BaseRelocEntry struct {
@@ -1369,7 +1358,7 @@ func (rt *BaseRelocTable) addentry(ctxt *Link, s *sym.Symbol, r *sym.Reloc) {
 	// Set entry type
 	switch r.Siz {
 	default:
-		Exitf("BaseRelocTable.addentry: unsupported relocation size %d\n", r.Siz)
+		Exitf("unsupported relocation size %d\n", r.Siz)
 	case 4:
 		e.typeOff |= uint16(IMAGE_REL_BASED_HIGHLOW << 12)
 		break
@@ -1394,25 +1383,10 @@ func (rt *BaseRelocTable) write(ctxt *Link) {
 		out.Write32(p)
 		out.Write32(blockSize)
 
-		if relocdbg {
-			fmt.Printf("BaseRelocTable.block: %d>> PageRVA %#x, size %d(%#x), entries %d\n", 
-					bn, p, blockSize, blockSize, len(b.entries))
-			bn++
-		}
-
 		for ei, e := range b.entries {
 			out.Write16(e.typeOff)
-
-			if relocdbg {
-				r := e.rel
-				s := e.sym
-				off := uint32(e.typeOff & 0xFFF)
-				addr := uint32(p) | off
-				fmt.Printf("BaseRelocTable.entry: %d) %s %#x (%#x+%#x) RVA %#x (page %#x, offset %#x), entry %#x\n", 
-						ei+1, s.Name, s.Value+int64(r.Off), s.Value, r.Off, addr, p, off, e.typeOff)
-			}
-		} // entries
-    } // blocks
+		}
+    }
 }
 
 func addpebaserelocsym(ctxt *Link, s *sym.Symbol, rt *BaseRelocTable) {
@@ -1455,9 +1429,6 @@ func addpebasereloc(ctxt *Link) {
 		break
 	}
 
-	// Runtime debug filter
-	relocdbg = pedebugflag(PE_DBG_BASERELOC)
-
 	var rt BaseRelocTable
 	rt.init(ctxt)
 
@@ -1482,11 +1453,6 @@ func addpebasereloc(ctxt *Link) {
 
 	pefile.dataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress = rsect.virtualAddress
 	pefile.dataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size = rsect.virtualSize
-
-	if relocdbg {
-		fmt.Printf("addpebasereloc: base relocation table raw data %#x, VA %#x, size %d(%#x), blocks %d(%#x) \n", 
-				rsect.pointerToRawData, rsect.virtualAddress, rsect.virtualSize, rsect.virtualSize, len(rt.blocks), len(rt.blocks))
-	}
 }
 
 func (ctxt *Link) dope() {
