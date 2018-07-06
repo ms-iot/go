@@ -51,6 +51,7 @@ const (
 //go:cgo_import_dynamic runtime._SetWaitableTimer SetWaitableTimer%6 "kernel32.dll"
 //go:cgo_import_dynamic runtime._SuspendThread SuspendThread%1 "kernel32.dll"
 //go:cgo_import_dynamic runtime._SwitchToThread SwitchToThread%0 "kernel32.dll"
+//go:cgo_import_dynamic runtime._TlsAlloc TlsAlloc%0 "kernel32.dll"
 //go:cgo_import_dynamic runtime._VirtualAlloc VirtualAlloc%4 "kernel32.dll"
 //go:cgo_import_dynamic runtime._VirtualFree VirtualFree%3 "kernel32.dll"
 //go:cgo_import_dynamic runtime._VirtualQuery VirtualQuery%3 "kernel32.dll"
@@ -99,6 +100,7 @@ var (
 	_SetWaitableTimer,
 	_SuspendThread,
 	_SwitchToThread,
+	_TlsAlloc,
 	_VirtualAlloc,
 	_VirtualFree,
 	_VirtualQuery,

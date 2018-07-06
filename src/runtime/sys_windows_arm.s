@@ -363,7 +363,7 @@ TEXT runtime·callbackasm1(SB),NOSPLIT|NOFRAME,$0
 
 // uint32 tstart_stdcall(M *newm);
 TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
-	MOVM.DB.W [R14], (R13)		// push {lr}
+	MOVM.DB.W [R4-R11, R14], (R13)		// push {r4-r11, lr}
 
 	MOVW	m_g0(R0), g
 	MOVW	R0, g_m(g)
@@ -382,7 +382,7 @@ TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
 
 	// Exit the thread.
 	MOVW	$0, R0
-	MOVM.IA.W (R13), [R15]		// pop {pc}
+	MOVM.IA.W (R13), [R4-R11, R15]		// pop {r4-r11, pc}
 
 // onosstack calls fn on OS stack.
 // adapted from asm_arm.s : systemstack
