@@ -160,3 +160,17 @@ type overlapped struct {
 	anon0        [8]byte
 	hevent       *byte
 }
+
+type memoryBasicInformation struct {
+	baseAddress       uintptr
+	allocationBase    uintptr
+	allocationProtect uint32
+	regionSize        uintptr
+	state             uint32
+	protect           uint32
+	type_             uint32
+}
+
+func stackcheck() {
+	// TODO: not implemented on ARM
+}
