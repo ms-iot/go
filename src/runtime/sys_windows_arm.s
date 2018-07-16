@@ -73,29 +73,33 @@ loadregs:
 
 	MOVM.IA.W (R13), [R4, R5, R15]
 
-TEXT	runtime·badsignal2(SB),NOSPLIT|NOFRAME,$0
-/*
-	// stderr
-	MOVW	$-12, 0(SP)
-	MOVW	SP, BP
-	CALL	*runtime·_GetStdHandle(SB)
-	MOVW	BP, SP
+TEXT runtime·badsignal2(SB),NOSPLIT|NOFRAME,$0
+	MOVM.DB.W [R4, R14], (R13)	// push {r4, lr}
+	MOVW	R13, R4			// save original stack pointer
+	SUB	$8, R13			// space for 2 variables
+	BIC	$0x7, R13		// alignment for ABI
 
-	MOVW	AX, 0(SP)	// handle
-	MOVW	$runtime·badsignalmsg(SB), DX // pointer
-	MOVW	DX, 4(SP)
-	MOVW	runtime·badsignallen(SB), DX // count
-	MOVW	DX, 8(SP)
-	LEAL	20(SP), DX  // written count
-	MOVW	$0, 0(DX)
-	MOVW	DX, 12(SP)
-	MOVW	$0, 16(SP) // overlapped
-	CALL	*runtime·_WriteFile(SB)
-	MOVW	BP, SI
-*/
-	MOVW	$0x1234, R12
-	MOVW	R12, (R12)
-	RET
+	// stderr
+	MOVW	runtime·_GetStdHandle(SB), R1
+	MOVW	$-12, R0
+	BL	(R1)
+
+	MOVW	$runtime·badsignalmsg(SB), R1	// lpBuffer
+	MOVW	(R1), R1
+
+	MOVW	$runtime·badsignallen(SB), R2	// lpNumberOfBytesToWrite
+	MOVW	(R2), R2
+
+	ADD	$0x4, R13, R3		// lpNumberOfBytesWritten
+
+	MOVW	$0, R12			// lpOverlapped
+	MOVW	R12, (R13)
+
+	MOVW	runtime·_WriteFile(SB), R12
+	BL	(R12)
+
+	MOVW	R4, R13			// restore SP
+	MOVM.IA.W (R13), [R4, R15]	// pop {r4, pc}
 
 TEXT runtime·getlasterror(SB),NOSPLIT,$0
 	MRC	15, 0, R0, C13, C0, 2
