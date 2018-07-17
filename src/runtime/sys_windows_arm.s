@@ -339,7 +339,7 @@ TEXT runtime·callbackasm1(SB),NOSPLIT|NOFRAME,$0
 
 	// we currently support up to 4 arguments
 	CMP	$(4 * 4), R5
-	BL.GT	runtime·badsignal2(SB)
+	BL.GT	runtime·abort(SB)
 
 	// extend argsize by size of return value
 	ADD	$4, R5
