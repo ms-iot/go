@@ -81,17 +81,13 @@ TEXT runtime·badsignal2(SB),NOSPLIT|NOFRAME,$0
 
 	// stderr
 	MOVW	runtime·_GetStdHandle(SB), R1
-	MOVW	$-12, R0
+	MOVW	$-11, R0	// XXX stdout
 	BL	(R1)
 
 	MOVW	$runtime·badsignalmsg(SB), R1	// lpBuffer
-	MOVW	(R1), R1
-
 	MOVW	$runtime·badsignallen(SB), R2	// lpNumberOfBytesToWrite
 	MOVW	(R2), R2
-
 	ADD	$0x4, R13, R3		// lpNumberOfBytesWritten
-
 	MOVW	$0, R12			// lpOverlapped
 	MOVW	R12, (R13)
 
