@@ -106,7 +106,7 @@ TEXT runtime·_initcgo(SB),NOSPLIT,$4
 	BL	(R0)
 	CMP	$64, R0			// Assert that slot is less than 64
 	MOVW	$runtime·abort(SB), R1
-	BL.LT	(R1)
+	BL.GE	(R1)
 	MOVW 	$runtime·tls_g(SB), R1
 	MOVW	R0, (R1)
 	MOVW	R4, R13
