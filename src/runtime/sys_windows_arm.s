@@ -81,7 +81,7 @@ TEXT runtime·badsignal2(SB),NOSPLIT|NOFRAME,$0
 
 	// stderr
 	MOVW	runtime·_GetStdHandle(SB), R1
-	MOVW	$-11, R0	// XXX stdout
+	MOVW	$-12, R0
 	BL	(R1)
 
 	MOVW	$runtime·badsignalmsg(SB), R1	// lpBuffer
@@ -237,33 +237,53 @@ TEXT runtime·lastcontinuetramp(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$runtime·lastcontinuehandler(SB), R1
 	B	runtime·sigtramp(SB)
 
-TEXT runtime·ctrlhandler(SB),NOSPLIT,$0
+TEXT runtime·ctrlhandler(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$runtime·ctrlhandler1(SB), R1
 	B	runtime·externalthreadhandler(SB)
 
-TEXT runtime·profileloop(SB),NOSPLIT,$0
+TEXT runtime·profileloop(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$runtime·profileloop1(SB), R1
 	B	runtime·externalthreadhandler(SB)
 
 // int32 externalthreadhandler(uint32 arg, int (*func)(uint32))
-TEXT runtime·externalthreadhandler(SB),NOSPLIT,$0
-	MOVM.DB.W [R4-R11, R14], (R13)	// push {r4-r11, lr}
-	SUB	$(m__size + g__size + 16), R13	// space for locals
-	MOVW	R0, 8(SP)		// save arguments
-	MOVW	R1, 12(SP)
+// stack layout:
+//   +----------------+
+//   | callee-save    |
+//   | registers      |
+//   +----------------+
+//   | m              |
+//   +----------------+
+// 20| g              |
+//   +----------------+
+// 16| func ptr (r1)  |
+//   +----------------+
+// 12| argument (r0)  |
+//---+----------------+
+// 8 | param1         |
+//   +----------------+
+// 4 | param0         |
+//   +----------------+
+// 0 | retval         |
+//   +----------------+
+//
+TEXT runtime·externalthreadhandler(SB),NOSPLIT|NOFRAME,$0
+	MOVM.DB.W [R4-R11, R14], (R13)		// push {r4-r11, lr}
+	SUB	$(m__size + g__size + 20), R13	// space for locals
+	MOVW	R0, 12(R13)
+	MOVW	R1, 16(R13)
 
 	// zero out m and g structures
-	ADD	$16, SP, R3	// compute pointer to g
-	MOVW	R3, 0(SP)	// move first arg into position
-	MOVW	$(m__size + g__size), R3
-	MOVW	R3, 4(SP)	// move second arg into position
+	ADD	$20, R13, R0			// compute pointer to g
+	MOVW	R0, 4(R13)
+	MOVW	$(m__size + g__size), R0
+	MOVW	R0, 8(R13)
 	BL	runtime·memclrNoHeapPointers(SB)
 
-	ADD	$16, SP, g	// set up g
+	ADD	$20, R13, g			// set up g pointer
 	BL	runtime·save_g(SB)
 	
-	// set up m and g pointers
-	ADD	$(16 + g__size), SP, R3		// R3 = m
+	// initialize m and g structures
+	ADD	$(20 + g__size), R13, R3	// R3 = m
 	MOVW	g, m_g0(R3)			// m->g0 = g
 	MOVW	R3, g_m(g)			// g->m = m
 
@@ -276,18 +296,18 @@ TEXT runtime·externalthreadhandler(SB),NOSPLIT,$0
 	MOVW	R0, g_stackguard1(g)
 
 	// move argument into position and call function
-	MOVW	8(R13), R0
+	MOVW	12(R13), R0
 	MOVW	R0, 4(R13)
-	MOVW	12(R13), R1
+	MOVW	16(R13), R1
 	BL	(R1)
 
 	// clear g
 	MOVW	$0, g
 	BL	runtime·save_g(SB)
-	
-	MOVW	0(R13), R0		// move return value into position
-	ADD	$(m__size + g__size + 16), R13	// free locals
-	MOVM.IA.W (R13), [R4-R11, R15]	// pop {r4-r11, pc}
+
+	MOVW	0(R13), R0			// load return value
+	ADD	$(m__size + g__size + 20), R13	// free locals
+	MOVM.IA.W (R13), [R4-R11, R15]		// pop {r4-r11, pc}
 
 GLOBL runtime·cbctxts(SB), NOPTR, $4
 
