@@ -238,85 +238,56 @@ TEXT runtime·lastcontinuetramp(SB),NOSPLIT|NOFRAME,$0
 	B	runtime·sigtramp(SB)
 
 TEXT runtime·ctrlhandler(SB),NOSPLIT,$0
-/*
-	PUSHL	$runtime·ctrlhandler1(SB)
-	CALL	runtime·externalthreadhandler(SB)
-	MOVW	4(SP), CX
-	ADDL	$12, SP
-	JMP	CX
-*/
-    // Stub
-	MOVW	$5, R12
-	MOVW	R12, (R12)
-	RET
+	MOVW	$runtime·ctrlhandler1(SB), R1
+	B	runtime·externalthreadhandler(SB)
 
 TEXT runtime·profileloop(SB),NOSPLIT,$0
-/*
-	PUSHL	$runtime·profileloop1(SB)
-	CALL	runtime·externalthreadhandler(SB)
-	MOVW	4(SP), CX
-	ADDL	$12, SP
-	JMP	CX
-*/
-	// Stub
-	MOVW	$6, R12
-	MOVW	R12, (R12)
-	RET
+	MOVW	$runtime·profileloop1(SB), R1
+	B	runtime·externalthreadhandler(SB)
 
+// int32 externalthreadhandler(uint32 arg, int (*func)(uint32))
 TEXT runtime·externalthreadhandler(SB),NOSPLIT,$0
-/*
-	PUSHL	BP
-	MOVW	SP, BP
-	PUSHL	BX
-	PUSHL	SI
-	PUSHL	DI
-	PUSHL	0x14(FS)
-	MOVW	SP, DX
+	MOVM.DB.W [R4-R11, R14], (R13)	// push {r4-r11, lr}
+	SUB	$(m__size + g__size + 16), R13	// space for locals
+	MOVW	R0, 8(SP)		// save arguments
+	MOVW	R1, 12(SP)
 
-	// setup dummy m, g
-	SUB	    $m__size, SP		// space for M
-	MOVW	SP, 0(SP)
-	MOVW	$m__size, 4(SP)
-	CALL	runtime·memclrNoHeapPointers(SB)	// smashes AX,BX,CX
+	// zero out m and g structures
+	ADD	$16, SP, R3	// compute pointer to g
+	MOVW	R3, 0(SP)	// move first arg into position
+	MOVW	$(m__size + g__size), R3
+	MOVW	R3, 4(SP)	// move second arg into position
+	BL	runtime·memclrNoHeapPointers(SB)
 
-	LEAL	m_tls(SP), CX
-	MOVW	CX, 0x14(FS)
-	MOVW	SP, BX
-	SUB	    $g__size, SP		// space for G
-	MOVW	SP, g(CX)
-	MOVW	SP, m_g0(BX)
+	ADD	$16, SP, g	// set up g
+	BL	runtime·save_g(SB)
+	
+	// set up m and g pointers
+	ADD	$(16 + g__size), SP, R3		// R3 = m
+	MOVW	g, m_g0(R3)			// m->g0 = g
+	MOVW	R3, g_m(g)			// g->m = m
 
-	MOVW	SP, 0(SP)
-	MOVW	$g__size, 4(SP)
-	CALL	runtime·memclrNoHeapPointers(SB)	// smashes AX,BX,CX
-	LEAL	g__size(SP), BX
-	MOVW	BX, g_m(SP)
+	// set up stackguard stuff	
+	MOVW	R13, R0
+	MOVW	R0, g_stack+stack_hi(g)
+	SUB	$(64*1024), R0
+	MOVW	R0, (g_stack+stack_lo)(g)
+	MOVW	R0, g_stackguard0(g)
+	MOVW	R0, g_stackguard1(g)
 
-	LEAL	-32768(SP), CX		// must be less than SizeOfStackReserve set by linker
-	MOVW	CX, (g_stack+stack_lo)(SP)
-	ADDL	$const__StackGuard, CX
-	MOVW	CX, g_stackguard0(SP)
-	MOVW	CX, g_stackguard1(SP)
-	MOVW	DX, (g_stack+stack_hi)(SP)
+	// move argument into position and call function
+	MOVW	8(R13), R0
+	MOVW	R0, 4(R13)
+	MOVW	12(R13), R1
+	BL	(R1)
 
-	PUSHL	AX			// room for return value
-	PUSHL	16(BP)			// arg for handler
-	CALL	8(BP)
-	POPL	CX
-	POPL	AX			// pass return value to Windows in AX
-
-	get_tls(CX)
-	MOVW	g(CX), CX
-	MOVW	(g_stack+stack_hi)(CX), SP
-	POPL	0x14(FS)
-	POPL	DI
-	POPL	SI
-	POPL	BX
-	POPL	BP
-*/
-	MOVW	$7, R12
-	MOVW	R12, (R12)
-	RET
+	// clear g
+	MOVW	$0, g
+	BL	runtime·save_g(SB)
+	
+	MOVW	0(R13), R0		// move return value into position
+	ADD	$(m__size + g__size + 16), R13	// free locals
+	MOVM.IA.W (R13), [R4-R11, R15]	// pop {r4-r11, pc}
 
 GLOBL runtime·cbctxts(SB), NOPTR, $4
 
