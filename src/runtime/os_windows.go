@@ -867,6 +867,11 @@ func profilem(mp *m) {
 	var r *context
 	rbuf := make([]byte, unsafe.Sizeof(*r)+15)
 
+	// align Context to 16 bytes
+	r = (*context)(unsafe.Pointer((uintptr(unsafe.Pointer(&rbuf[15]))) &^ 15))
+	r.contextflags = _CONTEXT_CONTROL
+	stdcall2(_GetThreadContext, mp.thread, uintptr(unsafe.Pointer(r)))
+
 	var gp *g
 	if GOARCH == "arm" {
 		gp = mp.curg
@@ -875,11 +880,11 @@ func profilem(mp *m) {
 		gp = *((**g)(unsafe.Pointer(tls)))
 	}
 
-	// align Context to 16 bytes
-	r = (*context)(unsafe.Pointer((uintptr(unsafe.Pointer(&rbuf[15]))) &^ 15))
-	r.contextflags = _CONTEXT_CONTROL
-	stdcall2(_GetThreadContext, mp.thread, uintptr(unsafe.Pointer(r)))
-	sigprof(r.ip(), r.sp(), 0, gp, mp)
+	if gp == nil {
+		sigprofNonGoPC(r.ip())
+	} else {
+		sigprof(r.ip(), r.sp(), 0, gp, mp)
+	}
 }
 
 func profileloop1(param uintptr) uint32 {
