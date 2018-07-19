@@ -867,8 +867,13 @@ func profilem(mp *m) {
 	var r *context
 	rbuf := make([]byte, unsafe.Sizeof(*r)+15)
 
-	tls := &mp.tls[0]
-	gp := *((**g)(unsafe.Pointer(tls)))
+	var gp *g
+	if GOARCH == "arm" {
+		gp = mp.curg
+	} else {
+		tls := &mp.tls[0]
+		gp = *((**g)(unsafe.Pointer(tls)))
+	}
 
 	// align Context to 16 bytes
 	r = (*context)(unsafe.Pointer((uintptr(unsafe.Pointer(&rbuf[15]))) &^ 15))

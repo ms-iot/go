@@ -279,18 +279,20 @@ TEXT runtime·externalthreadhandler(SB),NOSPLIT|NOFRAME,$0
 	MOVW	R0, 8(R13)
 	BL	runtime·memclrNoHeapPointers(SB)
 
-	ADD	$20, R13, g			// set up g pointer
-	BL	runtime·save_g(SB)
-	
 	// initialize m and g structures
+	ADD	$20, R13, R2			// R2 = g
 	ADD	$(20 + g__size), R13, R3	// R3 = m
-	MOVW	g, m_g0(R3)			// m->g0 = g
-	MOVW	R3, g_m(g)			// g->m = m
+	MOVW	R2, m_g0(R3)			// m->g0 = g
+	MOVW	R3, g_m(R2)			// g->m = m
+	MOVW	R2, m_curg(R3)			// m->curg = g
+
+	MOVW	R2, g
+	BL	runtime·save_g(SB)
 
 	// set up stackguard stuff	
 	MOVW	R13, R0
 	MOVW	R0, g_stack+stack_hi(g)
-	SUB	$(64*1024), R0
+	SUB	$(32*1024), R0
 	MOVW	R0, (g_stack+stack_lo)(g)
 	MOVW	R0, g_stackguard0(g)
 	MOVW	R0, g_stackguard1(g)
