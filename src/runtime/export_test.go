@@ -297,6 +297,7 @@ func ReadMemStatsSlow() (base, slow MemStats) {
 		slow.TotalAlloc = 0
 		slow.Mallocs = 0
 		slow.Frees = 0
+		slow.HeapReleased = 0
 		var bySize [_NumSizeClasses]struct {
 			Mallocs, Frees uint64
 		}
@@ -334,6 +335,10 @@ func ReadMemStatsSlow() (base, slow MemStats) {
 		for i := range slow.BySize {
 			slow.BySize[i].Mallocs = bySize[i].Mallocs
 			slow.BySize[i].Frees = bySize[i].Frees
+		}
+
+		for i := mheap_.scav.start(); i.valid(); i = i.next() {
+			slow.HeapReleased += uint64(i.span().released())
 		}
 
 		getg().m.mallocing--
@@ -376,6 +381,8 @@ func (rw *RWMutex) Unlock() {
 	rw.rw.unlock()
 }
 
+const RuntimeHmapSize = unsafe.Sizeof(hmap{})
+
 func MapBucketsCount(m map[int]int) int {
 	h := *(**hmap)(unsafe.Pointer(&m))
 	return 1 << h.B
@@ -403,7 +410,7 @@ func LockOSCounts() (external, internal uint32) {
 //go:noinline
 func TracebackSystemstack(stk []uintptr, i int) int {
 	if i == 0 {
-		pc, sp := getcallerpc(), getcallersp(unsafe.Pointer(&stk))
+		pc, sp := getcallerpc(), getcallersp()
 		return gentraceback(pc, sp, 0, getg(), 0, &stk[0], len(stk), nil, nil, _TraceJumpStack)
 	}
 	n := 0
@@ -445,3 +452,177 @@ func GetNextArenaHint() uintptr {
 }
 
 type G = g
+
+func Getg() *G {
+	return getg()
+}
+
+//go:noinline
+func PanicForTesting(b []byte, i int) byte {
+	return unexportedPanicForTesting(b, i)
+}
+
+//go:noinline
+func unexportedPanicForTesting(b []byte, i int) byte {
+	return b[i]
+}
+
+func G0StackOverflow() {
+	systemstack(func() {
+		stackOverflow(nil)
+	})
+}
+
+func stackOverflow(x *byte) {
+	var buf [256]byte
+	stackOverflow(&buf[0])
+}
+
+func MapTombstoneCheck(m map[int]int) {
+	// Make sure emptyOne and emptyRest are distributed correctly.
+	// We should have a series of filled and emptyOne cells, followed by
+	// a series of emptyRest cells.
+	h := *(**hmap)(unsafe.Pointer(&m))
+	i := interface{}(m)
+	t := *(**maptype)(unsafe.Pointer(&i))
+
+	for x := 0; x < 1<<h.B; x++ {
+		b0 := (*bmap)(add(h.buckets, uintptr(x)*uintptr(t.bucketsize)))
+		n := 0
+		for b := b0; b != nil; b = b.overflow(t) {
+			for i := 0; i < bucketCnt; i++ {
+				if b.tophash[i] != emptyRest {
+					n++
+				}
+			}
+		}
+		k := 0
+		for b := b0; b != nil; b = b.overflow(t) {
+			for i := 0; i < bucketCnt; i++ {
+				if k < n && b.tophash[i] == emptyRest {
+					panic("early emptyRest")
+				}
+				if k >= n && b.tophash[i] != emptyRest {
+					panic("late non-emptyRest")
+				}
+				if k == n-1 && b.tophash[i] == emptyOne {
+					panic("last non-emptyRest entry is emptyOne")
+				}
+				k++
+			}
+		}
+	}
+}
+
+// Span is a safe wrapper around an mspan, whose memory
+// is managed manually.
+type Span struct {
+	*mspan
+}
+
+func AllocSpan(base, npages uintptr) Span {
+	lock(&mheap_.lock)
+	s := (*mspan)(mheap_.spanalloc.alloc())
+	unlock(&mheap_.lock)
+	s.init(base, npages)
+	return Span{s}
+}
+
+func (s *Span) Free() {
+	lock(&mheap_.lock)
+	mheap_.spanalloc.free(unsafe.Pointer(s.mspan))
+	unlock(&mheap_.lock)
+	s.mspan = nil
+}
+
+func (s Span) Base() uintptr {
+	return s.mspan.base()
+}
+
+func (s Span) Pages() uintptr {
+	return s.mspan.npages
+}
+
+type TreapIter struct {
+	treapIter
+}
+
+func (t TreapIter) Span() Span {
+	return Span{t.span()}
+}
+
+func (t TreapIter) Valid() bool {
+	return t.valid()
+}
+
+func (t TreapIter) Next() TreapIter {
+	return TreapIter{t.next()}
+}
+
+func (t TreapIter) Prev() TreapIter {
+	return TreapIter{t.prev()}
+}
+
+// Treap is a safe wrapper around mTreap for testing.
+//
+// It must never be heap-allocated because mTreap is
+// notinheap.
+//
+//go:notinheap
+type Treap struct {
+	mTreap
+}
+
+func (t *Treap) Start() TreapIter {
+	return TreapIter{t.start()}
+}
+
+func (t *Treap) End() TreapIter {
+	return TreapIter{t.end()}
+}
+
+func (t *Treap) Insert(s Span) {
+	// mTreap uses a fixalloc in mheap_ for treapNode
+	// allocation which requires the mheap_ lock to manipulate.
+	// Locking here is safe because the treap itself never allocs
+	// or otherwise ends up grabbing this lock.
+	lock(&mheap_.lock)
+	t.insert(s.mspan)
+	unlock(&mheap_.lock)
+	t.CheckInvariants()
+}
+
+func (t *Treap) Find(npages uintptr) TreapIter {
+	return TreapIter{treapIter{t.find(npages)}}
+}
+
+func (t *Treap) Erase(i TreapIter) {
+	// mTreap uses a fixalloc in mheap_ for treapNode
+	// freeing which requires the mheap_ lock to manipulate.
+	// Locking here is safe because the treap itself never allocs
+	// or otherwise ends up grabbing this lock.
+	lock(&mheap_.lock)
+	t.erase(i.treapIter)
+	unlock(&mheap_.lock)
+	t.CheckInvariants()
+}
+
+func (t *Treap) RemoveSpan(s Span) {
+	// See Erase about locking.
+	lock(&mheap_.lock)
+	t.removeSpan(s.mspan)
+	unlock(&mheap_.lock)
+	t.CheckInvariants()
+}
+
+func (t *Treap) Size() int {
+	i := 0
+	t.mTreap.treap.walkTreap(func(t *treapNode) {
+		i++
+	})
+	return i
+}
+
+func (t *Treap) CheckInvariants() {
+	t.mTreap.treap.walkTreap(checkTreapNode)
+}

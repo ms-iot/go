@@ -1,3 +1,7 @@
+// Copyright 2018 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package main
 
 import (
@@ -230,7 +234,7 @@ func httpUserTask(w http.ResponseWriter, r *http.Request) {
 			Complete:   task.complete(),
 			Events:     events,
 			Start:      time.Duration(task.firstTimestamp()) * time.Nanosecond,
-			End:        time.Duration(task.lastTimestamp()) * time.Nanosecond,
+			End:        time.Duration(task.endTimestamp()) * time.Nanosecond,
 			GCTime:     task.overlappingGCDuration(res.gcEvents),
 		})
 	}
@@ -331,7 +335,7 @@ func analyzeAnnotations() (annotationAnalysisResult, error) {
 			if si != sj {
 				return si < sj
 			}
-			return task.regions[i].lastTimestamp() < task.regions[i].lastTimestamp()
+			return task.regions[i].lastTimestamp() < task.regions[j].lastTimestamp()
 		})
 	}
 	return annotationAnalysisResult{tasks: tasks, regions: regions, gcEvents: gcEvents}, nil
@@ -365,7 +369,7 @@ func (task *taskDesc) String() string {
 	}
 	wb := new(bytes.Buffer)
 	fmt.Fprintf(wb, "task %d:\t%s\n", task.id, task.name)
-	fmt.Fprintf(wb, "\tstart: %v end: %v complete: %t\n", task.firstTimestamp(), task.lastTimestamp(), task.complete())
+	fmt.Fprintf(wb, "\tstart: %v end: %v complete: %t\n", task.firstTimestamp(), task.endTimestamp(), task.complete())
 	fmt.Fprintf(wb, "\t%d goroutines\n", len(task.goroutines))
 	fmt.Fprintf(wb, "\t%d regions:\n", len(task.regions))
 	for _, s := range task.regions {
@@ -434,8 +438,8 @@ func (task *taskDesc) complete() bool {
 	return task.create != nil && task.end != nil
 }
 
-// descendents returns all the task nodes in the subtree rooted from this task.
-func (task *taskDesc) decendents() []*taskDesc {
+// descendants returns all the task nodes in the subtree rooted from this task.
+func (task *taskDesc) descendants() []*taskDesc {
 	if task == nil {
 		return nil
 	}
@@ -463,6 +467,17 @@ func (task *taskDesc) firstTimestamp() int64 {
 // trace. If the trace does not contain the task end event, the last
 // timestamp of the trace will be returned.
 func (task *taskDesc) lastTimestamp() int64 {
+	endTs := task.endTimestamp()
+	if last := task.lastEvent(); last != nil && last.Ts > endTs {
+		return last.Ts
+	}
+	return endTs
+}
+
+// endTimestamp returns the timestamp of this task's end event.
+// If the trace does not contain the task end event, the last
+// timestamp of the trace will be returned.
+func (task *taskDesc) endTimestamp() int64 {
 	if task != nil && task.end != nil {
 		return task.end.Ts
 	}
@@ -470,7 +485,7 @@ func (task *taskDesc) lastTimestamp() int64 {
 }
 
 func (task *taskDesc) duration() time.Duration {
-	return time.Duration(task.lastTimestamp()-task.firstTimestamp()) * time.Nanosecond
+	return time.Duration(task.endTimestamp()-task.firstTimestamp()) * time.Nanosecond
 }
 
 func (region *regionDesc) duration() time.Duration {
@@ -492,17 +507,17 @@ func (task *taskDesc) overlappingGCDuration(evs []*trace.Event) (overlapping tim
 	return overlapping
 }
 
-// overlappingInstant returns true if the instantaneous event, ev, occurred during
+// overlappingInstant reports whether the instantaneous event, ev, occurred during
 // any of the task's region if ev is a goroutine-local event, or overlaps with the
 // task's lifetime if ev is a global event.
 func (task *taskDesc) overlappingInstant(ev *trace.Event) bool {
-	if isUserAnnotationEvent(ev) && task.id != ev.Args[0] {
+	if _, ok := isUserAnnotationEvent(ev); ok && task.id != ev.Args[0] {
 		return false // not this task's user event.
 	}
 
 	ts := ev.Ts
 	taskStart := task.firstTimestamp()
-	taskEnd := task.lastTimestamp()
+	taskEnd := task.endTimestamp()
 	if ts < taskStart || taskEnd < ts {
 		return false
 	}
@@ -523,7 +538,7 @@ func (task *taskDesc) overlappingInstant(ev *trace.Event) bool {
 	return false
 }
 
-// overlappingDuration returns whether the durational event, ev, overlaps with
+// overlappingDuration reports whether the durational event, ev, overlaps with
 // any of the task's region if ev is a goroutine-local event, or overlaps with
 // the task's lifetime if ev is a global event. It returns the overlapping time
 // as well.
@@ -547,7 +562,7 @@ func (task *taskDesc) overlappingDuration(ev *trace.Event) (time.Duration, bool)
 	// This event is a global GC event
 	if ev.P == trace.GCP {
 		taskStart := task.firstTimestamp()
-		taskEnd := task.lastTimestamp()
+		taskEnd := task.endTimestamp()
 		o := overlappingDuration(taskStart, taskEnd, start, end)
 		return o, o > 0
 	}
@@ -627,7 +642,7 @@ func (region *regionDesc) lastTimestamp() int64 {
 // If non-zero depth is provided, this searches all events with BFS and includes
 // goroutines unblocked any of related goroutines to the result.
 func (task *taskDesc) RelatedGoroutines(events []*trace.Event, depth int) map[uint64]bool {
-	start, end := task.firstTimestamp(), task.lastTimestamp()
+	start, end := task.firstTimestamp(), task.endTimestamp()
 
 	gmap := map[uint64]bool{}
 	for k := range task.goroutines {
@@ -850,12 +865,16 @@ func (h *durationHistogram) ToHTML(urlmaker func(min, max time.Duration) string)
 	fmt.Fprintf(w, `<table>`)
 	for i := h.MinBucket; i <= h.MaxBucket; i++ {
 		// Tick label.
-		fmt.Fprintf(w, `<tr><td class="histoTime" align="right"><a href=%s>%s</a></td>`, urlmaker(h.BucketMin(i), h.BucketMin(i+1)), niceDuration(h.BucketMin(i)))
+		if h.Buckets[i] > 0 {
+			fmt.Fprintf(w, `<tr><td class="histoTime" align="right"><a href=%s>%s</a></td>`, urlmaker(h.BucketMin(i), h.BucketMin(i+1)), niceDuration(h.BucketMin(i)))
+		} else {
+			fmt.Fprintf(w, `<tr><td class="histoTime" align="right">%s</td>`, niceDuration(h.BucketMin(i)))
+		}
 		// Bucket bar.
 		width := h.Buckets[i] * barWidth / maxCount
-		fmt.Fprintf(w, `<td><div style="width:%dpx;background:blue;top:.6em;position:relative">&nbsp;</div></td>`, width)
+		fmt.Fprintf(w, `<td><div style="width:%dpx;background:blue;position:relative">&nbsp;</div></td>`, width)
 		// Bucket count.
-		fmt.Fprintf(w, `<td align="right"><div style="top:.6em;position:relative">%d</div></td>`, h.Buckets[i])
+		fmt.Fprintf(w, `<td align="right"><div style="position:relative">%d</div></td>`, h.Buckets[i])
 		fmt.Fprintf(w, "</tr>\n")
 
 	}
@@ -1127,12 +1146,12 @@ func describeEvent(ev *trace.Event) string {
 	return ""
 }
 
-func isUserAnnotationEvent(ev *trace.Event) bool {
+func isUserAnnotationEvent(ev *trace.Event) (taskID uint64, ok bool) {
 	switch ev.Type {
 	case trace.EvUserLog, trace.EvUserRegion, trace.EvUserTaskCreate, trace.EvUserTaskEnd:
-		return true
+		return ev.Args[0], true
 	}
-	return false
+	return 0, false
 }
 
 var templUserRegionType = template.Must(template.New("").Funcs(template.FuncMap{

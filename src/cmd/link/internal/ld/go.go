@@ -25,6 +25,17 @@ func expandpkg(t0 string, pkg string) string {
 	return strings.Replace(t0, `"".`, pkg+".", -1)
 }
 
+func resolveABIAlias(s *sym.Symbol) *sym.Symbol {
+	if s.Type != sym.SABIALIAS {
+		return s
+	}
+	target := s.R[0].Sym
+	if target.Type == sym.SABIALIAS {
+		panic(fmt.Sprintf("ABI alias %s references another ABI alias %s", s, target))
+	}
+	return target
+}
+
 // TODO:
 //	generate debugging section in binary.
 //	once the dust settles, try to move some code to
@@ -155,14 +166,15 @@ func loadcgo(ctxt *Link, file string, pkg string, p string) {
 			}
 			s := ctxt.Syms.Lookup(local, 0)
 			if s.Type == 0 || s.Type == sym.SXREF || s.Type == sym.SHOSTOBJ {
-				s.Dynimplib = lib
-				s.Extname = remote
-				s.Dynimpvers = q
+				s.SetDynimplib(lib)
+				s.SetExtname(remote)
+				s.SetDynimpvers(q)
 				if s.Type != sym.SHOSTOBJ {
 					s.Type = sym.SDYNIMPORT
 				}
 				havedynamic = 1
 			}
+
 			continue
 
 		case "cgo_import_static":
@@ -187,6 +199,11 @@ func loadcgo(ctxt *Link, file string, pkg string, p string) {
 			}
 			local = expandpkg(local, pkg)
 
+			// The compiler arranges for an ABI0 wrapper
+			// to be available for all cgo-exported
+			// functions. Link.loadlib will resolve any
+			// ABI aliases we find here (since we may not
+			// yet know it's an alias).
 			s := ctxt.Syms.Lookup(local, 0)
 
 			switch ctxt.BuildMode {
@@ -198,18 +215,17 @@ func loadcgo(ctxt *Link, file string, pkg string, p string) {
 
 			// export overrides import, for openbsd/cgo.
 			// see issue 4878.
-			if s.Dynimplib != "" {
-				s.Dynimplib = ""
-				s.Extname = ""
-				s.Dynimpvers = ""
+			if s.Dynimplib() != "" {
+				s.ResetDyninfo()
+				s.SetExtname("")
 				s.Type = 0
 			}
 
 			if !s.Attr.CgoExport() {
-				s.Extname = remote
+				s.SetExtname(remote)
 				dynexp = append(dynexp, s)
-			} else if s.Extname != remote {
-				fmt.Fprintf(os.Stderr, "%s: conflicting cgo_export directives: %s as %s and %s\n", os.Args[0], s.Name, s.Extname, remote)
+			} else if s.Extname() != remote {
+				fmt.Fprintf(os.Stderr, "%s: conflicting cgo_export directives: %s as %s and %s\n", os.Args[0], s.Name, s.Extname(), remote)
 				nerrors++
 				return
 			}
@@ -277,7 +293,7 @@ func Adddynsym(ctxt *Link, s *sym.Symbol) {
 	if ctxt.IsELF {
 		elfadddynsym(ctxt, s)
 	} else if ctxt.HeadType == objabi.Hdarwin {
-		Errorf(s, "adddynsym: missed symbol (Extname=%s)", s.Extname)
+		Errorf(s, "adddynsym: missed symbol (Extname=%s)", s.Extname())
 	} else if ctxt.HeadType == objabi.Hwindows {
 		// already taken care of
 	} else {
@@ -294,7 +310,7 @@ func fieldtrack(ctxt *Link) {
 			s.Attr |= sym.AttrNotInSymbolTable
 			if s.Attr.Reachable() {
 				buf.WriteString(s.Name[9:])
-				for p := s.Reachparent; p != nil; p = p.Reachparent {
+				for p := ctxt.Reachparent[s]; p != nil; p = ctxt.Reachparent[p] {
 					buf.WriteString("\t")
 					buf.WriteString(p.Name)
 				}
@@ -318,7 +334,8 @@ func fieldtrack(ctxt *Link) {
 }
 
 func (ctxt *Link) addexport() {
-	if ctxt.HeadType == objabi.Hdarwin {
+	// TODO(aix)
+	if ctxt.HeadType == objabi.Hdarwin || ctxt.HeadType == objabi.Haix {
 		return
 	}
 

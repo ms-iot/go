@@ -20,6 +20,8 @@ export GOPATH
 
 unset CDPATH	# in case user has it set
 unset GOBIN     # Issue 14340
+unset GOFLAGS
+unset GO111MODULE
 
 export GOHOSTOS
 export CC

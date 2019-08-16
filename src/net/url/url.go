@@ -158,13 +158,26 @@ func shouldEscape(c byte, mode encoding) bool {
 		}
 	}
 
+	if mode == encodeFragment {
+		// RFC 3986 §2.2 allows not escaping sub-delims. A subset of sub-delims are
+		// included in reserved from RFC 2396 §2.2. The remaining sub-delims do not
+		// need to be escaped. To minimize potential breakage, we apply two restrictions:
+		// (1) we always escape sub-delims outside of the fragment, and (2) we always
+		// escape single quote to avoid breaking callers that had previously assumed that
+		// single quotes would be escaped. See issue #19917.
+		switch c {
+		case '!', '(', ')', '*':
+			return false
+		}
+	}
+
 	// Everything else must be escaped.
 	return true
 }
 
 // QueryUnescape does the inverse transformation of QueryEscape,
 // converting each 3-byte encoded substring of the form "%AB" into the
-// hex-decoded byte 0xAB. It also converts '+' into ' ' (space).
+// hex-decoded byte 0xAB.
 // It returns an error if any % is not followed by two hexadecimal
 // digits.
 func QueryUnescape(s string) (string, error) {
@@ -291,7 +304,26 @@ func escape(s string, mode encoding) string {
 		return s
 	}
 
-	t := make([]byte, len(s)+2*hexCount)
+	var buf [64]byte
+	var t []byte
+
+	required := len(s) + 2*hexCount
+	if required <= len(buf) {
+		t = buf[:required]
+	} else {
+		t = make([]byte, required)
+	}
+
+	if hexCount == 0 {
+		copy(t, s)
+		for i := 0; i < len(s); i++ {
+			if s[i] == ' ' {
+				t[i] = '+'
+			}
+		}
+		return string(t)
+	}
+
 	j := 0
 	for i := 0; i < len(s); i++ {
 		switch c := s[i]; {
@@ -481,6 +513,10 @@ func parse(rawurl string, viaRequest bool) (*URL, error) {
 	var rest string
 	var err error
 
+	if stringContainsCTLByte(rawurl) {
+		return nil, errors.New("net/url: invalid control character in URL")
+	}
+
 	if rawurl == "" && viaRequest {
 		return nil, errors.New("empty url")
 	}
@@ -619,6 +655,11 @@ func parseHost(host string) (string, error) {
 			}
 			return host1 + host2 + host3, nil
 		}
+	} else if i := strings.LastIndex(host, ":"); i != -1 {
+		colonPort := host[i:]
+		if !validOptionalPort(colonPort) {
+			return "", fmt.Errorf("invalid port %q after host", colonPort)
+		}
 	}
 
 	var err error
@@ -723,6 +764,7 @@ func validOptionalPort(port string) bool {
 //
 // If u.Opaque is non-empty, String uses the first form;
 // otherwise it uses the second form.
+// Any non-ASCII characters in host are escaped.
 // To obtain the path, String uses u.EscapedPath().
 //
 // In the second form, the following rules apply:
@@ -1016,44 +1058,39 @@ func (u *URL) RequestURI() string {
 	return result
 }
 
-// Hostname returns u.Host, without any port number.
+// Hostname returns u.Host, stripping any valid port number if present.
 //
-// If Host is an IPv6 literal with a port number, Hostname returns the
-// IPv6 literal without the square brackets. IPv6 literals may include
-// a zone identifier.
+// If the result is enclosed in square brackets, as literal IPv6 addresses are,
+// the square brackets are removed from the result.
 func (u *URL) Hostname() string {
-	return stripPort(u.Host)
+	host, _ := splitHostPort(u.Host)
+	return host
 }
 
 // Port returns the port part of u.Host, without the leading colon.
-// If u.Host doesn't contain a port, Port returns an empty string.
+//
+// If u.Host doesn't contain a valid numeric port, Port returns an empty string.
 func (u *URL) Port() string {
-	return portOnly(u.Host)
+	_, port := splitHostPort(u.Host)
+	return port
 }
 
-func stripPort(hostport string) string {
-	colon := strings.IndexByte(hostport, ':')
-	if colon == -1 {
-		return hostport
-	}
-	if i := strings.IndexByte(hostport, ']'); i != -1 {
-		return strings.TrimPrefix(hostport[:i], "[")
-	}
-	return hostport[:colon]
-}
+// splitHostPort separates host and port. If the port is not valid, it returns
+// the entire input as host, and it doesn't check the validity of the host.
+// Unlike net.SplitHostPort, but per RFC 3986, it requires ports to be numeric.
+func splitHostPort(hostport string) (host, port string) {
+	host = hostport
 
-func portOnly(hostport string) string {
-	colon := strings.IndexByte(hostport, ':')
-	if colon == -1 {
-		return ""
+	colon := strings.LastIndexByte(host, ':')
+	if colon != -1 && validOptionalPort(host[colon:]) {
+		host, port = host[:colon], host[colon+1:]
 	}
-	if i := strings.Index(hostport, "]:"); i != -1 {
-		return hostport[i+len("]:"):]
+
+	if strings.HasPrefix(host, "[") && strings.HasSuffix(host, "]") {
+		host = host[1 : len(host)-1]
 	}
-	if strings.Contains(hostport, "]") {
-		return ""
-	}
-	return hostport[colon+len(":"):]
+
+	return
 }
 
 // Marshaling interface implementations.
@@ -1100,4 +1137,15 @@ func validUserinfo(s string) bool {
 		}
 	}
 	return true
+}
+
+// stringContainsCTLByte reports whether s contains any ASCII control character.
+func stringContainsCTLByte(s string) bool {
+	for i := 0; i < len(s); i++ {
+		b := s[i]
+		if b < ' ' || b == 0x7f {
+			return true
+		}
+	}
+	return false
 }

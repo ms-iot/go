@@ -14,12 +14,12 @@ import (
 	"cmd/internal/obj/mips"
 )
 
-// isFPreg returns whether r is an FP register
+// isFPreg reports whether r is an FP register
 func isFPreg(r int16) bool {
 	return mips.REG_F0 <= r && r <= mips.REG_F31
 }
 
-// isHILO returns whether r is HI or LO register
+// isHILO reports whether r is HI or LO register
 func isHILO(r int16) bool {
 	return r == mips.REG_HI || r == mips.REG_LO
 }
@@ -766,6 +766,10 @@ func ssaGenValue(s *gc.SSAGenState, v *ssa.Value) {
 		p.From.Type = obj.TYPE_ADDR
 		p.From.Offset = -gc.Ctxt.FixedFrameSize()
 		p.From.Name = obj.NAME_PARAM
+		p.To.Type = obj.TYPE_REG
+		p.To.Reg = v.Reg()
+	case ssa.OpMIPSLoweredGetCallerPC:
+		p := s.Prog(obj.AGETCALLERPC)
 		p.To.Type = obj.TYPE_REG
 		p.To.Reg = v.Reg()
 	case ssa.OpClobber:

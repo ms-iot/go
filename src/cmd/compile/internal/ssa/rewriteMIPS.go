@@ -3,11 +3,13 @@
 
 package ssa
 
+import "fmt"
 import "math"
 import "cmd/internal/obj"
 import "cmd/internal/objabi"
 import "cmd/compile/internal/types"
 
+var _ = fmt.Println   // in case not otherwise used
 var _ = math.MinInt8  // in case not otherwise used
 var _ = obj.ANOP      // in case not otherwise used
 var _ = objabi.GOROOT // in case not otherwise used
@@ -85,6 +87,8 @@ func rewriteValueMIPS(v *Value) bool {
 		return rewriteValueMIPS_OpConstNil_0(v)
 	case OpCtz32:
 		return rewriteValueMIPS_OpCtz32_0(v)
+	case OpCtz32NonZero:
+		return rewriteValueMIPS_OpCtz32NonZero_0(v)
 	case OpCvt32Fto32:
 		return rewriteValueMIPS_OpCvt32Fto32_0(v)
 	case OpCvt32Fto64F:
@@ -143,6 +147,8 @@ func rewriteValueMIPS(v *Value) bool {
 		return rewriteValueMIPS_OpGeq8_0(v)
 	case OpGeq8U:
 		return rewriteValueMIPS_OpGeq8U_0(v)
+	case OpGetCallerPC:
+		return rewriteValueMIPS_OpGetCallerPC_0(v)
 	case OpGetCallerSP:
 		return rewriteValueMIPS_OpGetCallerSP_0(v)
 	case OpGetClosurePtr:
@@ -209,6 +215,8 @@ func rewriteValueMIPS(v *Value) bool {
 		return rewriteValueMIPS_OpLess8U_0(v)
 	case OpLoad:
 		return rewriteValueMIPS_OpLoad_0(v)
+	case OpLocalAddr:
+		return rewriteValueMIPS_OpLocalAddr_0(v)
 	case OpLsh16x16:
 		return rewriteValueMIPS_OpLsh16x16_0(v)
 	case OpLsh16x32:
@@ -1190,6 +1198,17 @@ func rewriteValueMIPS_OpCtz32_0(v *Value) bool {
 		return true
 	}
 }
+func rewriteValueMIPS_OpCtz32NonZero_0(v *Value) bool {
+	// match: (Ctz32NonZero x)
+	// cond:
+	// result: (Ctz32 x)
+	for {
+		x := v.Args[0]
+		v.reset(OpCtz32)
+		v.AddArg(x)
+		return true
+	}
+}
 func rewriteValueMIPS_OpCvt32Fto32_0(v *Value) bool {
 	// match: (Cvt32Fto32 x)
 	// cond:
@@ -1744,6 +1763,15 @@ func rewriteValueMIPS_OpGeq8U_0(v *Value) bool {
 		v2.AddArg(x)
 		v0.AddArg(v2)
 		v.AddArg(v0)
+		return true
+	}
+}
+func rewriteValueMIPS_OpGetCallerPC_0(v *Value) bool {
+	// match: (GetCallerPC)
+	// cond:
+	// result: (LoweredGetCallerPC)
+	for {
+		v.reset(OpMIPSLoweredGetCallerPC)
 		return true
 	}
 }
@@ -2486,6 +2514,20 @@ func rewriteValueMIPS_OpLoad_0(v *Value) bool {
 		return true
 	}
 	return false
+}
+func rewriteValueMIPS_OpLocalAddr_0(v *Value) bool {
+	// match: (LocalAddr {sym} base _)
+	// cond:
+	// result: (MOVWaddr {sym} base)
+	for {
+		sym := v.Aux
+		_ = v.Args[1]
+		base := v.Args[0]
+		v.reset(OpMIPSMOVWaddr)
+		v.Aux = sym
+		v.AddArg(base)
+		return true
+	}
 }
 func rewriteValueMIPS_OpLsh16x16_0(v *Value) bool {
 	b := v.Block
@@ -3460,7 +3502,7 @@ func rewriteValueMIPS_OpMIPSMOVBUreg_0(v *Value) bool {
 			break
 		}
 		b = x.Block
-		v0 := b.NewValue0(v.Pos, OpMIPSMOVBUload, t)
+		v0 := b.NewValue0(x.Pos, OpMIPSMOVBUload, t)
 		v.reset(OpCopy)
 		v.AddArg(v0)
 		v0.AuxInt = off
@@ -3621,7 +3663,7 @@ func rewriteValueMIPS_OpMIPSMOVBreg_0(v *Value) bool {
 			break
 		}
 		b = x.Block
-		v0 := b.NewValue0(v.Pos, OpMIPSMOVBload, t)
+		v0 := b.NewValue0(x.Pos, OpMIPSMOVBload, t)
 		v.reset(OpCopy)
 		v.AddArg(v0)
 		v0.AuxInt = off
@@ -4317,7 +4359,7 @@ func rewriteValueMIPS_OpMIPSMOVHUreg_0(v *Value) bool {
 			break
 		}
 		b = x.Block
-		v0 := b.NewValue0(v.Pos, OpMIPSMOVHUload, t)
+		v0 := b.NewValue0(x.Pos, OpMIPSMOVHUload, t)
 		v.reset(OpCopy)
 		v.AddArg(v0)
 		v0.AuxInt = off
@@ -4528,7 +4570,7 @@ func rewriteValueMIPS_OpMIPSMOVHreg_0(v *Value) bool {
 			break
 		}
 		b = x.Block
-		v0 := b.NewValue0(v.Pos, OpMIPSMOVHload, t)
+		v0 := b.NewValue0(x.Pos, OpMIPSMOVHload, t)
 		v.reset(OpCopy)
 		v.AddArg(v0)
 		v0.AuxInt = off
@@ -5583,7 +5625,7 @@ func rewriteValueMIPS_OpMIPSSGTUconst_0(v *Value) bool {
 		return true
 	}
 	// match: (SGTUconst [c] (SRLconst _ [d]))
-	// cond: uint32(d) <= 31 && 1<<(32-uint32(d)) <= uint32(c)
+	// cond: uint32(d) <= 31 && 0xffffffff>>uint32(d) < uint32(c)
 	// result: (MOVWconst [1])
 	for {
 		c := v.AuxInt
@@ -5592,7 +5634,7 @@ func rewriteValueMIPS_OpMIPSSGTUconst_0(v *Value) bool {
 			break
 		}
 		d := v_0.AuxInt
-		if !(uint32(d) <= 31 && 1<<(32-uint32(d)) <= uint32(c)) {
+		if !(uint32(d) <= 31 && 0xffffffff>>uint32(d) < uint32(c)) {
 			break
 		}
 		v.reset(OpMIPSMOVWconst)
@@ -5820,7 +5862,7 @@ func rewriteValueMIPS_OpMIPSSGTconst_10(v *Value) bool {
 		return true
 	}
 	// match: (SGTconst [c] (SRLconst _ [d]))
-	// cond: 0 <= int32(c) && uint32(d) <= 31 && 1<<(32-uint32(d)) <= int32(c)
+	// cond: 0 <= int32(c) && uint32(d) <= 31 && 0xffffffff>>uint32(d) < uint32(c)
 	// result: (MOVWconst [1])
 	for {
 		c := v.AuxInt
@@ -5829,7 +5871,7 @@ func rewriteValueMIPS_OpMIPSSGTconst_10(v *Value) bool {
 			break
 		}
 		d := v_0.AuxInt
-		if !(0 <= int32(c) && uint32(d) <= 31 && 1<<(32-uint32(d)) <= int32(c)) {
+		if !(0 <= int32(c) && uint32(d) <= 31 && 0xffffffff>>uint32(d) < uint32(c)) {
 			break
 		}
 		v.reset(OpMIPSMOVWconst)

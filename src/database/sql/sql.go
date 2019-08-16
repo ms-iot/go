@@ -133,6 +133,7 @@ const (
 	LevelLinearizable
 )
 
+// String returns the name of the transaction isolation level.
 func (i IsolationLevel) String() string {
 	switch i {
 	case LevelDefault:
@@ -301,6 +302,10 @@ type Scanner interface {
 	//
 	// An error should be returned if the value cannot be stored
 	// without loss of information.
+	//
+	// Reference types such as []byte are only valid until the next call to Scan
+	// and should not be retained. Their underlying memory is owned by the driver.
+	// If retention is necessary, copy their values before the next call to Scan.
 	Scan(src interface{}) error
 }
 
@@ -336,13 +341,17 @@ var ErrNoRows = errors.New("sql: no rows in result set")
 //
 // The sql package creates and frees connections automatically; it
 // also maintains a free pool of idle connections. If the database has
-// a concept of per-connection state, such state can only be reliably
-// observed within a transaction. Once DB.Begin is called, the
+// a concept of per-connection state, such state can be reliably observed
+// within a transaction (Tx) or connection (Conn). Once DB.Begin is called, the
 // returned Tx is bound to a single connection. Once Commit or
 // Rollback is called on the transaction, that transaction's
 // connection is returned to DB's idle connection pool. The pool size
 // can be controlled with SetMaxIdleConns.
 type DB struct {
+	// Atomic access only. At top of struct to prevent mis-alignment
+	// on 32-bit platforms. Of type time.Duration.
+	waitDuration int64 // Total time waited for new connections.
+
 	connector driver.Connector
 	// numClosed is an atomic counter which represents a total number of
 	// closed connections. Stmt.openStmt checks it before cleaning closed
@@ -359,15 +368,18 @@ type DB struct {
 	// maybeOpenNewConnections sends on the chan (one send per needed connection)
 	// It is closed during db.Close(). The close tells the connectionOpener
 	// goroutine to exit.
-	openerCh    chan struct{}
-	resetterCh  chan *driverConn
-	closed      bool
-	dep         map[finalCloser]depSet
-	lastPut     map[*driverConn]string // stacktrace of last conn's put; debug only
-	maxIdle     int                    // zero means defaultMaxIdleConns; negative means 0
-	maxOpen     int                    // <= 0 means unlimited
-	maxLifetime time.Duration          // maximum amount of time a connection may be reused
-	cleanerCh   chan struct{}
+	openerCh          chan struct{}
+	resetterCh        chan *driverConn
+	closed            bool
+	dep               map[finalCloser]depSet
+	lastPut           map[*driverConn]string // stacktrace of last conn's put; debug only
+	maxIdle           int                    // zero means defaultMaxIdleConns; negative means 0
+	maxOpen           int                    // <= 0 means unlimited
+	maxLifetime       time.Duration          // maximum amount of time a connection may be reused
+	cleanerCh         chan struct{}
+	waitCount         int64 // Total number of connections waited for.
+	maxIdleClosed     int64 // Total number of connections closed due to idle.
+	maxLifetimeClosed int64 // Total number of connections closed due to max free limit.
 
 	stop func() // stop cancels the connection opener and the session resetter.
 }
@@ -529,7 +541,7 @@ type driverStmt struct {
 	closeErr    error // return value of previous Close call
 }
 
-// Close ensures dirver.Stmt is only closed once any always returns the same
+// Close ensures driver.Stmt is only closed once and always returns the same
 // result.
 func (ds *driverStmt) Close() error {
 	ds.Lock()
@@ -556,7 +568,6 @@ type finalCloser interface {
 // addDep notes that x now depends on dep, and x's finalClose won't be
 // called until all of x's dependencies are removed with removeDep.
 func (db *DB) addDep(x finalCloser, dep interface{}) {
-	//println(fmt.Sprintf("addDep(%T %p, %T %p)", x, x, dep, dep))
 	db.mu.Lock()
 	defer db.mu.Unlock()
 	db.addDepLocked(x, dep)
@@ -586,7 +597,6 @@ func (db *DB) removeDep(x finalCloser, dep interface{}) error {
 }
 
 func (db *DB) removeDepLocked(x finalCloser, dep interface{}) func() error {
-	//println(fmt.Sprintf("removeDep(%T %p, %T %p)", x, x, dep, dep))
 
 	xdep, ok := db.dep[x]
 	if !ok {
@@ -792,10 +802,13 @@ func (db *DB) maxIdleConnsLocked() int {
 // SetMaxIdleConns sets the maximum number of connections in the idle
 // connection pool.
 //
-// If MaxOpenConns is greater than 0 but less than the new MaxIdleConns
-// then the new MaxIdleConns will be reduced to match the MaxOpenConns limit
+// If MaxOpenConns is greater than 0 but less than the new MaxIdleConns,
+// then the new MaxIdleConns will be reduced to match the MaxOpenConns limit.
 //
 // If n <= 0, no idle connections are retained.
+//
+// The default max idle connections is currently 2. This may change in
+// a future release.
 func (db *DB) SetMaxIdleConns(n int) {
 	db.mu.Lock()
 	if n > 0 {
@@ -815,6 +828,7 @@ func (db *DB) SetMaxIdleConns(n int) {
 		closing = db.freeConn[maxIdle:]
 		db.freeConn = db.freeConn[:maxIdle]
 	}
+	db.maxIdleClosed += int64(len(closing))
 	db.mu.Unlock()
 	for _, c := range closing {
 		c.Close()
@@ -825,7 +839,7 @@ func (db *DB) SetMaxIdleConns(n int) {
 //
 // If MaxIdleConns is greater than 0 and the new MaxOpenConns is less than
 // MaxIdleConns, then MaxIdleConns will be reduced to match the new
-// MaxOpenConns limit
+// MaxOpenConns limit.
 //
 // If n <= 0, then there is no limit on the number of open connections.
 // The default is 0 (unlimited).
@@ -907,6 +921,7 @@ func (db *DB) connectionCleaner(d time.Duration) {
 				i--
 			}
 		}
+		db.maxLifetimeClosed += int64(len(closing))
 		db.mu.Unlock()
 
 		for _, c := range closing {
@@ -922,17 +937,39 @@ func (db *DB) connectionCleaner(d time.Duration) {
 
 // DBStats contains database statistics.
 type DBStats struct {
-	// OpenConnections is the number of open connections to the database.
-	OpenConnections int
+	MaxOpenConnections int // Maximum number of open connections to the database.
+
+	// Pool Status
+	OpenConnections int // The number of established connections both in use and idle.
+	InUse           int // The number of connections currently in use.
+	Idle            int // The number of idle connections.
+
+	// Counters
+	WaitCount         int64         // The total number of connections waited for.
+	WaitDuration      time.Duration // The total time blocked waiting for a new connection.
+	MaxIdleClosed     int64         // The total number of connections closed due to SetMaxIdleConns.
+	MaxLifetimeClosed int64         // The total number of connections closed due to SetConnMaxLifetime.
 }
 
 // Stats returns database statistics.
 func (db *DB) Stats() DBStats {
+	wait := atomic.LoadInt64(&db.waitDuration)
+
 	db.mu.Lock()
+	defer db.mu.Unlock()
+
 	stats := DBStats{
+		MaxOpenConnections: db.maxOpen,
+
+		Idle:            len(db.freeConn),
 		OpenConnections: db.numOpen,
+		InUse:           db.numOpen - len(db.freeConn),
+
+		WaitCount:         db.waitCount,
+		WaitDuration:      time.Duration(wait),
+		MaxIdleClosed:     db.maxIdleClosed,
+		MaxLifetimeClosed: db.maxLifetimeClosed,
 	}
-	db.mu.Unlock()
 	return stats
 }
 
@@ -1085,7 +1122,10 @@ func (db *DB) conn(ctx context.Context, strategy connReuseStrategy) (*driverConn
 		req := make(chan connRequest, 1)
 		reqKey := db.nextRequestKeyLocked()
 		db.connRequests[reqKey] = req
+		db.waitCount++
 		db.mu.Unlock()
+
+		waitStart := time.Now()
 
 		// Timeout the connection request with the context.
 		select {
@@ -1095,15 +1135,20 @@ func (db *DB) conn(ctx context.Context, strategy connReuseStrategy) (*driverConn
 			db.mu.Lock()
 			delete(db.connRequests, reqKey)
 			db.mu.Unlock()
+
+			atomic.AddInt64(&db.waitDuration, int64(time.Since(waitStart)))
+
 			select {
 			default:
 			case ret, ok := <-req:
-				if ok {
+				if ok && ret.conn != nil {
 					db.putConn(ret.conn, ret.err, false)
 				}
 			}
 			return nil, ctx.Err()
 		case ret, ok := <-req:
+			atomic.AddInt64(&db.waitDuration, int64(time.Since(waitStart)))
+
 			if !ok {
 				return nil, errDBClosed
 			}
@@ -1276,10 +1321,13 @@ func (db *DB) putConnDBLocked(dc *driverConn, err error) bool {
 			err:  err,
 		}
 		return true
-	} else if err == nil && !db.closed && db.maxIdleConnsLocked() > len(db.freeConn) {
-		db.freeConn = append(db.freeConn, dc)
-		db.startCleanerLocked()
-		return true
+	} else if err == nil && !db.closed {
+		if db.maxIdleConnsLocked() > len(db.freeConn) {
+			db.freeConn = append(db.freeConn, dc)
+			db.startCleanerLocked()
+			return true
+		}
+		db.maxIdleClosed++
 	}
 	return false
 }
@@ -1631,7 +1679,7 @@ func (db *DB) Driver() driver.Driver {
 
 // ErrConnDone is returned by any operation that is performed on a connection
 // that has already been returned to the connection pool.
-var ErrConnDone = errors.New("database/sql: connection is already closed")
+var ErrConnDone = errors.New("sql: connection is already closed")
 
 // Conn returns a single connection by either opening a new connection
 // or returning an existing connection from the connection pool. Conn will
@@ -1650,7 +1698,7 @@ func (db *DB) Conn(ctx context.Context) (*Conn, error) {
 		}
 	}
 	if err == driver.ErrBadConn {
-		dc, err = db.conn(ctx, cachedOrNewConn)
+		dc, err = db.conn(ctx, alwaysNewConn)
 	}
 	if err != nil {
 		return nil, err
@@ -1879,7 +1927,7 @@ func (tx *Tx) isDone() bool {
 
 // ErrTxDone is returned by any operation that is performed on a transaction
 // that has already been committed or rolled back.
-var ErrTxDone = errors.New("sql: Transaction has already been committed or rolled back")
+var ErrTxDone = errors.New("sql: transaction has already been committed or rolled back")
 
 // close returns the connection to the pool and
 // must only be called by Tx.rollback or Tx.Commit.
@@ -2208,6 +2256,13 @@ var (
 
 // Stmt is a prepared statement.
 // A Stmt is safe for concurrent use by multiple goroutines.
+//
+// If a Stmt is prepared on a Tx or Conn, it will be bound to a single
+// underlying connection forever. If the Tx or Conn closes, the Stmt will
+// become unusable and all operations will return an error.
+// If a Stmt is prepared on a DB, it will remain usable for the lifetime of the
+// DB. When the Stmt needs to execute on a new underlying connection, it will
+// prepare itself on the new connection automatically.
 type Stmt struct {
 	// Immutable:
 	db        *DB    // where we came from
@@ -2558,6 +2613,15 @@ type Rows struct {
 	lastcols []driver.Value
 }
 
+// lasterrOrErrLocked returns either lasterr or the provided err.
+// rs.closemu must be read-locked.
+func (rs *Rows) lasterrOrErrLocked(err error) error {
+	if rs.lasterr != nil && rs.lasterr != io.EOF {
+		return rs.lasterr
+	}
+	return err
+}
+
 func (rs *Rows) initContextClose(ctx, txctx context.Context) {
 	if ctx.Done() == nil && (txctx == nil || txctx.Done() == nil) {
 		return
@@ -2634,7 +2698,7 @@ func (rs *Rows) nextLocked() (doClose, ok bool) {
 	return false, true
 }
 
-// NextResultSet prepares the next result set for reading. It returns true if
+// NextResultSet prepares the next result set for reading. It reports whether
 // there is further result sets, or false if there is no further result set
 // or if there is an error advancing to it. The Err method should be consulted
 // to distinguish between the two cases.
@@ -2681,23 +2745,22 @@ func (rs *Rows) NextResultSet() bool {
 func (rs *Rows) Err() error {
 	rs.closemu.RLock()
 	defer rs.closemu.RUnlock()
-	if rs.lasterr == io.EOF {
-		return nil
-	}
-	return rs.lasterr
+	return rs.lasterrOrErrLocked(nil)
 }
 
+var errRowsClosed = errors.New("sql: Rows are closed")
+var errNoRows = errors.New("sql: no Rows available")
+
 // Columns returns the column names.
-// Columns returns an error if the rows are closed, or if the rows
-// are from QueryRow and there was a deferred error.
+// Columns returns an error if the rows are closed.
 func (rs *Rows) Columns() ([]string, error) {
 	rs.closemu.RLock()
 	defer rs.closemu.RUnlock()
 	if rs.closed {
-		return nil, errors.New("sql: Rows are closed")
+		return nil, rs.lasterrOrErrLocked(errRowsClosed)
 	}
 	if rs.rowsi == nil {
-		return nil, errors.New("sql: no Rows available")
+		return nil, rs.lasterrOrErrLocked(errNoRows)
 	}
 	rs.dc.Lock()
 	defer rs.dc.Unlock()
@@ -2711,10 +2774,10 @@ func (rs *Rows) ColumnTypes() ([]*ColumnType, error) {
 	rs.closemu.RLock()
 	defer rs.closemu.RUnlock()
 	if rs.closed {
-		return nil, errors.New("sql: Rows are closed")
+		return nil, rs.lasterrOrErrLocked(errRowsClosed)
 	}
 	if rs.rowsi == nil {
-		return nil, errors.New("sql: no Rows available")
+		return nil, rs.lasterrOrErrLocked(errNoRows)
 	}
 	rs.dc.Lock()
 	defer rs.dc.Unlock()
@@ -2765,7 +2828,7 @@ func (ci *ColumnType) ScanType() reflect.Type {
 	return ci.scanType
 }
 
-// Nullable returns whether the column may be null.
+// Nullable reports whether the column may be null.
 // If a driver does not support this property ok will be false.
 func (ci *ColumnType) Nullable() (nullable, ok bool) {
 	return ci.nullable, ci.hasNullable
@@ -2826,6 +2889,7 @@ func rowsColumnInfoSetupConnLocked(rowsi driver.Rows) []*ColumnType {
 //    *float32, *float64
 //    *interface{}
 //    *RawBytes
+//    *Rows (cursor value)
 //    any type implementing Scanner (see Scanner docs)
 //
 // In the most simple case, if the type of the value from the source
@@ -2862,6 +2926,11 @@ func rowsColumnInfoSetupConnLocked(rowsi driver.Rows) []*ColumnType {
 //
 // For scanning into *bool, the source may be true, false, 1, 0, or
 // string inputs parseable by strconv.ParseBool.
+//
+// Scan can also convert a cursor returned from a query, such as
+// "select cursor(select * from my_table) from dual", into a
+// *Rows value that can itself be scanned from. The parent
+// select query will close any cursor *Rows if the parent *Rows is closed.
 func (rs *Rows) Scan(dest ...interface{}) error {
 	rs.closemu.RLock()
 
@@ -2870,8 +2939,9 @@ func (rs *Rows) Scan(dest ...interface{}) error {
 		return rs.lasterr
 	}
 	if rs.closed {
+		err := rs.lasterrOrErrLocked(errRowsClosed)
 		rs.closemu.RUnlock()
-		return errors.New("sql: Rows are closed")
+		return err
 	}
 	rs.closemu.RUnlock()
 
@@ -2882,7 +2952,7 @@ func (rs *Rows) Scan(dest ...interface{}) error {
 		return fmt.Errorf("sql: expected %d destination arguments in Scan, not %d", len(rs.lastcols), len(dest))
 	}
 	for i, sv := range rs.lastcols {
-		err := convertAssign(dest[i], sv)
+		err := convertAssignRows(dest[i], sv, rs)
 		if err != nil {
 			return fmt.Errorf(`sql: Scan error on column index %d, name %q: %v`, i, rs.rowsi.Columns()[i], err)
 		}

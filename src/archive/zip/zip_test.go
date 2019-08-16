@@ -15,6 +15,7 @@ import (
 	"internal/testenv"
 	"io"
 	"io/ioutil"
+	"runtime"
 	"sort"
 	"strings"
 	"testing"
@@ -158,7 +159,7 @@ func (r *rleBuffer) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func min(x, y int) int {
+func min(x, y int64) int64 {
 	if x < y {
 		return x
 	}
@@ -189,7 +190,7 @@ func (r *rleBuffer) ReadAt(p []byte, off int64) (n int, err error) {
 	if len(parts) > 0 {
 		skipBytes := off - parts[0].off
 		for _, part := range parts {
-			repeat := min(int(part.n-skipBytes), len(p)-n)
+			repeat := int(min(part.n-skipBytes, int64(len(p)-n)))
 			memset(p[n:n+repeat], part.b)
 			n += repeat
 			if n == len(p) {
@@ -461,6 +462,9 @@ func suffixIsZip64(t *testing.T, zip sizedReaderAt) bool {
 
 // Zip64 is required if the total size of the records is uint32max.
 func TestZip64LargeDirectory(t *testing.T) {
+	if runtime.GOARCH == "wasm" {
+		t.Skip("too slow on wasm")
+	}
 	if testing.Short() {
 		t.Skip("skipping in short mode")
 	}

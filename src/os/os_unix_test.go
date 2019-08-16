@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build darwin dragonfly freebsd linux netbsd openbsd solaris
+// +build aix darwin dragonfly freebsd linux netbsd openbsd solaris
 
 package os_test
 
@@ -21,6 +21,9 @@ import (
 func init() {
 	isReadonlyError = func(err error) bool { return err == syscall.EROFS }
 }
+
+// For TestRawConnReadWrite.
+type syscallDescriptor = int
 
 func checkUidGid(t *testing.T, path string, uid, gid int) {
 	dir, err := Lstat(path)
@@ -234,7 +237,7 @@ func newFileTest(t *testing.T, blocking bool) {
 	}
 	defer syscall.Close(p[1])
 
-	// Set the the read-side to non-blocking.
+	// Set the read-side to non-blocking.
 	if !blocking {
 		if err := syscall.SetNonblock(p[0], true); err != nil {
 			syscall.Close(p[0])
@@ -277,4 +280,29 @@ func TestNewFileBlock(t *testing.T) {
 func TestNewFileNonBlock(t *testing.T) {
 	t.Parallel()
 	newFileTest(t, false)
+}
+
+func TestSplitPath(t *testing.T) {
+	t.Parallel()
+	for _, tt := range []struct{ path, wantDir, wantBase string }{
+		{"a", ".", "a"},
+		{"a/", ".", "a"},
+		{"a//", ".", "a"},
+		{"a/b", "a", "b"},
+		{"a/b/", "a", "b"},
+		{"a/b/c", "a/b", "c"},
+		{"/a", "/", "a"},
+		{"/a/", "/", "a"},
+		{"/a/b", "/a", "b"},
+		{"/a/b/", "/a", "b"},
+		{"/a/b/c", "/a/b", "c"},
+		{"//a", "/", "a"},
+		{"//a/", "/", "a"},
+		{"///a", "/", "a"},
+		{"///a/", "/", "a"},
+	} {
+		if dir, base := SplitPath(tt.path); dir != tt.wantDir || base != tt.wantBase {
+			t.Errorf("splitPath(%q) = %q, %q, want %q, %q", tt.path, dir, base, tt.wantDir, tt.wantBase)
+		}
+	}
 }

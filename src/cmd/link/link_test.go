@@ -1,11 +1,14 @@
 package main
 
 import (
+	"debug/macho"
 	"internal/testenv"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -68,5 +71,168 @@ func main() {}
 	out, err = cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("failed to link main.o: %v, output: %s\n", err, out)
+	}
+}
+
+// TestIssue28429 ensures that the linker does not attempt to link
+// sections not named *.o. Such sections may be used by a build system
+// to, for example, save facts produced by a modular static analysis
+// such as golang.org/x/tools/go/analysis.
+func TestIssue28429(t *testing.T) {
+	testenv.MustHaveGoBuild(t)
+
+	tmpdir, err := ioutil.TempDir("", "issue28429-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpdir)
+
+	write := func(name, content string) {
+		err := ioutil.WriteFile(filepath.Join(tmpdir, name), []byte(content), 0666)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	runGo := func(args ...string) {
+		cmd := exec.Command(testenv.GoToolPath(t), args...)
+		cmd.Dir = tmpdir
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("'go %s' failed: %v, output: %s",
+				strings.Join(args, " "), err, out)
+		}
+	}
+
+	// Compile a main package.
+	write("main.go", "package main; func main() {}")
+	runGo("tool", "compile", "-p", "main", "main.go")
+	runGo("tool", "pack", "c", "main.a", "main.o")
+
+	// Add an extra section with a short, non-.o name.
+	// This simulates an alternative build system.
+	write(".facts", "this is not an object file")
+	runGo("tool", "pack", "r", "main.a", ".facts")
+
+	// Verify that the linker does not attempt
+	// to compile the extra section.
+	runGo("tool", "link", "main.a")
+}
+
+func TestUnresolved(t *testing.T) {
+	testenv.MustHaveGoBuild(t)
+
+	tmpdir, err := ioutil.TempDir("", "unresolved-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpdir)
+
+	write := func(name, content string) {
+		err := ioutil.WriteFile(filepath.Join(tmpdir, name), []byte(content), 0666)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Test various undefined references. Because of issue #29852,
+	// this used to give confusing error messages because the
+	// linker would find an undefined reference to "zero" created
+	// by the runtime package.
+
+	write("main.go", `package main
+
+func main() {
+        x()
+}
+
+func x()
+`)
+	write("main.s", `
+TEXT ·x(SB),0,$0
+        MOVD zero<>(SB), AX
+        MOVD zero(SB), AX
+        MOVD ·zero(SB), AX
+        RET
+`)
+	cmd := exec.Command(testenv.GoToolPath(t), "build")
+	cmd.Dir = tmpdir
+	cmd.Env = append(os.Environ(), []string{"GOARCH=amd64", "GOOS=linux"}...)
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("expected build to fail, but it succeeded")
+	}
+	out = regexp.MustCompile("(?m)^#.*\n").ReplaceAll(out, nil)
+	got := string(out)
+	want := `main.x: relocation target zero not defined
+main.x: relocation target zero not defined
+main.x: relocation target main.zero not defined
+`
+	if want != got {
+		t.Fatalf("want:\n%sgot:\n%s", want, got)
+	}
+}
+
+var testMacOSVersionSrc = `
+package main
+func main() { }
+`
+
+func TestMacOSVersion(t *testing.T) {
+	testenv.MustHaveGoBuild(t)
+
+	tmpdir, err := ioutil.TempDir("", "TestMacOSVersion")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpdir)
+
+	src := filepath.Join(tmpdir, "main.go")
+	err = ioutil.WriteFile(src, []byte(testMacOSVersionSrc), 0666)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	exe := filepath.Join(tmpdir, "main")
+	cmd := exec.Command(testenv.GoToolPath(t), "build", "-ldflags=-linkmode=internal", "-o", exe, src)
+	cmd.Env = append(os.Environ(),
+		"CGO_ENABLED=0",
+		"GOOS=darwin",
+		"GOARCH=amd64",
+	)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("%v: %v:\n%s", cmd.Args, err, out)
+	}
+	exef, err := os.Open(exe)
+	if err != nil {
+		t.Fatal(err)
+	}
+	exem, err := macho.NewFile(exef)
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	const LC_VERSION_MIN_MACOSX = 0x24
+	checkMin := func(ver uint32) {
+		major, minor := (ver>>16)&0xff, (ver>>8)&0xff
+		if major != 10 || minor < 9 {
+			t.Errorf("LC_VERSION_MIN_MACOSX version %d.%d < 10.9", major, minor)
+		}
+	}
+	for _, cmd := range exem.Loads {
+		raw := cmd.Raw()
+		type_ := exem.ByteOrder.Uint32(raw)
+		if type_ != LC_VERSION_MIN_MACOSX {
+			continue
+		}
+		osVer := exem.ByteOrder.Uint32(raw[8:])
+		checkMin(osVer)
+		sdkVer := exem.ByteOrder.Uint32(raw[12:])
+		checkMin(sdkVer)
+		found = true
+		break
+	}
+	if !found {
+		t.Errorf("no LC_VERSION_MIN_MACOSX load command found")
 	}
 }

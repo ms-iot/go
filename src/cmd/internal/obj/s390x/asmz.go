@@ -246,6 +246,9 @@ var optab = []Optab{
 	// find leftmost one
 	Optab{AFLOGR, C_REG, C_NONE, C_NONE, C_REG, 8, 0},
 
+	// population count
+	Optab{APOPCNT, C_REG, C_NONE, C_NONE, C_REG, 9, 0},
+
 	// compare
 	Optab{ACMP, C_REG, C_NONE, C_NONE, C_REG, 70, 0},
 	Optab{ACMP, C_REG, C_NONE, C_NONE, C_LCON, 71, 0},
@@ -427,7 +430,7 @@ func spanz(ctxt *obj.Link, cursym *obj.LSym, newprog obj.ProgAlloc) {
 	changed := true
 	loop := 0
 	for changed {
-		if loop > 10 {
+		if loop > 100 {
 			c.ctxt.Diag("stuck in spanz loop")
 			break
 		}
@@ -570,13 +573,12 @@ func (c *ctxtz) aclass(a *obj.Addr) int {
 				}
 				return C_DACON
 			}
-			goto consize
 
 		case obj.NAME_EXTERN,
 			obj.NAME_STATIC:
 			s := a.Sym
 			if s == nil {
-				break
+				return C_GOK
 			}
 			c.instoffset = a.Offset
 
@@ -605,11 +607,11 @@ func (c *ctxtz) aclass(a *obj.Addr) int {
 				return C_SACON
 			}
 			return C_LACON
+
+		default:
+			return C_GOK
 		}
 
-		return C_GOK
-
-	consize:
 		if c.instoffset == 0 {
 			return C_ZCON
 		}
@@ -1376,6 +1378,10 @@ func buildop(ctxt *obj.Link) {
 			opset(AVSTRCZFS, r)
 			opset(AVSBCBIQ, r)
 			opset(AVSBIQ, r)
+			opset(AVMSLG, r)
+			opset(AVMSLEG, r)
+			opset(AVMSLOG, r)
+			opset(AVMSLEOG, r)
 		case AVSEL:
 			opset(AVFMADB, r)
 			opset(AWFMADB, r)
@@ -2529,6 +2535,7 @@ const (
 	op_VUPLH  uint32 = 0xE7D5 // 	VRR-a	VECTOR UNPACK LOGICAL HIGH
 	op_VUPLL  uint32 = 0xE7D4 // 	VRR-a	VECTOR UNPACK LOGICAL LOW
 	op_VUPL   uint32 = 0xE7D6 // 	VRR-a	VECTOR UNPACK LOW
+	op_VMSL   uint32 = 0xE7B8 // 	VRR-d	VECTOR MULTIPLY SUM LOGICAL
 )
 
 func oclass(a *obj.Addr) int {
@@ -2610,6 +2617,10 @@ func (c *ctxtz) branchMask(p *obj.Prog) uint32 {
 
 func (c *ctxtz) asmout(p *obj.Prog, asm *[]byte) {
 	o := c.oplook(p)
+
+	if o == nil {
+		return
+	}
 
 	switch o.type_ {
 	default:
@@ -2847,6 +2858,9 @@ func (c *ctxtz) asmout(p *obj.Prog, asm *[]byte) {
 		}
 		// FLOGR also writes a mask to p.To.Reg+1.
 		zRRE(op_FLOGR, uint32(p.To.Reg), uint32(p.From.Reg), asm)
+
+	case 9: // population count
+		zRRE(op_POPCNT, uint32(p.To.Reg), uint32(p.From.Reg), asm)
 
 	case 10: // subtract reg [reg] reg
 		r := int(p.Reg)
