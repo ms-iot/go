@@ -8,6 +8,7 @@
 #include "textflag.h"
 #include "tls_arm64.h"
 
+//todo(ragav): add support for windows
 TEXT runtime·load_g(SB),NOSPLIT,$0
 	MOVB	runtime·iscgo(SB), R0
 	CMP	$0, R0

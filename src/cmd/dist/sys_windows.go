@@ -33,6 +33,7 @@ const (
 	PROCESSOR_ARCHITECTURE_AMD64 = 9
 	PROCESSOR_ARCHITECTURE_INTEL = 0
 	PROCESSOR_ARCHITECTURE_ARM   = 5
+	PROCESSOR_ARCHITECTURE_ARM64 = 12
 )
 
 var sysinfo systeminfo
@@ -46,6 +47,8 @@ func sysinit() {
 		gohostarch = "386"
 	case PROCESSOR_ARCHITECTURE_ARM:
 		gohostarch = "arm"
+	case PROCESSOR_ARCHITECTURE_ARM64:
+		gohostarch = "arm64"
 	default:
 		fatalf("unknown processor architecture")
 	}

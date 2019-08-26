@@ -101,6 +101,14 @@ func run(dir string, mode int, cmd ...string) string {
 			// bghelper to exit:
 			bghelpers.Done()
 		}
+		// RAGAV DEBUG
+		println("FAILING bcoz")
+		if err != nil {
+			println("err is not nil")
+		}
+		if mode&CheckExit != 0 {
+			println("mode&checkExit is %d", mode&CheckExit)
+		}
 		fatalf("FAILED: %v: %v", strings.Join(cmd, " "), err)
 	}
 	if mode&ShowOutput != 0 {
