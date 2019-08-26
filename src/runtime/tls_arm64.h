@@ -20,6 +20,15 @@
 #define MRS_TPIDR_R0 WORD $0xd53bd060 // MRS TPIDRRO_EL0, R0
 #endif
 
+#ifdef GOOS_windows
+#define TLS_windows
+#endif
+#ifdef TLS_windows
+#define TPIDR TPIDR_EL0
+// Note(ragav): this could be wrong
+#define MRS_TPIDR_R0 WORD $0xd53bd040 // MRS TPIDR_EL0, R0
+#endif
+
 // Define something that will break the build if
 // the GOOS is unknown.
 #ifndef TPIDR

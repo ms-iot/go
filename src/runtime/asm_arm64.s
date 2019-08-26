@@ -1100,10 +1100,14 @@ TEXT _cgo_topofstack(SB),NOSPLIT,$24
 
 // void setg(G*); set g. for use by needm.
 TEXT runtime·setg(SB), NOSPLIT, $0-8
-	MOVD	gg+0(FP), g
-	// This only happens if iscgo, so jump straight to save_g
-	BL	runtime·save_g(SB)
-	RET
+//	#ifdef GOOS_windows
+//		BL	runtime·save_g(SB)
+//	#else
+		MOVD	gg+0(FP), g
+		// This only happens if iscgo, so jump straight to save_g
+		BL	runtime·save_g(SB)
+		RET
+//	#endif
 
 // void setg_gcc(G*); set g called from gcc
 TEXT setg_gcc<>(SB),NOSPLIT,$8

@@ -45,7 +45,8 @@ func callbackasmAddr(i int) uintptr {
 		panic("unsupported architecture")
 	case "386", "amd64":
 		entrySize = 5
-	case "arm":
+	//todo(ragav): check for correctness of arm64
+	case "arm", "arm64":
 		// On ARM, each entry is a MOV instruction
 		// followed by a branch instruction
 		entrySize = 8

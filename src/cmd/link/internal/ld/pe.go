@@ -117,9 +117,19 @@ const (
 	IMAGE_REL_ARM_ABSOLUTE = 0x0000
 	IMAGE_REL_ARM_ADDR32   = 0x0001
 	IMAGE_REL_ARM_ADDR32NB = 0x0002
+
 	IMAGE_REL_ARM_BRANCH24 = 0x0003
 	IMAGE_REL_ARM_BRANCH11 = 0x0004
 	IMAGE_REL_ARM_SECREL   = 0x000F
+
+	IMAGE_REL_ARM64_ADDR32   = 0x0001
+	IMAGE_REL_ARM64_ADDR64   = 0x000E
+	IMAGE_FILE_MACHINE_ARM64 = 0xaa64
+	IMAGE_REL_ARM64_ADDR32NB = 0x0002
+
+	//todo(ragav): check for missing ARM64 flags
+	IMAGE_REL_ARM64_BRANCH26 = 0x0003
+	IMAGE_REL_ARM64_SECREL   = 0x0008
 
 	IMAGE_REL_BASED_HIGHLOW = 3
 )
@@ -492,6 +502,8 @@ func (f *peFile) addInitArray(ctxt *Link) *peSection {
 		size = 8
 	case "arm":
 		size = 4
+	case "arm64":
+		size = 8
 	}
 	sect := f.addSection(".ctors", size, size)
 	sect.characteristics = IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ
@@ -504,7 +516,7 @@ func (f *peFile) addInitArray(ctxt *Link) *peSection {
 	switch objabi.GOARCH {
 	case "386", "arm":
 		ctxt.Out.Write32(uint32(addr))
-	case "amd64":
+	case "amd64", "arm64":
 		ctxt.Out.Write64(addr)
 	}
 	return sect
@@ -609,6 +621,8 @@ dwarfLoop:
 			ctxt.Out.Write16(IMAGE_REL_AMD64_ADDR64)
 		case "arm":
 			ctxt.Out.Write16(IMAGE_REL_ARM_ADDR32)
+		case "arm64":
+			ctxt.Out.Write16(IMAGE_REL_ARM64_ADDR64)
 		}
 		return 1
 	})
@@ -762,6 +776,8 @@ func (f *peFile) writeFileHeader(arch *sys.Arch, out *OutBuf, linkmode LinkMode)
 		fh.Machine = IMAGE_FILE_MACHINE_I386
 	case sys.ARM:
 		fh.Machine = IMAGE_FILE_MACHINE_ARMNT
+	case sys.ARM64:
+		fh.Machine = IMAGE_FILE_MACHINE_ARM64
 	}
 
 	fh.NumberOfSections = uint16(len(f.sections))
@@ -778,7 +794,8 @@ func (f *peFile) writeFileHeader(arch *sys.Arch, out *OutBuf, linkmode LinkMode)
 			Exitf("write COFF(ext): unknown PE architecture: %v", arch.Family)
 		case sys.AMD64, sys.I386:
 			fh.Characteristics = IMAGE_FILE_RELOCS_STRIPPED | IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_DEBUG_STRIPPED
-		case sys.ARM:
+		//todo(ragav): check for correctness of arm64
+		case sys.ARM, sys.ARM64:
 			fh.Characteristics = IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_DEBUG_STRIPPED
 		}
 	}
@@ -858,7 +875,8 @@ func (f *peFile) writeOptionalHeader(ctxt *Link) {
 	}
 
 	switch ctxt.Arch.Family {
-	case sys.ARM:
+	//todo(ragav): check for correctness for arm64
+	case sys.ARM, sys.ARM64:
 		oh64.DllCharacteristics = IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE | IMAGE_DLLCHARACTERISTICS_NX_COMPAT
 		oh.DllCharacteristics = IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE | IMAGE_DLLCHARACTERISTICS_NX_COMPAT
 	}
@@ -1509,7 +1527,7 @@ func Asmbpe(ctxt *Link) {
 	switch ctxt.Arch.Family {
 	default:
 		Exitf("unknown PE architecture: %v", ctxt.Arch.Family)
-	case sys.AMD64, sys.I386, sys.ARM:
+	case sys.AMD64, sys.I386, sys.ARM, sys.ARM64:
 	}
 
 	t := pefile.addSection(".text", int(Segtext.Length), int(Segtext.Length))
