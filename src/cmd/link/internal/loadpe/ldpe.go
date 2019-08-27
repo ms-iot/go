@@ -323,9 +323,13 @@ func Load(arch *sys.Arch, syms *sym.Symbols, input *bio.Reader, pkg string, leng
 
 					rp.Add = int64(int32(binary.LittleEndian.Uint32(sectdata[rsect][rp.Off:])))
 				}
-			}
 
 			//todo(ragav): add a case for ARM64
+			case sys.ARM64:
+				println("ldpe.go needs a case for ARM64.")
+				return nil, nil, fmt.Errorf("%s: unsupported arch %v", pn, arch.Family)
+				
+			}
 
 			// ld -r could generate multiple section symbols for the
 			// same section but with different values, we have to take
