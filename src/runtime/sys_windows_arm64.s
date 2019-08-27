@@ -103,8 +103,9 @@ TEXT runtime·usleep2(SB),NOSPLIT|NOFRAME,$0
 TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
 	RET
 
-TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
-	RET
+// Note(ragav): commented because duplicate symbol
+// TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
+//	B	runtime·armPublicationBarrier(SB)
 
 // never called (cgo not supported)
 TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
@@ -133,16 +134,20 @@ TEXT time·now(SB),NOSPLIT,$0-20
 // Save the value in the _TEB->TlsSlots array.
 // Effectively implements TlsSetValue().
 // tls_g stores the TLS slot allocated TlsAlloc().
-TEXT runtime·save_g(SB),NOSPLIT|NOFRAME,$0
-	RET
+
+// Note(ragav): commented because duplicate symbol
+// TEXT runtime·save_g(SB),NOSPLIT|NOFRAME,$0
+//	RET
 
 // load_g loads the g register from thread-local memory,
 // for use after calling externally compiled
 // ARM code that overwrote those registers.
 // Get the value from the _TEB->TlsSlots array.
 // Effectively implements TlsGetValue().
-TEXT runtime·load_g(SB),NOSPLIT|NOFRAME,$0
-	RET
+
+// Note(ragav): commented because duplicate symbol
+// TEXT runtime·load_g(SB),NOSPLIT|NOFRAME,$0
+//	RET
 
 // This is called from rt0_go, which runs on the system stack
 // using the initial stack allocated by the OS.
