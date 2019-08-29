@@ -7,10 +7,108 @@
 #include "tls_arm64.h"
 #include "textflag.h"
 
-//todo(ragav): adapt for arm64
-
 // void runtime·asmstdcall(void *c);
 TEXT runtime·asmstdcall(SB),NOSPLIT|NOFRAME,$0
+	// Save non-volatile registers
+	MOVD	R19, R14
+	MOVD	R20, R15
+
+	MOVD	R0, R19			// R19 = libcall* (non-volatile)
+	MOVD	RSP, R20		// R20 = SP (non-volatile)
+	
+	// SetLastError(0)
+	MRS_TPIDR_R0			// MRS TPIDR_EL0, R0 <==> MRC 15, 0, R0, C13, C0, 2
+	MOVW	$0, 0x68(R0)	// Ref: sys_windows_amd64.s uses MOVL (instead of MOVQ)	
+
+	MOVD	16(R19), R16	// R16 = libcall->args (intra-procedure-call scratch register)
+
+	// Check if we have more than 8 arguments
+	MOVD 	8(R19), R1		// R1 = libcall->n (num args)
+	SUB		$8, R1, R2		// R2 = n - 8
+	CMP		$8, R1			// if (n <= 8),
+	BLE loadR7				// load registers.
+
+	// Reserve stack space for remaining args
+	LSL 	$3, R2, R8		// R8 = R2<<3 = 8*(n-8)
+	SUB 	R8, RSP			// SP = SP - 8*(n-8)
+	
+	// Stack must be 16-byte aligned
+	MOVD	RSP, R13
+	BIC		$0xF, R13
+	MOVD	R13, RSP
+
+	// Push the additional args on stack
+	MOVD	$0, R2			// i = 0
+pushargonstack:
+	ADD		$8, R2, R3		// R3 = 8 + i
+	LSL		$3, R3			// R3 = R3<<3 = 8*(8+i)
+	MOVD	(R3)(R16), R3	// R3 = args[8+i]
+	LSL		$3, R2, R8		// R8 = R2<<3 = 8*(i)
+	MOVD	R3, (R8)(RSP)	// stack[i] = R3 = args[8+i]
+	ADD		$1, R2			// i++
+	SUB		$8, R1, R3		// R3 = n - 8
+	CMP		R3, R2			// while(i < (n - 8)),
+	BLT		pushargonstack	// push args
+
+	// Load parameter registers
+loadR7:
+	CMP		$7, R1			// if(n <= 7),
+	BLE		loadR6			// jump to load args[6]
+	MOVD	56(R16), R7		// R7 = args[7]
+loadR6:
+	CMP		$6, R1			// if(n <= 6),
+	BLE		loadR5			// jump to load args[5]
+	MOVD	48(R16), R6		// R6 = args[6]
+loadR5:
+	CMP		$5, R1			// if(n <= 5),
+	BLE		loadR4			// jump to load args[4]
+	MOVD	40(R16), R5		// R5 = args[5]
+loadR4:
+	CMP		$4, R1			// if(n <= 4),
+	BLE		loadR3			// jump to load args[3]
+	MOVD	32(R16), R4		// R4 = args[4]
+loadR3:
+	CMP		$3, R1			// if(n <= 3),
+	BLE		loadR2			// jump to load args[2]
+	MOVD	24(R16), R3		// R3 = args[3]
+loadR2:
+	CMP		$2, R1			// if(n <= 2),
+	BLE		loadR1			// jump to load args[1]
+	MOVD	16(R16), R2		// R2 = args[2]
+loadR1:
+	CMP		$1, R1			// if(n <= 1),
+	BLE		loadR0			// jump to load args[0]
+	MOVD	8(R16), R1		// R1 = args[1]
+loadR0:
+	CMP		$0, R0			// if(n <= 0),
+	BLE		argsloaded		// no args to load
+	MOVD	0(R16), R0		// R0 = args[0]
+
+argsloaded:
+	// Stack must be 16-byte aligned
+	MOVD	RSP, R13
+	BIC		$0xF, R13
+	MOVD	R13, RSP
+
+	// Call fn
+	MOVD	0(R19), R16		// R16 = libcall->fn
+	BL		(R16)			// branch to libcall->fn 
+	
+	// Free stack space
+	MOVD	R20, RSP
+
+	// Save return values
+	MOVD	R0, 24(R19)
+	MOVD	R1, 32(R19)		// Note: R1 is not a result register in ARM64. Double check this line.
+	
+	// GetLastError
+	MRS_TPIDR_R0			// MRS TPIDR_EL0, R0 <==> MRC 15, 0, R0, C13, C0, 2
+	MOVD	0x68(R0), R1
+	MOVD	R1, 40(R19)		// libcall->err = error
+
+	// Restore non-volatile registers
+	MOVD	R14, R19
+	MOVD	R15, R20
 	RET
 
 TEXT runtime·badsignal2(SB),NOSPLIT|NOFRAME,$0
@@ -38,23 +136,31 @@ TEXT runtime·sigtramp(SB),NOSPLIT|NOFRAME,$0
 // This is part of the control flow guard workaround.
 // It switches stacks and jumps to the continuation address.
 //
-TEXT runtime·returntramp(SB),NOSPLIT|NOFRAME,$0
-	RET
+// Note(ragav): The function made use of PC register which is
+// not accessible in Arm64. The use and alternative to this
+// function needs to be evaluated.
+// TEXT runtime·returntramp(SB),NOSPLIT|NOFRAME,$0
+//	RET
 
 TEXT runtime·exceptiontramp(SB),NOSPLIT|NOFRAME,$0
-	RET
+	MOVD	$runtime·exceptionhandler(SB), R1		// sigmtramp needs handler function in R1
+	B	runtime·sigtramp(SB)
 
 TEXT runtime·firstcontinuetramp(SB),NOSPLIT|NOFRAME,$0
-	RET
+	MOVD	$runtime·firstcontinuehandler(SB), R1	// sigmtramp needs handler function in R1
+	B	runtime·sigtramp(SB)
 
 TEXT runtime·lastcontinuetramp(SB),NOSPLIT|NOFRAME,$0
-	RET
+	MOVD	$runtime·lastcontinuehandler(SB), R1	// sigmtramp needs handler function in R1
+	B	runtime·sigtramp(SB)
 
 TEXT runtime·ctrlhandler(SB),NOSPLIT|NOFRAME,$0
-	RET
+	MOVD	$runtime·ctrlhandler1(SB), R1			// sigmtramp needs handler function in R1
+	B	runtime·externalthreadhandler(SB)
 
 TEXT runtime·profileloop(SB),NOSPLIT|NOFRAME,$0
-	RET
+	MOVD	$runtime·profileloop1(SB), R1			// sigmtramp needs handler function in R1
+	B	runtime·externalthreadhandler(SB)
 
 // int32 externalthreadhandler(uint32 arg, int (*func)(uint32))
 // stack layout:
