@@ -2,4011 +2,4011 @@
 
 // External code calls into callbackasm at an offset corresponding
 // to the callback index. Callbackasm is a table of MOV and B instructions.
-// The MOV instruction loads R12 with the callback index, and the
+// The MOV instruction loads R16 with the callback index, and the
 // B instruction branches to callbackasm1.
-// callbackasm1 takes the callback index from R12 and
+// callbackasm1 takes the callback index from R16 and
 // indexes into an array that stores information about each callback.
 // It then calls the Go implementation for that callback.
 #include "textflag.h"
 
 TEXT runtime·callbackasm(SB),NOSPLIT|NOFRAME,$0
-	MOVW	$0, R12
+	MOVW	$0, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1, R12
+	MOVW	$1, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$2, R12
+	MOVW	$2, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$3, R12
+	MOVW	$3, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$4, R12
+	MOVW	$4, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$5, R12
+	MOVW	$5, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$6, R12
+	MOVW	$6, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$7, R12
+	MOVW	$7, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$8, R12
+	MOVW	$8, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$9, R12
+	MOVW	$9, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$10, R12
+	MOVW	$10, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$11, R12
+	MOVW	$11, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$12, R12
+	MOVW	$12, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$13, R12
+	MOVW	$13, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$14, R12
+	MOVW	$14, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$15, R12
+	MOVW	$15, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$16, R12
+	MOVW	$16, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$17, R12
+	MOVW	$17, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$18, R12
+	MOVW	$18, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$19, R12
+	MOVW	$19, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$20, R12
+	MOVW	$20, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$21, R12
+	MOVW	$21, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$22, R12
+	MOVW	$22, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$23, R12
+	MOVW	$23, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$24, R12
+	MOVW	$24, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$25, R12
+	MOVW	$25, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$26, R12
+	MOVW	$26, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$27, R12
+	MOVW	$27, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$28, R12
+	MOVW	$28, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$29, R12
+	MOVW	$29, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$30, R12
+	MOVW	$30, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$31, R12
+	MOVW	$31, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$32, R12
+	MOVW	$32, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$33, R12
+	MOVW	$33, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$34, R12
+	MOVW	$34, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$35, R12
+	MOVW	$35, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$36, R12
+	MOVW	$36, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$37, R12
+	MOVW	$37, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$38, R12
+	MOVW	$38, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$39, R12
+	MOVW	$39, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$40, R12
+	MOVW	$40, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$41, R12
+	MOVW	$41, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$42, R12
+	MOVW	$42, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$43, R12
+	MOVW	$43, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$44, R12
+	MOVW	$44, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$45, R12
+	MOVW	$45, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$46, R12
+	MOVW	$46, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$47, R12
+	MOVW	$47, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$48, R12
+	MOVW	$48, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$49, R12
+	MOVW	$49, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$50, R12
+	MOVW	$50, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$51, R12
+	MOVW	$51, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$52, R12
+	MOVW	$52, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$53, R12
+	MOVW	$53, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$54, R12
+	MOVW	$54, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$55, R12
+	MOVW	$55, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$56, R12
+	MOVW	$56, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$57, R12
+	MOVW	$57, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$58, R12
+	MOVW	$58, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$59, R12
+	MOVW	$59, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$60, R12
+	MOVW	$60, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$61, R12
+	MOVW	$61, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$62, R12
+	MOVW	$62, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$63, R12
+	MOVW	$63, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$64, R12
+	MOVW	$64, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$65, R12
+	MOVW	$65, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$66, R12
+	MOVW	$66, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$67, R12
+	MOVW	$67, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$68, R12
+	MOVW	$68, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$69, R12
+	MOVW	$69, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$70, R12
+	MOVW	$70, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$71, R12
+	MOVW	$71, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$72, R12
+	MOVW	$72, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$73, R12
+	MOVW	$73, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$74, R12
+	MOVW	$74, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$75, R12
+	MOVW	$75, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$76, R12
+	MOVW	$76, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$77, R12
+	MOVW	$77, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$78, R12
+	MOVW	$78, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$79, R12
+	MOVW	$79, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$80, R12
+	MOVW	$80, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$81, R12
+	MOVW	$81, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$82, R12
+	MOVW	$82, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$83, R12
+	MOVW	$83, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$84, R12
+	MOVW	$84, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$85, R12
+	MOVW	$85, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$86, R12
+	MOVW	$86, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$87, R12
+	MOVW	$87, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$88, R12
+	MOVW	$88, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$89, R12
+	MOVW	$89, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$90, R12
+	MOVW	$90, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$91, R12
+	MOVW	$91, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$92, R12
+	MOVW	$92, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$93, R12
+	MOVW	$93, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$94, R12
+	MOVW	$94, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$95, R12
+	MOVW	$95, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$96, R12
+	MOVW	$96, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$97, R12
+	MOVW	$97, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$98, R12
+	MOVW	$98, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$99, R12
+	MOVW	$99, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$100, R12
+	MOVW	$100, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$101, R12
+	MOVW	$101, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$102, R12
+	MOVW	$102, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$103, R12
+	MOVW	$103, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$104, R12
+	MOVW	$104, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$105, R12
+	MOVW	$105, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$106, R12
+	MOVW	$106, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$107, R12
+	MOVW	$107, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$108, R12
+	MOVW	$108, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$109, R12
+	MOVW	$109, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$110, R12
+	MOVW	$110, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$111, R12
+	MOVW	$111, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$112, R12
+	MOVW	$112, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$113, R12
+	MOVW	$113, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$114, R12
+	MOVW	$114, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$115, R12
+	MOVW	$115, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$116, R12
+	MOVW	$116, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$117, R12
+	MOVW	$117, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$118, R12
+	MOVW	$118, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$119, R12
+	MOVW	$119, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$120, R12
+	MOVW	$120, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$121, R12
+	MOVW	$121, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$122, R12
+	MOVW	$122, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$123, R12
+	MOVW	$123, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$124, R12
+	MOVW	$124, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$125, R12
+	MOVW	$125, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$126, R12
+	MOVW	$126, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$127, R12
+	MOVW	$127, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$128, R12
+	MOVW	$128, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$129, R12
+	MOVW	$129, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$130, R12
+	MOVW	$130, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$131, R12
+	MOVW	$131, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$132, R12
+	MOVW	$132, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$133, R12
+	MOVW	$133, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$134, R12
+	MOVW	$134, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$135, R12
+	MOVW	$135, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$136, R12
+	MOVW	$136, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$137, R12
+	MOVW	$137, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$138, R12
+	MOVW	$138, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$139, R12
+	MOVW	$139, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$140, R12
+	MOVW	$140, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$141, R12
+	MOVW	$141, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$142, R12
+	MOVW	$142, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$143, R12
+	MOVW	$143, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$144, R12
+	MOVW	$144, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$145, R12
+	MOVW	$145, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$146, R12
+	MOVW	$146, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$147, R12
+	MOVW	$147, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$148, R12
+	MOVW	$148, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$149, R12
+	MOVW	$149, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$150, R12
+	MOVW	$150, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$151, R12
+	MOVW	$151, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$152, R12
+	MOVW	$152, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$153, R12
+	MOVW	$153, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$154, R12
+	MOVW	$154, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$155, R12
+	MOVW	$155, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$156, R12
+	MOVW	$156, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$157, R12
+	MOVW	$157, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$158, R12
+	MOVW	$158, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$159, R12
+	MOVW	$159, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$160, R12
+	MOVW	$160, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$161, R12
+	MOVW	$161, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$162, R12
+	MOVW	$162, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$163, R12
+	MOVW	$163, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$164, R12
+	MOVW	$164, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$165, R12
+	MOVW	$165, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$166, R12
+	MOVW	$166, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$167, R12
+	MOVW	$167, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$168, R12
+	MOVW	$168, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$169, R12
+	MOVW	$169, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$170, R12
+	MOVW	$170, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$171, R12
+	MOVW	$171, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$172, R12
+	MOVW	$172, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$173, R12
+	MOVW	$173, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$174, R12
+	MOVW	$174, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$175, R12
+	MOVW	$175, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$176, R12
+	MOVW	$176, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$177, R12
+	MOVW	$177, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$178, R12
+	MOVW	$178, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$179, R12
+	MOVW	$179, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$180, R12
+	MOVW	$180, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$181, R12
+	MOVW	$181, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$182, R12
+	MOVW	$182, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$183, R12
+	MOVW	$183, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$184, R12
+	MOVW	$184, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$185, R12
+	MOVW	$185, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$186, R12
+	MOVW	$186, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$187, R12
+	MOVW	$187, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$188, R12
+	MOVW	$188, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$189, R12
+	MOVW	$189, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$190, R12
+	MOVW	$190, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$191, R12
+	MOVW	$191, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$192, R12
+	MOVW	$192, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$193, R12
+	MOVW	$193, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$194, R12
+	MOVW	$194, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$195, R12
+	MOVW	$195, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$196, R12
+	MOVW	$196, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$197, R12
+	MOVW	$197, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$198, R12
+	MOVW	$198, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$199, R12
+	MOVW	$199, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$200, R12
+	MOVW	$200, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$201, R12
+	MOVW	$201, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$202, R12
+	MOVW	$202, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$203, R12
+	MOVW	$203, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$204, R12
+	MOVW	$204, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$205, R12
+	MOVW	$205, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$206, R12
+	MOVW	$206, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$207, R12
+	MOVW	$207, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$208, R12
+	MOVW	$208, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$209, R12
+	MOVW	$209, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$210, R12
+	MOVW	$210, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$211, R12
+	MOVW	$211, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$212, R12
+	MOVW	$212, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$213, R12
+	MOVW	$213, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$214, R12
+	MOVW	$214, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$215, R12
+	MOVW	$215, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$216, R12
+	MOVW	$216, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$217, R12
+	MOVW	$217, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$218, R12
+	MOVW	$218, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$219, R12
+	MOVW	$219, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$220, R12
+	MOVW	$220, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$221, R12
+	MOVW	$221, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$222, R12
+	MOVW	$222, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$223, R12
+	MOVW	$223, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$224, R12
+	MOVW	$224, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$225, R12
+	MOVW	$225, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$226, R12
+	MOVW	$226, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$227, R12
+	MOVW	$227, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$228, R12
+	MOVW	$228, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$229, R12
+	MOVW	$229, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$230, R12
+	MOVW	$230, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$231, R12
+	MOVW	$231, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$232, R12
+	MOVW	$232, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$233, R12
+	MOVW	$233, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$234, R12
+	MOVW	$234, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$235, R12
+	MOVW	$235, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$236, R12
+	MOVW	$236, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$237, R12
+	MOVW	$237, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$238, R12
+	MOVW	$238, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$239, R12
+	MOVW	$239, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$240, R12
+	MOVW	$240, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$241, R12
+	MOVW	$241, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$242, R12
+	MOVW	$242, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$243, R12
+	MOVW	$243, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$244, R12
+	MOVW	$244, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$245, R12
+	MOVW	$245, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$246, R12
+	MOVW	$246, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$247, R12
+	MOVW	$247, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$248, R12
+	MOVW	$248, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$249, R12
+	MOVW	$249, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$250, R12
+	MOVW	$250, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$251, R12
+	MOVW	$251, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$252, R12
+	MOVW	$252, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$253, R12
+	MOVW	$253, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$254, R12
+	MOVW	$254, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$255, R12
+	MOVW	$255, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$256, R12
+	MOVW	$256, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$257, R12
+	MOVW	$257, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$258, R12
+	MOVW	$258, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$259, R12
+	MOVW	$259, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$260, R12
+	MOVW	$260, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$261, R12
+	MOVW	$261, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$262, R12
+	MOVW	$262, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$263, R12
+	MOVW	$263, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$264, R12
+	MOVW	$264, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$265, R12
+	MOVW	$265, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$266, R12
+	MOVW	$266, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$267, R12
+	MOVW	$267, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$268, R12
+	MOVW	$268, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$269, R12
+	MOVW	$269, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$270, R12
+	MOVW	$270, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$271, R12
+	MOVW	$271, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$272, R12
+	MOVW	$272, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$273, R12
+	MOVW	$273, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$274, R12
+	MOVW	$274, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$275, R12
+	MOVW	$275, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$276, R12
+	MOVW	$276, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$277, R12
+	MOVW	$277, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$278, R12
+	MOVW	$278, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$279, R12
+	MOVW	$279, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$280, R12
+	MOVW	$280, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$281, R12
+	MOVW	$281, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$282, R12
+	MOVW	$282, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$283, R12
+	MOVW	$283, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$284, R12
+	MOVW	$284, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$285, R12
+	MOVW	$285, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$286, R12
+	MOVW	$286, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$287, R12
+	MOVW	$287, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$288, R12
+	MOVW	$288, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$289, R12
+	MOVW	$289, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$290, R12
+	MOVW	$290, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$291, R12
+	MOVW	$291, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$292, R12
+	MOVW	$292, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$293, R12
+	MOVW	$293, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$294, R12
+	MOVW	$294, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$295, R12
+	MOVW	$295, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$296, R12
+	MOVW	$296, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$297, R12
+	MOVW	$297, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$298, R12
+	MOVW	$298, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$299, R12
+	MOVW	$299, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$300, R12
+	MOVW	$300, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$301, R12
+	MOVW	$301, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$302, R12
+	MOVW	$302, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$303, R12
+	MOVW	$303, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$304, R12
+	MOVW	$304, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$305, R12
+	MOVW	$305, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$306, R12
+	MOVW	$306, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$307, R12
+	MOVW	$307, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$308, R12
+	MOVW	$308, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$309, R12
+	MOVW	$309, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$310, R12
+	MOVW	$310, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$311, R12
+	MOVW	$311, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$312, R12
+	MOVW	$312, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$313, R12
+	MOVW	$313, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$314, R12
+	MOVW	$314, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$315, R12
+	MOVW	$315, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$316, R12
+	MOVW	$316, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$317, R12
+	MOVW	$317, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$318, R12
+	MOVW	$318, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$319, R12
+	MOVW	$319, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$320, R12
+	MOVW	$320, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$321, R12
+	MOVW	$321, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$322, R12
+	MOVW	$322, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$323, R12
+	MOVW	$323, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$324, R12
+	MOVW	$324, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$325, R12
+	MOVW	$325, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$326, R12
+	MOVW	$326, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$327, R12
+	MOVW	$327, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$328, R12
+	MOVW	$328, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$329, R12
+	MOVW	$329, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$330, R12
+	MOVW	$330, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$331, R12
+	MOVW	$331, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$332, R12
+	MOVW	$332, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$333, R12
+	MOVW	$333, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$334, R12
+	MOVW	$334, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$335, R12
+	MOVW	$335, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$336, R12
+	MOVW	$336, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$337, R12
+	MOVW	$337, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$338, R12
+	MOVW	$338, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$339, R12
+	MOVW	$339, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$340, R12
+	MOVW	$340, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$341, R12
+	MOVW	$341, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$342, R12
+	MOVW	$342, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$343, R12
+	MOVW	$343, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$344, R12
+	MOVW	$344, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$345, R12
+	MOVW	$345, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$346, R12
+	MOVW	$346, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$347, R12
+	MOVW	$347, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$348, R12
+	MOVW	$348, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$349, R12
+	MOVW	$349, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$350, R12
+	MOVW	$350, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$351, R12
+	MOVW	$351, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$352, R12
+	MOVW	$352, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$353, R12
+	MOVW	$353, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$354, R12
+	MOVW	$354, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$355, R12
+	MOVW	$355, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$356, R12
+	MOVW	$356, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$357, R12
+	MOVW	$357, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$358, R12
+	MOVW	$358, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$359, R12
+	MOVW	$359, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$360, R12
+	MOVW	$360, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$361, R12
+	MOVW	$361, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$362, R12
+	MOVW	$362, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$363, R12
+	MOVW	$363, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$364, R12
+	MOVW	$364, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$365, R12
+	MOVW	$365, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$366, R12
+	MOVW	$366, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$367, R12
+	MOVW	$367, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$368, R12
+	MOVW	$368, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$369, R12
+	MOVW	$369, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$370, R12
+	MOVW	$370, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$371, R12
+	MOVW	$371, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$372, R12
+	MOVW	$372, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$373, R12
+	MOVW	$373, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$374, R12
+	MOVW	$374, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$375, R12
+	MOVW	$375, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$376, R12
+	MOVW	$376, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$377, R12
+	MOVW	$377, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$378, R12
+	MOVW	$378, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$379, R12
+	MOVW	$379, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$380, R12
+	MOVW	$380, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$381, R12
+	MOVW	$381, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$382, R12
+	MOVW	$382, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$383, R12
+	MOVW	$383, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$384, R12
+	MOVW	$384, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$385, R12
+	MOVW	$385, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$386, R12
+	MOVW	$386, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$387, R12
+	MOVW	$387, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$388, R12
+	MOVW	$388, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$389, R12
+	MOVW	$389, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$390, R12
+	MOVW	$390, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$391, R12
+	MOVW	$391, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$392, R12
+	MOVW	$392, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$393, R12
+	MOVW	$393, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$394, R12
+	MOVW	$394, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$395, R12
+	MOVW	$395, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$396, R12
+	MOVW	$396, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$397, R12
+	MOVW	$397, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$398, R12
+	MOVW	$398, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$399, R12
+	MOVW	$399, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$400, R12
+	MOVW	$400, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$401, R12
+	MOVW	$401, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$402, R12
+	MOVW	$402, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$403, R12
+	MOVW	$403, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$404, R12
+	MOVW	$404, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$405, R12
+	MOVW	$405, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$406, R12
+	MOVW	$406, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$407, R12
+	MOVW	$407, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$408, R12
+	MOVW	$408, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$409, R12
+	MOVW	$409, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$410, R12
+	MOVW	$410, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$411, R12
+	MOVW	$411, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$412, R12
+	MOVW	$412, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$413, R12
+	MOVW	$413, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$414, R12
+	MOVW	$414, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$415, R12
+	MOVW	$415, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$416, R12
+	MOVW	$416, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$417, R12
+	MOVW	$417, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$418, R12
+	MOVW	$418, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$419, R12
+	MOVW	$419, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$420, R12
+	MOVW	$420, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$421, R12
+	MOVW	$421, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$422, R12
+	MOVW	$422, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$423, R12
+	MOVW	$423, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$424, R12
+	MOVW	$424, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$425, R12
+	MOVW	$425, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$426, R12
+	MOVW	$426, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$427, R12
+	MOVW	$427, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$428, R12
+	MOVW	$428, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$429, R12
+	MOVW	$429, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$430, R12
+	MOVW	$430, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$431, R12
+	MOVW	$431, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$432, R12
+	MOVW	$432, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$433, R12
+	MOVW	$433, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$434, R12
+	MOVW	$434, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$435, R12
+	MOVW	$435, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$436, R12
+	MOVW	$436, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$437, R12
+	MOVW	$437, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$438, R12
+	MOVW	$438, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$439, R12
+	MOVW	$439, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$440, R12
+	MOVW	$440, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$441, R12
+	MOVW	$441, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$442, R12
+	MOVW	$442, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$443, R12
+	MOVW	$443, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$444, R12
+	MOVW	$444, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$445, R12
+	MOVW	$445, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$446, R12
+	MOVW	$446, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$447, R12
+	MOVW	$447, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$448, R12
+	MOVW	$448, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$449, R12
+	MOVW	$449, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$450, R12
+	MOVW	$450, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$451, R12
+	MOVW	$451, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$452, R12
+	MOVW	$452, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$453, R12
+	MOVW	$453, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$454, R12
+	MOVW	$454, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$455, R12
+	MOVW	$455, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$456, R12
+	MOVW	$456, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$457, R12
+	MOVW	$457, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$458, R12
+	MOVW	$458, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$459, R12
+	MOVW	$459, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$460, R12
+	MOVW	$460, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$461, R12
+	MOVW	$461, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$462, R12
+	MOVW	$462, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$463, R12
+	MOVW	$463, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$464, R12
+	MOVW	$464, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$465, R12
+	MOVW	$465, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$466, R12
+	MOVW	$466, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$467, R12
+	MOVW	$467, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$468, R12
+	MOVW	$468, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$469, R12
+	MOVW	$469, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$470, R12
+	MOVW	$470, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$471, R12
+	MOVW	$471, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$472, R12
+	MOVW	$472, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$473, R12
+	MOVW	$473, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$474, R12
+	MOVW	$474, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$475, R12
+	MOVW	$475, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$476, R12
+	MOVW	$476, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$477, R12
+	MOVW	$477, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$478, R12
+	MOVW	$478, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$479, R12
+	MOVW	$479, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$480, R12
+	MOVW	$480, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$481, R12
+	MOVW	$481, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$482, R12
+	MOVW	$482, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$483, R12
+	MOVW	$483, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$484, R12
+	MOVW	$484, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$485, R12
+	MOVW	$485, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$486, R12
+	MOVW	$486, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$487, R12
+	MOVW	$487, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$488, R12
+	MOVW	$488, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$489, R12
+	MOVW	$489, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$490, R12
+	MOVW	$490, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$491, R12
+	MOVW	$491, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$492, R12
+	MOVW	$492, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$493, R12
+	MOVW	$493, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$494, R12
+	MOVW	$494, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$495, R12
+	MOVW	$495, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$496, R12
+	MOVW	$496, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$497, R12
+	MOVW	$497, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$498, R12
+	MOVW	$498, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$499, R12
+	MOVW	$499, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$500, R12
+	MOVW	$500, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$501, R12
+	MOVW	$501, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$502, R12
+	MOVW	$502, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$503, R12
+	MOVW	$503, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$504, R12
+	MOVW	$504, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$505, R12
+	MOVW	$505, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$506, R12
+	MOVW	$506, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$507, R12
+	MOVW	$507, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$508, R12
+	MOVW	$508, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$509, R12
+	MOVW	$509, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$510, R12
+	MOVW	$510, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$511, R12
+	MOVW	$511, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$512, R12
+	MOVW	$512, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$513, R12
+	MOVW	$513, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$514, R12
+	MOVW	$514, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$515, R12
+	MOVW	$515, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$516, R12
+	MOVW	$516, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$517, R12
+	MOVW	$517, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$518, R12
+	MOVW	$518, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$519, R12
+	MOVW	$519, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$520, R12
+	MOVW	$520, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$521, R12
+	MOVW	$521, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$522, R12
+	MOVW	$522, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$523, R12
+	MOVW	$523, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$524, R12
+	MOVW	$524, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$525, R12
+	MOVW	$525, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$526, R12
+	MOVW	$526, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$527, R12
+	MOVW	$527, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$528, R12
+	MOVW	$528, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$529, R12
+	MOVW	$529, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$530, R12
+	MOVW	$530, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$531, R12
+	MOVW	$531, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$532, R12
+	MOVW	$532, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$533, R12
+	MOVW	$533, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$534, R12
+	MOVW	$534, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$535, R12
+	MOVW	$535, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$536, R12
+	MOVW	$536, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$537, R12
+	MOVW	$537, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$538, R12
+	MOVW	$538, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$539, R12
+	MOVW	$539, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$540, R12
+	MOVW	$540, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$541, R12
+	MOVW	$541, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$542, R12
+	MOVW	$542, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$543, R12
+	MOVW	$543, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$544, R12
+	MOVW	$544, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$545, R12
+	MOVW	$545, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$546, R12
+	MOVW	$546, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$547, R12
+	MOVW	$547, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$548, R12
+	MOVW	$548, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$549, R12
+	MOVW	$549, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$550, R12
+	MOVW	$550, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$551, R12
+	MOVW	$551, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$552, R12
+	MOVW	$552, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$553, R12
+	MOVW	$553, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$554, R12
+	MOVW	$554, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$555, R12
+	MOVW	$555, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$556, R12
+	MOVW	$556, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$557, R12
+	MOVW	$557, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$558, R12
+	MOVW	$558, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$559, R12
+	MOVW	$559, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$560, R12
+	MOVW	$560, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$561, R12
+	MOVW	$561, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$562, R12
+	MOVW	$562, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$563, R12
+	MOVW	$563, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$564, R12
+	MOVW	$564, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$565, R12
+	MOVW	$565, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$566, R12
+	MOVW	$566, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$567, R12
+	MOVW	$567, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$568, R12
+	MOVW	$568, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$569, R12
+	MOVW	$569, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$570, R12
+	MOVW	$570, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$571, R12
+	MOVW	$571, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$572, R12
+	MOVW	$572, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$573, R12
+	MOVW	$573, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$574, R12
+	MOVW	$574, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$575, R12
+	MOVW	$575, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$576, R12
+	MOVW	$576, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$577, R12
+	MOVW	$577, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$578, R12
+	MOVW	$578, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$579, R12
+	MOVW	$579, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$580, R12
+	MOVW	$580, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$581, R12
+	MOVW	$581, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$582, R12
+	MOVW	$582, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$583, R12
+	MOVW	$583, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$584, R12
+	MOVW	$584, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$585, R12
+	MOVW	$585, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$586, R12
+	MOVW	$586, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$587, R12
+	MOVW	$587, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$588, R12
+	MOVW	$588, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$589, R12
+	MOVW	$589, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$590, R12
+	MOVW	$590, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$591, R12
+	MOVW	$591, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$592, R12
+	MOVW	$592, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$593, R12
+	MOVW	$593, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$594, R12
+	MOVW	$594, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$595, R12
+	MOVW	$595, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$596, R12
+	MOVW	$596, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$597, R12
+	MOVW	$597, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$598, R12
+	MOVW	$598, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$599, R12
+	MOVW	$599, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$600, R12
+	MOVW	$600, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$601, R12
+	MOVW	$601, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$602, R12
+	MOVW	$602, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$603, R12
+	MOVW	$603, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$604, R12
+	MOVW	$604, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$605, R12
+	MOVW	$605, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$606, R12
+	MOVW	$606, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$607, R12
+	MOVW	$607, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$608, R12
+	MOVW	$608, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$609, R12
+	MOVW	$609, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$610, R12
+	MOVW	$610, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$611, R12
+	MOVW	$611, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$612, R12
+	MOVW	$612, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$613, R12
+	MOVW	$613, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$614, R12
+	MOVW	$614, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$615, R12
+	MOVW	$615, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$616, R12
+	MOVW	$616, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$617, R12
+	MOVW	$617, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$618, R12
+	MOVW	$618, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$619, R12
+	MOVW	$619, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$620, R12
+	MOVW	$620, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$621, R12
+	MOVW	$621, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$622, R12
+	MOVW	$622, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$623, R12
+	MOVW	$623, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$624, R12
+	MOVW	$624, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$625, R12
+	MOVW	$625, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$626, R12
+	MOVW	$626, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$627, R12
+	MOVW	$627, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$628, R12
+	MOVW	$628, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$629, R12
+	MOVW	$629, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$630, R12
+	MOVW	$630, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$631, R12
+	MOVW	$631, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$632, R12
+	MOVW	$632, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$633, R12
+	MOVW	$633, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$634, R12
+	MOVW	$634, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$635, R12
+	MOVW	$635, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$636, R12
+	MOVW	$636, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$637, R12
+	MOVW	$637, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$638, R12
+	MOVW	$638, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$639, R12
+	MOVW	$639, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$640, R12
+	MOVW	$640, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$641, R12
+	MOVW	$641, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$642, R12
+	MOVW	$642, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$643, R12
+	MOVW	$643, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$644, R12
+	MOVW	$644, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$645, R12
+	MOVW	$645, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$646, R12
+	MOVW	$646, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$647, R12
+	MOVW	$647, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$648, R12
+	MOVW	$648, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$649, R12
+	MOVW	$649, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$650, R12
+	MOVW	$650, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$651, R12
+	MOVW	$651, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$652, R12
+	MOVW	$652, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$653, R12
+	MOVW	$653, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$654, R12
+	MOVW	$654, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$655, R12
+	MOVW	$655, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$656, R12
+	MOVW	$656, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$657, R12
+	MOVW	$657, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$658, R12
+	MOVW	$658, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$659, R12
+	MOVW	$659, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$660, R12
+	MOVW	$660, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$661, R12
+	MOVW	$661, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$662, R12
+	MOVW	$662, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$663, R12
+	MOVW	$663, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$664, R12
+	MOVW	$664, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$665, R12
+	MOVW	$665, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$666, R12
+	MOVW	$666, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$667, R12
+	MOVW	$667, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$668, R12
+	MOVW	$668, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$669, R12
+	MOVW	$669, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$670, R12
+	MOVW	$670, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$671, R12
+	MOVW	$671, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$672, R12
+	MOVW	$672, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$673, R12
+	MOVW	$673, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$674, R12
+	MOVW	$674, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$675, R12
+	MOVW	$675, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$676, R12
+	MOVW	$676, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$677, R12
+	MOVW	$677, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$678, R12
+	MOVW	$678, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$679, R12
+	MOVW	$679, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$680, R12
+	MOVW	$680, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$681, R12
+	MOVW	$681, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$682, R12
+	MOVW	$682, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$683, R12
+	MOVW	$683, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$684, R12
+	MOVW	$684, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$685, R12
+	MOVW	$685, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$686, R12
+	MOVW	$686, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$687, R12
+	MOVW	$687, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$688, R12
+	MOVW	$688, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$689, R12
+	MOVW	$689, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$690, R12
+	MOVW	$690, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$691, R12
+	MOVW	$691, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$692, R12
+	MOVW	$692, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$693, R12
+	MOVW	$693, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$694, R12
+	MOVW	$694, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$695, R12
+	MOVW	$695, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$696, R12
+	MOVW	$696, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$697, R12
+	MOVW	$697, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$698, R12
+	MOVW	$698, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$699, R12
+	MOVW	$699, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$700, R12
+	MOVW	$700, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$701, R12
+	MOVW	$701, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$702, R12
+	MOVW	$702, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$703, R12
+	MOVW	$703, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$704, R12
+	MOVW	$704, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$705, R12
+	MOVW	$705, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$706, R12
+	MOVW	$706, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$707, R12
+	MOVW	$707, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$708, R12
+	MOVW	$708, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$709, R12
+	MOVW	$709, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$710, R12
+	MOVW	$710, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$711, R12
+	MOVW	$711, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$712, R12
+	MOVW	$712, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$713, R12
+	MOVW	$713, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$714, R12
+	MOVW	$714, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$715, R12
+	MOVW	$715, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$716, R12
+	MOVW	$716, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$717, R12
+	MOVW	$717, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$718, R12
+	MOVW	$718, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$719, R12
+	MOVW	$719, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$720, R12
+	MOVW	$720, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$721, R12
+	MOVW	$721, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$722, R12
+	MOVW	$722, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$723, R12
+	MOVW	$723, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$724, R12
+	MOVW	$724, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$725, R12
+	MOVW	$725, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$726, R12
+	MOVW	$726, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$727, R12
+	MOVW	$727, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$728, R12
+	MOVW	$728, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$729, R12
+	MOVW	$729, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$730, R12
+	MOVW	$730, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$731, R12
+	MOVW	$731, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$732, R12
+	MOVW	$732, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$733, R12
+	MOVW	$733, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$734, R12
+	MOVW	$734, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$735, R12
+	MOVW	$735, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$736, R12
+	MOVW	$736, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$737, R12
+	MOVW	$737, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$738, R12
+	MOVW	$738, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$739, R12
+	MOVW	$739, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$740, R12
+	MOVW	$740, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$741, R12
+	MOVW	$741, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$742, R12
+	MOVW	$742, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$743, R12
+	MOVW	$743, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$744, R12
+	MOVW	$744, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$745, R12
+	MOVW	$745, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$746, R12
+	MOVW	$746, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$747, R12
+	MOVW	$747, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$748, R12
+	MOVW	$748, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$749, R12
+	MOVW	$749, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$750, R12
+	MOVW	$750, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$751, R12
+	MOVW	$751, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$752, R12
+	MOVW	$752, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$753, R12
+	MOVW	$753, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$754, R12
+	MOVW	$754, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$755, R12
+	MOVW	$755, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$756, R12
+	MOVW	$756, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$757, R12
+	MOVW	$757, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$758, R12
+	MOVW	$758, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$759, R12
+	MOVW	$759, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$760, R12
+	MOVW	$760, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$761, R12
+	MOVW	$761, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$762, R12
+	MOVW	$762, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$763, R12
+	MOVW	$763, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$764, R12
+	MOVW	$764, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$765, R12
+	MOVW	$765, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$766, R12
+	MOVW	$766, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$767, R12
+	MOVW	$767, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$768, R12
+	MOVW	$768, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$769, R12
+	MOVW	$769, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$770, R12
+	MOVW	$770, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$771, R12
+	MOVW	$771, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$772, R12
+	MOVW	$772, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$773, R12
+	MOVW	$773, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$774, R12
+	MOVW	$774, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$775, R12
+	MOVW	$775, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$776, R12
+	MOVW	$776, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$777, R12
+	MOVW	$777, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$778, R12
+	MOVW	$778, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$779, R12
+	MOVW	$779, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$780, R12
+	MOVW	$780, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$781, R12
+	MOVW	$781, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$782, R12
+	MOVW	$782, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$783, R12
+	MOVW	$783, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$784, R12
+	MOVW	$784, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$785, R12
+	MOVW	$785, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$786, R12
+	MOVW	$786, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$787, R12
+	MOVW	$787, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$788, R12
+	MOVW	$788, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$789, R12
+	MOVW	$789, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$790, R12
+	MOVW	$790, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$791, R12
+	MOVW	$791, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$792, R12
+	MOVW	$792, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$793, R12
+	MOVW	$793, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$794, R12
+	MOVW	$794, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$795, R12
+	MOVW	$795, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$796, R12
+	MOVW	$796, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$797, R12
+	MOVW	$797, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$798, R12
+	MOVW	$798, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$799, R12
+	MOVW	$799, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$800, R12
+	MOVW	$800, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$801, R12
+	MOVW	$801, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$802, R12
+	MOVW	$802, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$803, R12
+	MOVW	$803, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$804, R12
+	MOVW	$804, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$805, R12
+	MOVW	$805, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$806, R12
+	MOVW	$806, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$807, R12
+	MOVW	$807, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$808, R12
+	MOVW	$808, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$809, R12
+	MOVW	$809, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$810, R12
+	MOVW	$810, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$811, R12
+	MOVW	$811, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$812, R12
+	MOVW	$812, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$813, R12
+	MOVW	$813, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$814, R12
+	MOVW	$814, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$815, R12
+	MOVW	$815, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$816, R12
+	MOVW	$816, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$817, R12
+	MOVW	$817, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$818, R12
+	MOVW	$818, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$819, R12
+	MOVW	$819, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$820, R12
+	MOVW	$820, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$821, R12
+	MOVW	$821, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$822, R12
+	MOVW	$822, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$823, R12
+	MOVW	$823, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$824, R12
+	MOVW	$824, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$825, R12
+	MOVW	$825, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$826, R12
+	MOVW	$826, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$827, R12
+	MOVW	$827, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$828, R12
+	MOVW	$828, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$829, R12
+	MOVW	$829, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$830, R12
+	MOVW	$830, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$831, R12
+	MOVW	$831, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$832, R12
+	MOVW	$832, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$833, R12
+	MOVW	$833, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$834, R12
+	MOVW	$834, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$835, R12
+	MOVW	$835, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$836, R12
+	MOVW	$836, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$837, R12
+	MOVW	$837, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$838, R12
+	MOVW	$838, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$839, R12
+	MOVW	$839, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$840, R12
+	MOVW	$840, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$841, R12
+	MOVW	$841, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$842, R12
+	MOVW	$842, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$843, R12
+	MOVW	$843, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$844, R12
+	MOVW	$844, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$845, R12
+	MOVW	$845, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$846, R12
+	MOVW	$846, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$847, R12
+	MOVW	$847, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$848, R12
+	MOVW	$848, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$849, R12
+	MOVW	$849, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$850, R12
+	MOVW	$850, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$851, R12
+	MOVW	$851, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$852, R12
+	MOVW	$852, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$853, R12
+	MOVW	$853, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$854, R12
+	MOVW	$854, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$855, R12
+	MOVW	$855, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$856, R12
+	MOVW	$856, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$857, R12
+	MOVW	$857, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$858, R12
+	MOVW	$858, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$859, R12
+	MOVW	$859, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$860, R12
+	MOVW	$860, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$861, R12
+	MOVW	$861, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$862, R12
+	MOVW	$862, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$863, R12
+	MOVW	$863, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$864, R12
+	MOVW	$864, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$865, R12
+	MOVW	$865, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$866, R12
+	MOVW	$866, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$867, R12
+	MOVW	$867, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$868, R12
+	MOVW	$868, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$869, R12
+	MOVW	$869, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$870, R12
+	MOVW	$870, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$871, R12
+	MOVW	$871, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$872, R12
+	MOVW	$872, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$873, R12
+	MOVW	$873, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$874, R12
+	MOVW	$874, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$875, R12
+	MOVW	$875, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$876, R12
+	MOVW	$876, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$877, R12
+	MOVW	$877, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$878, R12
+	MOVW	$878, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$879, R12
+	MOVW	$879, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$880, R12
+	MOVW	$880, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$881, R12
+	MOVW	$881, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$882, R12
+	MOVW	$882, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$883, R12
+	MOVW	$883, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$884, R12
+	MOVW	$884, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$885, R12
+	MOVW	$885, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$886, R12
+	MOVW	$886, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$887, R12
+	MOVW	$887, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$888, R12
+	MOVW	$888, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$889, R12
+	MOVW	$889, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$890, R12
+	MOVW	$890, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$891, R12
+	MOVW	$891, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$892, R12
+	MOVW	$892, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$893, R12
+	MOVW	$893, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$894, R12
+	MOVW	$894, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$895, R12
+	MOVW	$895, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$896, R12
+	MOVW	$896, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$897, R12
+	MOVW	$897, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$898, R12
+	MOVW	$898, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$899, R12
+	MOVW	$899, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$900, R12
+	MOVW	$900, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$901, R12
+	MOVW	$901, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$902, R12
+	MOVW	$902, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$903, R12
+	MOVW	$903, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$904, R12
+	MOVW	$904, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$905, R12
+	MOVW	$905, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$906, R12
+	MOVW	$906, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$907, R12
+	MOVW	$907, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$908, R12
+	MOVW	$908, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$909, R12
+	MOVW	$909, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$910, R12
+	MOVW	$910, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$911, R12
+	MOVW	$911, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$912, R12
+	MOVW	$912, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$913, R12
+	MOVW	$913, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$914, R12
+	MOVW	$914, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$915, R12
+	MOVW	$915, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$916, R12
+	MOVW	$916, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$917, R12
+	MOVW	$917, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$918, R12
+	MOVW	$918, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$919, R12
+	MOVW	$919, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$920, R12
+	MOVW	$920, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$921, R12
+	MOVW	$921, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$922, R12
+	MOVW	$922, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$923, R12
+	MOVW	$923, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$924, R12
+	MOVW	$924, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$925, R12
+	MOVW	$925, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$926, R12
+	MOVW	$926, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$927, R12
+	MOVW	$927, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$928, R12
+	MOVW	$928, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$929, R12
+	MOVW	$929, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$930, R12
+	MOVW	$930, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$931, R12
+	MOVW	$931, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$932, R12
+	MOVW	$932, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$933, R12
+	MOVW	$933, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$934, R12
+	MOVW	$934, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$935, R12
+	MOVW	$935, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$936, R12
+	MOVW	$936, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$937, R12
+	MOVW	$937, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$938, R12
+	MOVW	$938, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$939, R12
+	MOVW	$939, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$940, R12
+	MOVW	$940, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$941, R12
+	MOVW	$941, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$942, R12
+	MOVW	$942, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$943, R12
+	MOVW	$943, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$944, R12
+	MOVW	$944, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$945, R12
+	MOVW	$945, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$946, R12
+	MOVW	$946, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$947, R12
+	MOVW	$947, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$948, R12
+	MOVW	$948, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$949, R12
+	MOVW	$949, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$950, R12
+	MOVW	$950, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$951, R12
+	MOVW	$951, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$952, R12
+	MOVW	$952, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$953, R12
+	MOVW	$953, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$954, R12
+	MOVW	$954, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$955, R12
+	MOVW	$955, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$956, R12
+	MOVW	$956, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$957, R12
+	MOVW	$957, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$958, R12
+	MOVW	$958, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$959, R12
+	MOVW	$959, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$960, R12
+	MOVW	$960, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$961, R12
+	MOVW	$961, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$962, R12
+	MOVW	$962, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$963, R12
+	MOVW	$963, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$964, R12
+	MOVW	$964, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$965, R12
+	MOVW	$965, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$966, R12
+	MOVW	$966, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$967, R12
+	MOVW	$967, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$968, R12
+	MOVW	$968, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$969, R12
+	MOVW	$969, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$970, R12
+	MOVW	$970, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$971, R12
+	MOVW	$971, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$972, R12
+	MOVW	$972, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$973, R12
+	MOVW	$973, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$974, R12
+	MOVW	$974, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$975, R12
+	MOVW	$975, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$976, R12
+	MOVW	$976, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$977, R12
+	MOVW	$977, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$978, R12
+	MOVW	$978, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$979, R12
+	MOVW	$979, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$980, R12
+	MOVW	$980, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$981, R12
+	MOVW	$981, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$982, R12
+	MOVW	$982, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$983, R12
+	MOVW	$983, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$984, R12
+	MOVW	$984, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$985, R12
+	MOVW	$985, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$986, R12
+	MOVW	$986, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$987, R12
+	MOVW	$987, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$988, R12
+	MOVW	$988, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$989, R12
+	MOVW	$989, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$990, R12
+	MOVW	$990, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$991, R12
+	MOVW	$991, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$992, R12
+	MOVW	$992, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$993, R12
+	MOVW	$993, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$994, R12
+	MOVW	$994, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$995, R12
+	MOVW	$995, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$996, R12
+	MOVW	$996, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$997, R12
+	MOVW	$997, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$998, R12
+	MOVW	$998, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$999, R12
+	MOVW	$999, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1000, R12
+	MOVW	$1000, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1001, R12
+	MOVW	$1001, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1002, R12
+	MOVW	$1002, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1003, R12
+	MOVW	$1003, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1004, R12
+	MOVW	$1004, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1005, R12
+	MOVW	$1005, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1006, R12
+	MOVW	$1006, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1007, R12
+	MOVW	$1007, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1008, R12
+	MOVW	$1008, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1009, R12
+	MOVW	$1009, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1010, R12
+	MOVW	$1010, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1011, R12
+	MOVW	$1011, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1012, R12
+	MOVW	$1012, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1013, R12
+	MOVW	$1013, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1014, R12
+	MOVW	$1014, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1015, R12
+	MOVW	$1015, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1016, R12
+	MOVW	$1016, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1017, R12
+	MOVW	$1017, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1018, R12
+	MOVW	$1018, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1019, R12
+	MOVW	$1019, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1020, R12
+	MOVW	$1020, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1021, R12
+	MOVW	$1021, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1022, R12
+	MOVW	$1022, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1023, R12
+	MOVW	$1023, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1024, R12
+	MOVW	$1024, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1025, R12
+	MOVW	$1025, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1026, R12
+	MOVW	$1026, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1027, R12
+	MOVW	$1027, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1028, R12
+	MOVW	$1028, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1029, R12
+	MOVW	$1029, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1030, R12
+	MOVW	$1030, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1031, R12
+	MOVW	$1031, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1032, R12
+	MOVW	$1032, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1033, R12
+	MOVW	$1033, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1034, R12
+	MOVW	$1034, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1035, R12
+	MOVW	$1035, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1036, R12
+	MOVW	$1036, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1037, R12
+	MOVW	$1037, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1038, R12
+	MOVW	$1038, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1039, R12
+	MOVW	$1039, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1040, R12
+	MOVW	$1040, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1041, R12
+	MOVW	$1041, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1042, R12
+	MOVW	$1042, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1043, R12
+	MOVW	$1043, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1044, R12
+	MOVW	$1044, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1045, R12
+	MOVW	$1045, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1046, R12
+	MOVW	$1046, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1047, R12
+	MOVW	$1047, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1048, R12
+	MOVW	$1048, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1049, R12
+	MOVW	$1049, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1050, R12
+	MOVW	$1050, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1051, R12
+	MOVW	$1051, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1052, R12
+	MOVW	$1052, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1053, R12
+	MOVW	$1053, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1054, R12
+	MOVW	$1054, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1055, R12
+	MOVW	$1055, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1056, R12
+	MOVW	$1056, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1057, R12
+	MOVW	$1057, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1058, R12
+	MOVW	$1058, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1059, R12
+	MOVW	$1059, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1060, R12
+	MOVW	$1060, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1061, R12
+	MOVW	$1061, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1062, R12
+	MOVW	$1062, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1063, R12
+	MOVW	$1063, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1064, R12
+	MOVW	$1064, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1065, R12
+	MOVW	$1065, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1066, R12
+	MOVW	$1066, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1067, R12
+	MOVW	$1067, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1068, R12
+	MOVW	$1068, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1069, R12
+	MOVW	$1069, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1070, R12
+	MOVW	$1070, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1071, R12
+	MOVW	$1071, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1072, R12
+	MOVW	$1072, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1073, R12
+	MOVW	$1073, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1074, R12
+	MOVW	$1074, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1075, R12
+	MOVW	$1075, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1076, R12
+	MOVW	$1076, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1077, R12
+	MOVW	$1077, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1078, R12
+	MOVW	$1078, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1079, R12
+	MOVW	$1079, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1080, R12
+	MOVW	$1080, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1081, R12
+	MOVW	$1081, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1082, R12
+	MOVW	$1082, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1083, R12
+	MOVW	$1083, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1084, R12
+	MOVW	$1084, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1085, R12
+	MOVW	$1085, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1086, R12
+	MOVW	$1086, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1087, R12
+	MOVW	$1087, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1088, R12
+	MOVW	$1088, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1089, R12
+	MOVW	$1089, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1090, R12
+	MOVW	$1090, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1091, R12
+	MOVW	$1091, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1092, R12
+	MOVW	$1092, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1093, R12
+	MOVW	$1093, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1094, R12
+	MOVW	$1094, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1095, R12
+	MOVW	$1095, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1096, R12
+	MOVW	$1096, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1097, R12
+	MOVW	$1097, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1098, R12
+	MOVW	$1098, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1099, R12
+	MOVW	$1099, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1100, R12
+	MOVW	$1100, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1101, R12
+	MOVW	$1101, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1102, R12
+	MOVW	$1102, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1103, R12
+	MOVW	$1103, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1104, R12
+	MOVW	$1104, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1105, R12
+	MOVW	$1105, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1106, R12
+	MOVW	$1106, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1107, R12
+	MOVW	$1107, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1108, R12
+	MOVW	$1108, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1109, R12
+	MOVW	$1109, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1110, R12
+	MOVW	$1110, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1111, R12
+	MOVW	$1111, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1112, R12
+	MOVW	$1112, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1113, R12
+	MOVW	$1113, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1114, R12
+	MOVW	$1114, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1115, R12
+	MOVW	$1115, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1116, R12
+	MOVW	$1116, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1117, R12
+	MOVW	$1117, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1118, R12
+	MOVW	$1118, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1119, R12
+	MOVW	$1119, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1120, R12
+	MOVW	$1120, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1121, R12
+	MOVW	$1121, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1122, R12
+	MOVW	$1122, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1123, R12
+	MOVW	$1123, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1124, R12
+	MOVW	$1124, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1125, R12
+	MOVW	$1125, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1126, R12
+	MOVW	$1126, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1127, R12
+	MOVW	$1127, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1128, R12
+	MOVW	$1128, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1129, R12
+	MOVW	$1129, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1130, R12
+	MOVW	$1130, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1131, R12
+	MOVW	$1131, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1132, R12
+	MOVW	$1132, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1133, R12
+	MOVW	$1133, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1134, R12
+	MOVW	$1134, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1135, R12
+	MOVW	$1135, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1136, R12
+	MOVW	$1136, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1137, R12
+	MOVW	$1137, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1138, R12
+	MOVW	$1138, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1139, R12
+	MOVW	$1139, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1140, R12
+	MOVW	$1140, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1141, R12
+	MOVW	$1141, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1142, R12
+	MOVW	$1142, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1143, R12
+	MOVW	$1143, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1144, R12
+	MOVW	$1144, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1145, R12
+	MOVW	$1145, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1146, R12
+	MOVW	$1146, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1147, R12
+	MOVW	$1147, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1148, R12
+	MOVW	$1148, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1149, R12
+	MOVW	$1149, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1150, R12
+	MOVW	$1150, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1151, R12
+	MOVW	$1151, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1152, R12
+	MOVW	$1152, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1153, R12
+	MOVW	$1153, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1154, R12
+	MOVW	$1154, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1155, R12
+	MOVW	$1155, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1156, R12
+	MOVW	$1156, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1157, R12
+	MOVW	$1157, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1158, R12
+	MOVW	$1158, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1159, R12
+	MOVW	$1159, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1160, R12
+	MOVW	$1160, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1161, R12
+	MOVW	$1161, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1162, R12
+	MOVW	$1162, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1163, R12
+	MOVW	$1163, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1164, R12
+	MOVW	$1164, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1165, R12
+	MOVW	$1165, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1166, R12
+	MOVW	$1166, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1167, R12
+	MOVW	$1167, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1168, R12
+	MOVW	$1168, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1169, R12
+	MOVW	$1169, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1170, R12
+	MOVW	$1170, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1171, R12
+	MOVW	$1171, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1172, R12
+	MOVW	$1172, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1173, R12
+	MOVW	$1173, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1174, R12
+	MOVW	$1174, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1175, R12
+	MOVW	$1175, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1176, R12
+	MOVW	$1176, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1177, R12
+	MOVW	$1177, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1178, R12
+	MOVW	$1178, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1179, R12
+	MOVW	$1179, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1180, R12
+	MOVW	$1180, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1181, R12
+	MOVW	$1181, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1182, R12
+	MOVW	$1182, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1183, R12
+	MOVW	$1183, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1184, R12
+	MOVW	$1184, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1185, R12
+	MOVW	$1185, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1186, R12
+	MOVW	$1186, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1187, R12
+	MOVW	$1187, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1188, R12
+	MOVW	$1188, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1189, R12
+	MOVW	$1189, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1190, R12
+	MOVW	$1190, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1191, R12
+	MOVW	$1191, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1192, R12
+	MOVW	$1192, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1193, R12
+	MOVW	$1193, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1194, R12
+	MOVW	$1194, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1195, R12
+	MOVW	$1195, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1196, R12
+	MOVW	$1196, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1197, R12
+	MOVW	$1197, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1198, R12
+	MOVW	$1198, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1199, R12
+	MOVW	$1199, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1200, R12
+	MOVW	$1200, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1201, R12
+	MOVW	$1201, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1202, R12
+	MOVW	$1202, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1203, R12
+	MOVW	$1203, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1204, R12
+	MOVW	$1204, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1205, R12
+	MOVW	$1205, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1206, R12
+	MOVW	$1206, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1207, R12
+	MOVW	$1207, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1208, R12
+	MOVW	$1208, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1209, R12
+	MOVW	$1209, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1210, R12
+	MOVW	$1210, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1211, R12
+	MOVW	$1211, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1212, R12
+	MOVW	$1212, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1213, R12
+	MOVW	$1213, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1214, R12
+	MOVW	$1214, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1215, R12
+	MOVW	$1215, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1216, R12
+	MOVW	$1216, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1217, R12
+	MOVW	$1217, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1218, R12
+	MOVW	$1218, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1219, R12
+	MOVW	$1219, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1220, R12
+	MOVW	$1220, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1221, R12
+	MOVW	$1221, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1222, R12
+	MOVW	$1222, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1223, R12
+	MOVW	$1223, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1224, R12
+	MOVW	$1224, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1225, R12
+	MOVW	$1225, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1226, R12
+	MOVW	$1226, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1227, R12
+	MOVW	$1227, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1228, R12
+	MOVW	$1228, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1229, R12
+	MOVW	$1229, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1230, R12
+	MOVW	$1230, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1231, R12
+	MOVW	$1231, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1232, R12
+	MOVW	$1232, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1233, R12
+	MOVW	$1233, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1234, R12
+	MOVW	$1234, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1235, R12
+	MOVW	$1235, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1236, R12
+	MOVW	$1236, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1237, R12
+	MOVW	$1237, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1238, R12
+	MOVW	$1238, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1239, R12
+	MOVW	$1239, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1240, R12
+	MOVW	$1240, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1241, R12
+	MOVW	$1241, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1242, R12
+	MOVW	$1242, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1243, R12
+	MOVW	$1243, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1244, R12
+	MOVW	$1244, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1245, R12
+	MOVW	$1245, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1246, R12
+	MOVW	$1246, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1247, R12
+	MOVW	$1247, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1248, R12
+	MOVW	$1248, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1249, R12
+	MOVW	$1249, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1250, R12
+	MOVW	$1250, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1251, R12
+	MOVW	$1251, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1252, R12
+	MOVW	$1252, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1253, R12
+	MOVW	$1253, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1254, R12
+	MOVW	$1254, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1255, R12
+	MOVW	$1255, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1256, R12
+	MOVW	$1256, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1257, R12
+	MOVW	$1257, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1258, R12
+	MOVW	$1258, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1259, R12
+	MOVW	$1259, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1260, R12
+	MOVW	$1260, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1261, R12
+	MOVW	$1261, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1262, R12
+	MOVW	$1262, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1263, R12
+	MOVW	$1263, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1264, R12
+	MOVW	$1264, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1265, R12
+	MOVW	$1265, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1266, R12
+	MOVW	$1266, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1267, R12
+	MOVW	$1267, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1268, R12
+	MOVW	$1268, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1269, R12
+	MOVW	$1269, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1270, R12
+	MOVW	$1270, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1271, R12
+	MOVW	$1271, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1272, R12
+	MOVW	$1272, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1273, R12
+	MOVW	$1273, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1274, R12
+	MOVW	$1274, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1275, R12
+	MOVW	$1275, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1276, R12
+	MOVW	$1276, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1277, R12
+	MOVW	$1277, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1278, R12
+	MOVW	$1278, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1279, R12
+	MOVW	$1279, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1280, R12
+	MOVW	$1280, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1281, R12
+	MOVW	$1281, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1282, R12
+	MOVW	$1282, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1283, R12
+	MOVW	$1283, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1284, R12
+	MOVW	$1284, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1285, R12
+	MOVW	$1285, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1286, R12
+	MOVW	$1286, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1287, R12
+	MOVW	$1287, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1288, R12
+	MOVW	$1288, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1289, R12
+	MOVW	$1289, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1290, R12
+	MOVW	$1290, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1291, R12
+	MOVW	$1291, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1292, R12
+	MOVW	$1292, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1293, R12
+	MOVW	$1293, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1294, R12
+	MOVW	$1294, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1295, R12
+	MOVW	$1295, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1296, R12
+	MOVW	$1296, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1297, R12
+	MOVW	$1297, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1298, R12
+	MOVW	$1298, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1299, R12
+	MOVW	$1299, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1300, R12
+	MOVW	$1300, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1301, R12
+	MOVW	$1301, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1302, R12
+	MOVW	$1302, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1303, R12
+	MOVW	$1303, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1304, R12
+	MOVW	$1304, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1305, R12
+	MOVW	$1305, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1306, R12
+	MOVW	$1306, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1307, R12
+	MOVW	$1307, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1308, R12
+	MOVW	$1308, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1309, R12
+	MOVW	$1309, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1310, R12
+	MOVW	$1310, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1311, R12
+	MOVW	$1311, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1312, R12
+	MOVW	$1312, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1313, R12
+	MOVW	$1313, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1314, R12
+	MOVW	$1314, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1315, R12
+	MOVW	$1315, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1316, R12
+	MOVW	$1316, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1317, R12
+	MOVW	$1317, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1318, R12
+	MOVW	$1318, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1319, R12
+	MOVW	$1319, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1320, R12
+	MOVW	$1320, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1321, R12
+	MOVW	$1321, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1322, R12
+	MOVW	$1322, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1323, R12
+	MOVW	$1323, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1324, R12
+	MOVW	$1324, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1325, R12
+	MOVW	$1325, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1326, R12
+	MOVW	$1326, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1327, R12
+	MOVW	$1327, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1328, R12
+	MOVW	$1328, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1329, R12
+	MOVW	$1329, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1330, R12
+	MOVW	$1330, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1331, R12
+	MOVW	$1331, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1332, R12
+	MOVW	$1332, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1333, R12
+	MOVW	$1333, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1334, R12
+	MOVW	$1334, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1335, R12
+	MOVW	$1335, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1336, R12
+	MOVW	$1336, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1337, R12
+	MOVW	$1337, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1338, R12
+	MOVW	$1338, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1339, R12
+	MOVW	$1339, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1340, R12
+	MOVW	$1340, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1341, R12
+	MOVW	$1341, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1342, R12
+	MOVW	$1342, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1343, R12
+	MOVW	$1343, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1344, R12
+	MOVW	$1344, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1345, R12
+	MOVW	$1345, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1346, R12
+	MOVW	$1346, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1347, R12
+	MOVW	$1347, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1348, R12
+	MOVW	$1348, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1349, R12
+	MOVW	$1349, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1350, R12
+	MOVW	$1350, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1351, R12
+	MOVW	$1351, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1352, R12
+	MOVW	$1352, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1353, R12
+	MOVW	$1353, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1354, R12
+	MOVW	$1354, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1355, R12
+	MOVW	$1355, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1356, R12
+	MOVW	$1356, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1357, R12
+	MOVW	$1357, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1358, R12
+	MOVW	$1358, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1359, R12
+	MOVW	$1359, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1360, R12
+	MOVW	$1360, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1361, R12
+	MOVW	$1361, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1362, R12
+	MOVW	$1362, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1363, R12
+	MOVW	$1363, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1364, R12
+	MOVW	$1364, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1365, R12
+	MOVW	$1365, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1366, R12
+	MOVW	$1366, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1367, R12
+	MOVW	$1367, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1368, R12
+	MOVW	$1368, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1369, R12
+	MOVW	$1369, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1370, R12
+	MOVW	$1370, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1371, R12
+	MOVW	$1371, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1372, R12
+	MOVW	$1372, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1373, R12
+	MOVW	$1373, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1374, R12
+	MOVW	$1374, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1375, R12
+	MOVW	$1375, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1376, R12
+	MOVW	$1376, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1377, R12
+	MOVW	$1377, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1378, R12
+	MOVW	$1378, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1379, R12
+	MOVW	$1379, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1380, R12
+	MOVW	$1380, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1381, R12
+	MOVW	$1381, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1382, R12
+	MOVW	$1382, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1383, R12
+	MOVW	$1383, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1384, R12
+	MOVW	$1384, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1385, R12
+	MOVW	$1385, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1386, R12
+	MOVW	$1386, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1387, R12
+	MOVW	$1387, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1388, R12
+	MOVW	$1388, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1389, R12
+	MOVW	$1389, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1390, R12
+	MOVW	$1390, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1391, R12
+	MOVW	$1391, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1392, R12
+	MOVW	$1392, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1393, R12
+	MOVW	$1393, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1394, R12
+	MOVW	$1394, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1395, R12
+	MOVW	$1395, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1396, R12
+	MOVW	$1396, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1397, R12
+	MOVW	$1397, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1398, R12
+	MOVW	$1398, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1399, R12
+	MOVW	$1399, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1400, R12
+	MOVW	$1400, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1401, R12
+	MOVW	$1401, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1402, R12
+	MOVW	$1402, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1403, R12
+	MOVW	$1403, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1404, R12
+	MOVW	$1404, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1405, R12
+	MOVW	$1405, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1406, R12
+	MOVW	$1406, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1407, R12
+	MOVW	$1407, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1408, R12
+	MOVW	$1408, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1409, R12
+	MOVW	$1409, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1410, R12
+	MOVW	$1410, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1411, R12
+	MOVW	$1411, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1412, R12
+	MOVW	$1412, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1413, R12
+	MOVW	$1413, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1414, R12
+	MOVW	$1414, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1415, R12
+	MOVW	$1415, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1416, R12
+	MOVW	$1416, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1417, R12
+	MOVW	$1417, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1418, R12
+	MOVW	$1418, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1419, R12
+	MOVW	$1419, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1420, R12
+	MOVW	$1420, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1421, R12
+	MOVW	$1421, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1422, R12
+	MOVW	$1422, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1423, R12
+	MOVW	$1423, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1424, R12
+	MOVW	$1424, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1425, R12
+	MOVW	$1425, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1426, R12
+	MOVW	$1426, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1427, R12
+	MOVW	$1427, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1428, R12
+	MOVW	$1428, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1429, R12
+	MOVW	$1429, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1430, R12
+	MOVW	$1430, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1431, R12
+	MOVW	$1431, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1432, R12
+	MOVW	$1432, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1433, R12
+	MOVW	$1433, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1434, R12
+	MOVW	$1434, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1435, R12
+	MOVW	$1435, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1436, R12
+	MOVW	$1436, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1437, R12
+	MOVW	$1437, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1438, R12
+	MOVW	$1438, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1439, R12
+	MOVW	$1439, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1440, R12
+	MOVW	$1440, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1441, R12
+	MOVW	$1441, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1442, R12
+	MOVW	$1442, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1443, R12
+	MOVW	$1443, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1444, R12
+	MOVW	$1444, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1445, R12
+	MOVW	$1445, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1446, R12
+	MOVW	$1446, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1447, R12
+	MOVW	$1447, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1448, R12
+	MOVW	$1448, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1449, R12
+	MOVW	$1449, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1450, R12
+	MOVW	$1450, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1451, R12
+	MOVW	$1451, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1452, R12
+	MOVW	$1452, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1453, R12
+	MOVW	$1453, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1454, R12
+	MOVW	$1454, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1455, R12
+	MOVW	$1455, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1456, R12
+	MOVW	$1456, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1457, R12
+	MOVW	$1457, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1458, R12
+	MOVW	$1458, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1459, R12
+	MOVW	$1459, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1460, R12
+	MOVW	$1460, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1461, R12
+	MOVW	$1461, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1462, R12
+	MOVW	$1462, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1463, R12
+	MOVW	$1463, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1464, R12
+	MOVW	$1464, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1465, R12
+	MOVW	$1465, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1466, R12
+	MOVW	$1466, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1467, R12
+	MOVW	$1467, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1468, R12
+	MOVW	$1468, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1469, R12
+	MOVW	$1469, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1470, R12
+	MOVW	$1470, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1471, R12
+	MOVW	$1471, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1472, R12
+	MOVW	$1472, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1473, R12
+	MOVW	$1473, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1474, R12
+	MOVW	$1474, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1475, R12
+	MOVW	$1475, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1476, R12
+	MOVW	$1476, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1477, R12
+	MOVW	$1477, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1478, R12
+	MOVW	$1478, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1479, R12
+	MOVW	$1479, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1480, R12
+	MOVW	$1480, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1481, R12
+	MOVW	$1481, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1482, R12
+	MOVW	$1482, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1483, R12
+	MOVW	$1483, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1484, R12
+	MOVW	$1484, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1485, R12
+	MOVW	$1485, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1486, R12
+	MOVW	$1486, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1487, R12
+	MOVW	$1487, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1488, R12
+	MOVW	$1488, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1489, R12
+	MOVW	$1489, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1490, R12
+	MOVW	$1490, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1491, R12
+	MOVW	$1491, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1492, R12
+	MOVW	$1492, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1493, R12
+	MOVW	$1493, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1494, R12
+	MOVW	$1494, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1495, R12
+	MOVW	$1495, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1496, R12
+	MOVW	$1496, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1497, R12
+	MOVW	$1497, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1498, R12
+	MOVW	$1498, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1499, R12
+	MOVW	$1499, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1500, R12
+	MOVW	$1500, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1501, R12
+	MOVW	$1501, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1502, R12
+	MOVW	$1502, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1503, R12
+	MOVW	$1503, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1504, R12
+	MOVW	$1504, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1505, R12
+	MOVW	$1505, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1506, R12
+	MOVW	$1506, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1507, R12
+	MOVW	$1507, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1508, R12
+	MOVW	$1508, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1509, R12
+	MOVW	$1509, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1510, R12
+	MOVW	$1510, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1511, R12
+	MOVW	$1511, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1512, R12
+	MOVW	$1512, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1513, R12
+	MOVW	$1513, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1514, R12
+	MOVW	$1514, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1515, R12
+	MOVW	$1515, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1516, R12
+	MOVW	$1516, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1517, R12
+	MOVW	$1517, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1518, R12
+	MOVW	$1518, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1519, R12
+	MOVW	$1519, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1520, R12
+	MOVW	$1520, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1521, R12
+	MOVW	$1521, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1522, R12
+	MOVW	$1522, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1523, R12
+	MOVW	$1523, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1524, R12
+	MOVW	$1524, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1525, R12
+	MOVW	$1525, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1526, R12
+	MOVW	$1526, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1527, R12
+	MOVW	$1527, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1528, R12
+	MOVW	$1528, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1529, R12
+	MOVW	$1529, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1530, R12
+	MOVW	$1530, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1531, R12
+	MOVW	$1531, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1532, R12
+	MOVW	$1532, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1533, R12
+	MOVW	$1533, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1534, R12
+	MOVW	$1534, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1535, R12
+	MOVW	$1535, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1536, R12
+	MOVW	$1536, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1537, R12
+	MOVW	$1537, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1538, R12
+	MOVW	$1538, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1539, R12
+	MOVW	$1539, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1540, R12
+	MOVW	$1540, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1541, R12
+	MOVW	$1541, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1542, R12
+	MOVW	$1542, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1543, R12
+	MOVW	$1543, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1544, R12
+	MOVW	$1544, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1545, R12
+	MOVW	$1545, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1546, R12
+	MOVW	$1546, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1547, R12
+	MOVW	$1547, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1548, R12
+	MOVW	$1548, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1549, R12
+	MOVW	$1549, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1550, R12
+	MOVW	$1550, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1551, R12
+	MOVW	$1551, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1552, R12
+	MOVW	$1552, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1553, R12
+	MOVW	$1553, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1554, R12
+	MOVW	$1554, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1555, R12
+	MOVW	$1555, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1556, R12
+	MOVW	$1556, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1557, R12
+	MOVW	$1557, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1558, R12
+	MOVW	$1558, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1559, R12
+	MOVW	$1559, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1560, R12
+	MOVW	$1560, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1561, R12
+	MOVW	$1561, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1562, R12
+	MOVW	$1562, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1563, R12
+	MOVW	$1563, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1564, R12
+	MOVW	$1564, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1565, R12
+	MOVW	$1565, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1566, R12
+	MOVW	$1566, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1567, R12
+	MOVW	$1567, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1568, R12
+	MOVW	$1568, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1569, R12
+	MOVW	$1569, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1570, R12
+	MOVW	$1570, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1571, R12
+	MOVW	$1571, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1572, R12
+	MOVW	$1572, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1573, R12
+	MOVW	$1573, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1574, R12
+	MOVW	$1574, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1575, R12
+	MOVW	$1575, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1576, R12
+	MOVW	$1576, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1577, R12
+	MOVW	$1577, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1578, R12
+	MOVW	$1578, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1579, R12
+	MOVW	$1579, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1580, R12
+	MOVW	$1580, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1581, R12
+	MOVW	$1581, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1582, R12
+	MOVW	$1582, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1583, R12
+	MOVW	$1583, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1584, R12
+	MOVW	$1584, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1585, R12
+	MOVW	$1585, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1586, R12
+	MOVW	$1586, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1587, R12
+	MOVW	$1587, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1588, R12
+	MOVW	$1588, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1589, R12
+	MOVW	$1589, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1590, R12
+	MOVW	$1590, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1591, R12
+	MOVW	$1591, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1592, R12
+	MOVW	$1592, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1593, R12
+	MOVW	$1593, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1594, R12
+	MOVW	$1594, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1595, R12
+	MOVW	$1595, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1596, R12
+	MOVW	$1596, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1597, R12
+	MOVW	$1597, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1598, R12
+	MOVW	$1598, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1599, R12
+	MOVW	$1599, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1600, R12
+	MOVW	$1600, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1601, R12
+	MOVW	$1601, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1602, R12
+	MOVW	$1602, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1603, R12
+	MOVW	$1603, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1604, R12
+	MOVW	$1604, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1605, R12
+	MOVW	$1605, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1606, R12
+	MOVW	$1606, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1607, R12
+	MOVW	$1607, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1608, R12
+	MOVW	$1608, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1609, R12
+	MOVW	$1609, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1610, R12
+	MOVW	$1610, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1611, R12
+	MOVW	$1611, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1612, R12
+	MOVW	$1612, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1613, R12
+	MOVW	$1613, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1614, R12
+	MOVW	$1614, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1615, R12
+	MOVW	$1615, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1616, R12
+	MOVW	$1616, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1617, R12
+	MOVW	$1617, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1618, R12
+	MOVW	$1618, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1619, R12
+	MOVW	$1619, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1620, R12
+	MOVW	$1620, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1621, R12
+	MOVW	$1621, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1622, R12
+	MOVW	$1622, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1623, R12
+	MOVW	$1623, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1624, R12
+	MOVW	$1624, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1625, R12
+	MOVW	$1625, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1626, R12
+	MOVW	$1626, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1627, R12
+	MOVW	$1627, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1628, R12
+	MOVW	$1628, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1629, R12
+	MOVW	$1629, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1630, R12
+	MOVW	$1630, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1631, R12
+	MOVW	$1631, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1632, R12
+	MOVW	$1632, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1633, R12
+	MOVW	$1633, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1634, R12
+	MOVW	$1634, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1635, R12
+	MOVW	$1635, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1636, R12
+	MOVW	$1636, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1637, R12
+	MOVW	$1637, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1638, R12
+	MOVW	$1638, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1639, R12
+	MOVW	$1639, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1640, R12
+	MOVW	$1640, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1641, R12
+	MOVW	$1641, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1642, R12
+	MOVW	$1642, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1643, R12
+	MOVW	$1643, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1644, R12
+	MOVW	$1644, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1645, R12
+	MOVW	$1645, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1646, R12
+	MOVW	$1646, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1647, R12
+	MOVW	$1647, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1648, R12
+	MOVW	$1648, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1649, R12
+	MOVW	$1649, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1650, R12
+	MOVW	$1650, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1651, R12
+	MOVW	$1651, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1652, R12
+	MOVW	$1652, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1653, R12
+	MOVW	$1653, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1654, R12
+	MOVW	$1654, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1655, R12
+	MOVW	$1655, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1656, R12
+	MOVW	$1656, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1657, R12
+	MOVW	$1657, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1658, R12
+	MOVW	$1658, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1659, R12
+	MOVW	$1659, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1660, R12
+	MOVW	$1660, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1661, R12
+	MOVW	$1661, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1662, R12
+	MOVW	$1662, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1663, R12
+	MOVW	$1663, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1664, R12
+	MOVW	$1664, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1665, R12
+	MOVW	$1665, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1666, R12
+	MOVW	$1666, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1667, R12
+	MOVW	$1667, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1668, R12
+	MOVW	$1668, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1669, R12
+	MOVW	$1669, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1670, R12
+	MOVW	$1670, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1671, R12
+	MOVW	$1671, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1672, R12
+	MOVW	$1672, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1673, R12
+	MOVW	$1673, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1674, R12
+	MOVW	$1674, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1675, R12
+	MOVW	$1675, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1676, R12
+	MOVW	$1676, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1677, R12
+	MOVW	$1677, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1678, R12
+	MOVW	$1678, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1679, R12
+	MOVW	$1679, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1680, R12
+	MOVW	$1680, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1681, R12
+	MOVW	$1681, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1682, R12
+	MOVW	$1682, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1683, R12
+	MOVW	$1683, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1684, R12
+	MOVW	$1684, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1685, R12
+	MOVW	$1685, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1686, R12
+	MOVW	$1686, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1687, R12
+	MOVW	$1687, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1688, R12
+	MOVW	$1688, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1689, R12
+	MOVW	$1689, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1690, R12
+	MOVW	$1690, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1691, R12
+	MOVW	$1691, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1692, R12
+	MOVW	$1692, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1693, R12
+	MOVW	$1693, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1694, R12
+	MOVW	$1694, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1695, R12
+	MOVW	$1695, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1696, R12
+	MOVW	$1696, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1697, R12
+	MOVW	$1697, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1698, R12
+	MOVW	$1698, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1699, R12
+	MOVW	$1699, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1700, R12
+	MOVW	$1700, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1701, R12
+	MOVW	$1701, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1702, R12
+	MOVW	$1702, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1703, R12
+	MOVW	$1703, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1704, R12
+	MOVW	$1704, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1705, R12
+	MOVW	$1705, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1706, R12
+	MOVW	$1706, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1707, R12
+	MOVW	$1707, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1708, R12
+	MOVW	$1708, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1709, R12
+	MOVW	$1709, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1710, R12
+	MOVW	$1710, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1711, R12
+	MOVW	$1711, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1712, R12
+	MOVW	$1712, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1713, R12
+	MOVW	$1713, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1714, R12
+	MOVW	$1714, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1715, R12
+	MOVW	$1715, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1716, R12
+	MOVW	$1716, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1717, R12
+	MOVW	$1717, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1718, R12
+	MOVW	$1718, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1719, R12
+	MOVW	$1719, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1720, R12
+	MOVW	$1720, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1721, R12
+	MOVW	$1721, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1722, R12
+	MOVW	$1722, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1723, R12
+	MOVW	$1723, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1724, R12
+	MOVW	$1724, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1725, R12
+	MOVW	$1725, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1726, R12
+	MOVW	$1726, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1727, R12
+	MOVW	$1727, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1728, R12
+	MOVW	$1728, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1729, R12
+	MOVW	$1729, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1730, R12
+	MOVW	$1730, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1731, R12
+	MOVW	$1731, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1732, R12
+	MOVW	$1732, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1733, R12
+	MOVW	$1733, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1734, R12
+	MOVW	$1734, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1735, R12
+	MOVW	$1735, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1736, R12
+	MOVW	$1736, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1737, R12
+	MOVW	$1737, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1738, R12
+	MOVW	$1738, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1739, R12
+	MOVW	$1739, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1740, R12
+	MOVW	$1740, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1741, R12
+	MOVW	$1741, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1742, R12
+	MOVW	$1742, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1743, R12
+	MOVW	$1743, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1744, R12
+	MOVW	$1744, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1745, R12
+	MOVW	$1745, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1746, R12
+	MOVW	$1746, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1747, R12
+	MOVW	$1747, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1748, R12
+	MOVW	$1748, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1749, R12
+	MOVW	$1749, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1750, R12
+	MOVW	$1750, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1751, R12
+	MOVW	$1751, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1752, R12
+	MOVW	$1752, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1753, R12
+	MOVW	$1753, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1754, R12
+	MOVW	$1754, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1755, R12
+	MOVW	$1755, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1756, R12
+	MOVW	$1756, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1757, R12
+	MOVW	$1757, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1758, R12
+	MOVW	$1758, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1759, R12
+	MOVW	$1759, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1760, R12
+	MOVW	$1760, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1761, R12
+	MOVW	$1761, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1762, R12
+	MOVW	$1762, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1763, R12
+	MOVW	$1763, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1764, R12
+	MOVW	$1764, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1765, R12
+	MOVW	$1765, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1766, R12
+	MOVW	$1766, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1767, R12
+	MOVW	$1767, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1768, R12
+	MOVW	$1768, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1769, R12
+	MOVW	$1769, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1770, R12
+	MOVW	$1770, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1771, R12
+	MOVW	$1771, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1772, R12
+	MOVW	$1772, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1773, R12
+	MOVW	$1773, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1774, R12
+	MOVW	$1774, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1775, R12
+	MOVW	$1775, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1776, R12
+	MOVW	$1776, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1777, R12
+	MOVW	$1777, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1778, R12
+	MOVW	$1778, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1779, R12
+	MOVW	$1779, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1780, R12
+	MOVW	$1780, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1781, R12
+	MOVW	$1781, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1782, R12
+	MOVW	$1782, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1783, R12
+	MOVW	$1783, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1784, R12
+	MOVW	$1784, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1785, R12
+	MOVW	$1785, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1786, R12
+	MOVW	$1786, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1787, R12
+	MOVW	$1787, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1788, R12
+	MOVW	$1788, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1789, R12
+	MOVW	$1789, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1790, R12
+	MOVW	$1790, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1791, R12
+	MOVW	$1791, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1792, R12
+	MOVW	$1792, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1793, R12
+	MOVW	$1793, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1794, R12
+	MOVW	$1794, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1795, R12
+	MOVW	$1795, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1796, R12
+	MOVW	$1796, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1797, R12
+	MOVW	$1797, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1798, R12
+	MOVW	$1798, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1799, R12
+	MOVW	$1799, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1800, R12
+	MOVW	$1800, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1801, R12
+	MOVW	$1801, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1802, R12
+	MOVW	$1802, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1803, R12
+	MOVW	$1803, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1804, R12
+	MOVW	$1804, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1805, R12
+	MOVW	$1805, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1806, R12
+	MOVW	$1806, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1807, R12
+	MOVW	$1807, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1808, R12
+	MOVW	$1808, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1809, R12
+	MOVW	$1809, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1810, R12
+	MOVW	$1810, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1811, R12
+	MOVW	$1811, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1812, R12
+	MOVW	$1812, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1813, R12
+	MOVW	$1813, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1814, R12
+	MOVW	$1814, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1815, R12
+	MOVW	$1815, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1816, R12
+	MOVW	$1816, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1817, R12
+	MOVW	$1817, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1818, R12
+	MOVW	$1818, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1819, R12
+	MOVW	$1819, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1820, R12
+	MOVW	$1820, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1821, R12
+	MOVW	$1821, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1822, R12
+	MOVW	$1822, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1823, R12
+	MOVW	$1823, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1824, R12
+	MOVW	$1824, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1825, R12
+	MOVW	$1825, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1826, R12
+	MOVW	$1826, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1827, R12
+	MOVW	$1827, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1828, R12
+	MOVW	$1828, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1829, R12
+	MOVW	$1829, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1830, R12
+	MOVW	$1830, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1831, R12
+	MOVW	$1831, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1832, R12
+	MOVW	$1832, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1833, R12
+	MOVW	$1833, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1834, R12
+	MOVW	$1834, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1835, R12
+	MOVW	$1835, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1836, R12
+	MOVW	$1836, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1837, R12
+	MOVW	$1837, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1838, R12
+	MOVW	$1838, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1839, R12
+	MOVW	$1839, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1840, R12
+	MOVW	$1840, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1841, R12
+	MOVW	$1841, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1842, R12
+	MOVW	$1842, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1843, R12
+	MOVW	$1843, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1844, R12
+	MOVW	$1844, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1845, R12
+	MOVW	$1845, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1846, R12
+	MOVW	$1846, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1847, R12
+	MOVW	$1847, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1848, R12
+	MOVW	$1848, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1849, R12
+	MOVW	$1849, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1850, R12
+	MOVW	$1850, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1851, R12
+	MOVW	$1851, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1852, R12
+	MOVW	$1852, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1853, R12
+	MOVW	$1853, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1854, R12
+	MOVW	$1854, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1855, R12
+	MOVW	$1855, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1856, R12
+	MOVW	$1856, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1857, R12
+	MOVW	$1857, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1858, R12
+	MOVW	$1858, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1859, R12
+	MOVW	$1859, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1860, R12
+	MOVW	$1860, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1861, R12
+	MOVW	$1861, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1862, R12
+	MOVW	$1862, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1863, R12
+	MOVW	$1863, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1864, R12
+	MOVW	$1864, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1865, R12
+	MOVW	$1865, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1866, R12
+	MOVW	$1866, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1867, R12
+	MOVW	$1867, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1868, R12
+	MOVW	$1868, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1869, R12
+	MOVW	$1869, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1870, R12
+	MOVW	$1870, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1871, R12
+	MOVW	$1871, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1872, R12
+	MOVW	$1872, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1873, R12
+	MOVW	$1873, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1874, R12
+	MOVW	$1874, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1875, R12
+	MOVW	$1875, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1876, R12
+	MOVW	$1876, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1877, R12
+	MOVW	$1877, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1878, R12
+	MOVW	$1878, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1879, R12
+	MOVW	$1879, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1880, R12
+	MOVW	$1880, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1881, R12
+	MOVW	$1881, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1882, R12
+	MOVW	$1882, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1883, R12
+	MOVW	$1883, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1884, R12
+	MOVW	$1884, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1885, R12
+	MOVW	$1885, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1886, R12
+	MOVW	$1886, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1887, R12
+	MOVW	$1887, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1888, R12
+	MOVW	$1888, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1889, R12
+	MOVW	$1889, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1890, R12
+	MOVW	$1890, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1891, R12
+	MOVW	$1891, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1892, R12
+	MOVW	$1892, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1893, R12
+	MOVW	$1893, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1894, R12
+	MOVW	$1894, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1895, R12
+	MOVW	$1895, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1896, R12
+	MOVW	$1896, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1897, R12
+	MOVW	$1897, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1898, R12
+	MOVW	$1898, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1899, R12
+	MOVW	$1899, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1900, R12
+	MOVW	$1900, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1901, R12
+	MOVW	$1901, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1902, R12
+	MOVW	$1902, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1903, R12
+	MOVW	$1903, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1904, R12
+	MOVW	$1904, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1905, R12
+	MOVW	$1905, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1906, R12
+	MOVW	$1906, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1907, R12
+	MOVW	$1907, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1908, R12
+	MOVW	$1908, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1909, R12
+	MOVW	$1909, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1910, R12
+	MOVW	$1910, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1911, R12
+	MOVW	$1911, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1912, R12
+	MOVW	$1912, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1913, R12
+	MOVW	$1913, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1914, R12
+	MOVW	$1914, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1915, R12
+	MOVW	$1915, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1916, R12
+	MOVW	$1916, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1917, R12
+	MOVW	$1917, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1918, R12
+	MOVW	$1918, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1919, R12
+	MOVW	$1919, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1920, R12
+	MOVW	$1920, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1921, R12
+	MOVW	$1921, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1922, R12
+	MOVW	$1922, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1923, R12
+	MOVW	$1923, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1924, R12
+	MOVW	$1924, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1925, R12
+	MOVW	$1925, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1926, R12
+	MOVW	$1926, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1927, R12
+	MOVW	$1927, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1928, R12
+	MOVW	$1928, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1929, R12
+	MOVW	$1929, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1930, R12
+	MOVW	$1930, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1931, R12
+	MOVW	$1931, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1932, R12
+	MOVW	$1932, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1933, R12
+	MOVW	$1933, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1934, R12
+	MOVW	$1934, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1935, R12
+	MOVW	$1935, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1936, R12
+	MOVW	$1936, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1937, R12
+	MOVW	$1937, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1938, R12
+	MOVW	$1938, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1939, R12
+	MOVW	$1939, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1940, R12
+	MOVW	$1940, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1941, R12
+	MOVW	$1941, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1942, R12
+	MOVW	$1942, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1943, R12
+	MOVW	$1943, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1944, R12
+	MOVW	$1944, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1945, R12
+	MOVW	$1945, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1946, R12
+	MOVW	$1946, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1947, R12
+	MOVW	$1947, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1948, R12
+	MOVW	$1948, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1949, R12
+	MOVW	$1949, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1950, R12
+	MOVW	$1950, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1951, R12
+	MOVW	$1951, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1952, R12
+	MOVW	$1952, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1953, R12
+	MOVW	$1953, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1954, R12
+	MOVW	$1954, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1955, R12
+	MOVW	$1955, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1956, R12
+	MOVW	$1956, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1957, R12
+	MOVW	$1957, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1958, R12
+	MOVW	$1958, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1959, R12
+	MOVW	$1959, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1960, R12
+	MOVW	$1960, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1961, R12
+	MOVW	$1961, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1962, R12
+	MOVW	$1962, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1963, R12
+	MOVW	$1963, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1964, R12
+	MOVW	$1964, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1965, R12
+	MOVW	$1965, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1966, R12
+	MOVW	$1966, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1967, R12
+	MOVW	$1967, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1968, R12
+	MOVW	$1968, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1969, R12
+	MOVW	$1969, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1970, R12
+	MOVW	$1970, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1971, R12
+	MOVW	$1971, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1972, R12
+	MOVW	$1972, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1973, R12
+	MOVW	$1973, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1974, R12
+	MOVW	$1974, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1975, R12
+	MOVW	$1975, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1976, R12
+	MOVW	$1976, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1977, R12
+	MOVW	$1977, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1978, R12
+	MOVW	$1978, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1979, R12
+	MOVW	$1979, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1980, R12
+	MOVW	$1980, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1981, R12
+	MOVW	$1981, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1982, R12
+	MOVW	$1982, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1983, R12
+	MOVW	$1983, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1984, R12
+	MOVW	$1984, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1985, R12
+	MOVW	$1985, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1986, R12
+	MOVW	$1986, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1987, R12
+	MOVW	$1987, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1988, R12
+	MOVW	$1988, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1989, R12
+	MOVW	$1989, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1990, R12
+	MOVW	$1990, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1991, R12
+	MOVW	$1991, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1992, R12
+	MOVW	$1992, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1993, R12
+	MOVW	$1993, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1994, R12
+	MOVW	$1994, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1995, R12
+	MOVW	$1995, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1996, R12
+	MOVW	$1996, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1997, R12
+	MOVW	$1997, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1998, R12
+	MOVW	$1998, R16
 	B	runtime·callbackasm1(SB)
-	MOVW	$1999, R12
+	MOVW	$1999, R16
 	B	runtime·callbackasm1(SB)
