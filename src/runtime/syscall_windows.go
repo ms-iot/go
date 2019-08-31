@@ -38,6 +38,9 @@ func callbackasm()
 // On ARM, runtime.callbackasm is a series of mov and branch instructions.
 // R12 is loaded with the callback index. Each entry is two instructions,
 // hence 8 bytes.
+// On ARM64, runtime.callbackasm is a series of mov and branch instructions.
+// R16 is loaded with the callback index. Each entry is two instructions,
+// hence 8 bytes.
 func callbackasmAddr(i int) uintptr {
 	var entrySize int
 	switch GOARCH {
@@ -45,11 +48,13 @@ func callbackasmAddr(i int) uintptr {
 		panic("unsupported architecture")
 	case "386", "amd64":
 		entrySize = 5
-	//todo(ragav): check for correctness of arm64
-	case "arm", "arm64":
+	case "arm":
 		// On ARM, each entry is a MOV instruction
 		// followed by a branch instruction
 		entrySize = 8
+	//todo(ragav): check for correctness of arm64
+	case "arm64":
+		entrySize = 16
 	}
 	return funcPC(callbackasm) + uintptr(i*entrySize)
 }

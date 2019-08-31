@@ -10,8 +10,9 @@
 // void runtime·asmstdcall(void *c);
 TEXT runtime·asmstdcall(SB),NOSPLIT|NOFRAME,$0
 	// Save non-volatile registers
-	MOVD	R19, R14
-	MOVD	R20, R15
+	SUB 	$16, RSP		// SP = SP - 16
+	MOVD	R19, 0(RSP)
+	MOVD	R20, 8(RSP)
 
 	MOVD	R0, R19			// R19 = libcall* (non-volatile)
 	MOVD	RSP, R20		// R20 = SP (non-volatile)
@@ -26,7 +27,7 @@ TEXT runtime·asmstdcall(SB),NOSPLIT|NOFRAME,$0
 	MOVD 	8(R19), R1		// R1 = libcall->n (num args)
 	SUB		$8, R1, R2		// R2 = n - 8
 	CMP		$8, R1			// if (n <= 8),
-	BLE loadR7				// load registers.
+	BLE 	loadR7			// load registers.
 
 	// Reserve stack space for remaining args
 	LSL 	$3, R2, R8		// R8 = R2<<3 = 8*(n-8)
@@ -39,7 +40,7 @@ TEXT runtime·asmstdcall(SB),NOSPLIT|NOFRAME,$0
 
 	// Push the additional args on stack
 	MOVD	$0, R2			// i = 0
-pushargonstack:
+pushargsonstack:
 	ADD		$8, R2, R3		// R3 = 8 + i
 	LSL		$3, R3			// R3 = R3<<3 = 8*(8+i)
 	MOVD	(R3)(R16), R3	// R3 = args[8+i]
@@ -48,7 +49,7 @@ pushargonstack:
 	ADD		$1, R2			// i++
 	SUB		$8, R1, R3		// R3 = n - 8
 	CMP		R3, R2			// while(i < (n - 8)),
-	BLT		pushargonstack	// push args
+	BLT		pushargsonstack	// push args
 
 	// Load parameter registers
 loadR7:
@@ -99,7 +100,7 @@ argsloaded:
 
 	// Save return values
 	MOVD	R0, 24(R19)
-	MOVD	R1, 32(R19)		// Note: R1 is not a result register in ARM64. Double check this line.
+	MOVD	R1, 32(R19)		// Note(ragav): R1 is not a result register in ARM64. Double check this line.
 	
 	// GetLastError
 	MRS_TPIDR_R0			// MRS TPIDR_EL0, R0 <==> MRC 15, 0, R0, C13, C0, 2
@@ -107,17 +108,37 @@ argsloaded:
 	MOVD	R1, 40(R19)		// libcall->err = error
 
 	// Restore non-volatile registers
-	MOVD	R14, R19
-	MOVD	R15, R20
+	MOVD	0(RSP), R19
+	MOVD	8(RSP), R20
+	ADD		$16, RSP		// SP = SP + 16
 	RET
 
 TEXT runtime·badsignal2(SB),NOSPLIT|NOFRAME,$0
+	MOVD	runtime·_GetStdHandle(SB), R1
+	MOVD	$-12, R0
+	BL	(R1)
+
+	MOVD	$runtime·badsignalmsg(SB), R1	// lpBuffer
+	MOVD	$runtime·badsignallen(SB), R2	// lpNumberOfBytesToWrite
+	MOVD	(R2), R2
+	ADD		$0x8, RSP, R3		// lpNumberOfBytesWritten
+	MOVD	$0, R16				// lpOverlapped
+	MOVD	R16, (RSP)
+
+	MOVD	runtime·_WriteFile(SB), R16
+	BL	(R16)
 	RET
 
 TEXT runtime·getlasterror(SB),NOSPLIT,$0
+	MRS_TPIDR_R0			// MRS TPIDR_EL0, R0 <==> MRC 15, 0, R0, C13, C0, 2
+	MOVD	0x68(R0), R0
+	MOVD 	R0, ret+0(FP)
 	RET
 
 TEXT runtime·setlasterror(SB),NOSPLIT|NOFRAME,$0
+	MOVD 	R0, R1			// store err in R1
+	MRS_TPIDR_R0			// MRS TPIDR_EL0, R0 <==> MRC 15, 0, R0, C13, C0, 2
+	MOVD	R1, 0x68(R0)
 	RET
 
 // Called by Windows as a Vectored Exception Handler (VEH).
@@ -163,27 +184,73 @@ TEXT runtime·profileloop(SB),NOSPLIT|NOFRAME,$0
 	B	runtime·externalthreadhandler(SB)
 
 // int32 externalthreadhandler(uint32 arg, int (*func)(uint32))
-// stack layout:
+// stack layout: 
 //   +----------------+
 //   | callee-save    |
 //   | registers      |
 //   +----------------+
 //   | m              |
 //   +----------------+
-// 20| g              |
+// 40| g              |
 //   +----------------+
-// 16| func ptr (r1)  |
+// 32| func ptr (r1)  |
 //   +----------------+
-// 12| argument (r0)  |
+// 24| argument (r0)  |
 //---+----------------+
-// 8 | param1         |
+// 16 | param1         |
 //   +----------------+
-// 4 | param0         |
+// 8 | param0         |
 //   +----------------+
 // 0 | retval         |
 //   +----------------+
 //
-TEXT runtime·externalthreadhandler(SB),NOSPLIT|NOFRAME,$0
+TEXT runtime·externalthreadhandler(SB),NOFRAME,$0
+	// Note(ragav): Check if the function needs to be nosplit.
+	// Removed for now due to stack overflow.
+	
+	//todo: (ragav) store non-volatile registers, if needed
+	SUB	$(m__size + g__size + 40), RSP	// space for locals
+	MOVD	R0, 24(RSP)
+	MOVD	R1, 32(RSP)
+
+	// zero out m and g structures
+	ADD		$40, RSP, R0				// compute pointer to g
+	MOVD	R0, 8(RSP)
+	MOVD	$(m__size + g__size), R0
+	MOVD	R0, 16(RSP)
+	BL	runtime·memclrNoHeapPointers(SB)
+
+	// initialize m and g structures
+	ADD		$40, RSP, R2				// R2 = g
+	ADD		$(40 + g__size), RSP, R3	// R3 = m
+	MOVD	R2, m_g0(R3)				// m->g0 = g
+	MOVD	R3, g_m(R2)					// g->m = m
+	MOVD	R2, m_curg(R3)				// m->curg = g
+
+	MOVD	R2, g
+	BL		runtime·save_g(SB)
+
+	// set up stackguard stuff
+	MOVD	RSP, R0
+	MOVD	R0, g_stack+stack_hi(g)
+	SUB		$(32*1024), R0
+	MOVD	R0, (g_stack+stack_lo)(g)
+	MOVD	R0, g_stackguard0(g)
+	MOVD	R0, g_stackguard1(g)
+
+	// move argument into position and call function
+	MOVD	24(RSP), R0
+	MOVD	R0, 8(RSP)
+	MOVD	32(RSP), R1
+	BL		(R1)
+
+	// clear g
+	MOVD	$0, g
+	BL	runtime·save_g(SB)
+
+	MOVD	0(RSP), R0							// load return value
+	ADD		$(m__size + g__size + 40), RSP		// free locals
+	// todo(ragav): restore non-volatile registers
 	RET
 
 GLOBL runtime·cbctxts(SB), NOPTR, $4
