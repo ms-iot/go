@@ -58,6 +58,7 @@ const (
 	IMAGE_FILE_MACHINE_AMD64              = 0x8664
 	IMAGE_FILE_MACHINE_ARM                = 0x1c0
 	IMAGE_FILE_MACHINE_ARMNT              = 0x1c4
+	IMAGE_FILE_MACHINE_ARM64              = 0xaa64
 	IMAGE_FILE_RELOCS_STRIPPED            = 0x0001
 	IMAGE_FILE_EXECUTABLE_IMAGE           = 0x0002
 	IMAGE_FILE_LINE_NUMS_STRIPPED         = 0x0004
@@ -124,7 +125,6 @@ const (
 
 	IMAGE_REL_ARM64_ADDR32   = 0x0001
 	IMAGE_REL_ARM64_ADDR64   = 0x000E
-	IMAGE_FILE_MACHINE_ARM64 = 0xaa64
 	IMAGE_REL_ARM64_ADDR32NB = 0x0002
 
 	//todo(ragav): check for missing ARM64 flags
@@ -951,7 +951,7 @@ func Peinit(ctxt *Link) {
 
 	switch ctxt.Arch.Family {
 	// 64-bit architectures
-	case sys.AMD64:
+	case sys.AMD64, sys.ARM64:
 		pe64 = 1
 		var oh64 pe.OptionalHeader64
 		l = binary.Size(&oh64)
@@ -1444,12 +1444,13 @@ func addPEBaseRelocSym(ctxt *Link, s *sym.Symbol, rt *peBaseRelocTable) {
 }
 
 func addPEBaseReloc(ctxt *Link) {
-	// We only generate base relocation table for ARM (and ... ARM64), x86, and AMD64 are marked as legacy
+	// We only generate base relocation table for ARM (and ... ARM64). x86 and AMD64 are marked as legacy
 	// archs and can use fixed base with no base relocation information
 	switch ctxt.Arch.Family {
 	default:
 		return
-	case sys.ARM:
+	// Todo(ragav): check if ARM64 is needed here.
+	case sys.ARM, sys.ARM64:
 	}
 
 	var rt peBaseRelocTable
