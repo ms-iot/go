@@ -792,10 +792,10 @@ func (f *peFile) writeFileHeader(arch *sys.Arch, out *OutBuf, linkmode LinkMode)
 		switch arch.Family {
 		default:
 			Exitf("write COFF(ext): unknown PE architecture: %v", arch.Family)
-		case sys.AMD64, sys.I386:
+		case sys.AMD64, sys.I386, sys.ARM64:
 			fh.Characteristics = IMAGE_FILE_RELOCS_STRIPPED | IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_DEBUG_STRIPPED
 		//todo(ragav): check for correctness of arm64
-		case sys.ARM, sys.ARM64:
+		case sys.ARM:
 			fh.Characteristics = IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_DEBUG_STRIPPED
 		}
 	}
@@ -1390,6 +1390,9 @@ func (rt *peBaseRelocTable) addentry(ctxt *Link, s *sym.Symbol, r *sym.Reloc) {
 		Exitf("unsupported relocation size %d\n", r.Siz)
 	case 4:
 		e.typeOff |= uint16(IMAGE_REL_BASED_HIGHLOW << 12)
+	case 8:
+		// Todo(ragav): edit the line below. It's likely wrong.
+		e.typeOff |= uint16(IMAGE_REL_BASED_HIGHLOW << 12)
 	}
 
 	b.entries = append(b.entries, e)
@@ -1450,7 +1453,7 @@ func addPEBaseReloc(ctxt *Link) {
 	default:
 		return
 	// Todo(ragav): check if ARM64 is needed here.
-	case sys.ARM, sys.ARM64:
+	case sys.ARM:
 	}
 
 	var rt peBaseRelocTable
