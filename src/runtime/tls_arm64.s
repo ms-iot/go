@@ -10,6 +10,9 @@
 
 //todo(ragav): add support for windows
 TEXT runtime·load_g(SB),NOSPLIT,$0
+	MOVD	$700, R19
+	BRK
+	
 	MOVB	runtime·iscgo(SB), R0
 	CMP	$0, R0
 	BEQ	nocgo
