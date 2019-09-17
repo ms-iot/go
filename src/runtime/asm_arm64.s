@@ -66,6 +66,11 @@ nocgo:
 	MOVD	16(RSP), R0		// copy argv
 	MOVD	R0, 0(RSP)
 	BL	runtime·args(SB)
+	
+	//Todo(ragav): remove the following 2 lines.
+	MOVD	$802, R19
+	BRK
+	
 	BL	runtime·osinit(SB)
 	BL	runtime·schedinit(SB)
 
