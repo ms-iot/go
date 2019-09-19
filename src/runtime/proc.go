@@ -1150,7 +1150,12 @@ func startTheWorldWithSema(emitTraceEvent bool) int64 {
 //
 //go:nosplit
 //go:nowritebarrierrec
-func mstart() {
+func mstart(x int) {
+	if x == 1101 {
+		for x == 1101 {
+
+		}
+	}
 	_g_ := getg()
 
 	osStack := _g_.stack.lo == 0
@@ -1169,7 +1174,12 @@ func mstart() {
 	// both Go and C functions with stack growth prologues.
 	_g_.stackguard0 = _g_.stack.lo + _StackGuard
 	_g_.stackguard1 = _g_.stackguard0
-	mstart1()
+	if x == 1102 {
+		for x == 1102 {
+
+		}
+	}
+	mstart1(x)
 
 	// Exit this thread.
 	if GOOS == "windows" || GOOS == "solaris" || GOOS == "plan9" || GOOS == "darwin" || GOOS == "aix" {
@@ -1178,10 +1188,15 @@ func mstart() {
 		// so the logic above hasn't set osStack yet.
 		osStack = true
 	}
+	if x == 1103 {
+		for x == 1103 {
+
+		}
+	}
 	mexit(osStack)
 }
 
-func mstart1() {
+func mstart1(x int) {
 	_g_ := getg()
 
 	if _g_ != _g_.m.g0 {
@@ -1210,7 +1225,12 @@ func mstart1() {
 		acquirep(_g_.m.nextp.ptr())
 		_g_.m.nextp = 0
 	}
-	schedule()
+	if x == 2101 {
+		for x == 2101 {
+
+		}
+	}
+	schedule(x)
 }
 
 // mstartm0 implements part of mstart1 that only runs on the m0.
@@ -2466,43 +2486,98 @@ func injectglist(glist *gList) {
 
 // One round of scheduler: find a runnable goroutine and execute it.
 // Never returns.
-func schedule() {
+func schedule(x int) {
+	if x == 3101 {
+		for x == 3101 {
+
+		}
+	}
 	_g_ := getg()
 
 	if _g_.m.locks != 0 {
+		if x == 3102 {
+			for x == 3102 {
+
+			}
+		}
 		throw("schedule: holding locks")
 	}
 
 	if _g_.m.lockedg != 0 {
+		if x == 3103 {
+			for x == 3103 {
+
+			}
+		}
 		stoplockedm()
+		if x == 3104 {
+			for x == 3104 {
+
+			}
+		}
 		execute(_g_.m.lockedg.ptr(), false) // Never returns.
 	}
 
 	// We should not schedule away from a g that is executing a cgo call,
 	// since the cgo call is using the m's g0 stack.
 	if _g_.m.incgo {
+		if x == 3105 {
+			for x == 3105 {
+
+			}
+		}
 		throw("schedule: in cgo")
 	}
 
 top:
 	if sched.gcwaiting != 0 {
+		if x == 3106 {
+			for x == 3106 {
+
+			}
+		}
 		gcstopm()
 		goto top
 	}
 	if _g_.m.p.ptr().runSafePointFn != 0 {
+		if x == 3107 {
+			for x == 3107 {
+
+			}
+		}
 		runSafePointFn()
 	}
 
 	var gp *g
 	var inheritTime bool
 	if trace.enabled || trace.shutdown {
+		if x == 3108 {
+			for x == 3108 {
+
+			}
+		}
 		gp = traceReader()
 		if gp != nil {
+			if x == 3109 {
+				for x == 3109 {
+
+				}
+			}
 			casgstatus(gp, _Gwaiting, _Grunnable)
+			if x == 3110 {
+				for x == 3110 {
+
+				}
+			}
 			traceGoUnpark(gp, 0)
 		}
 	}
 	if gp == nil && gcBlackenEnabled != 0 {
+		if x == 3111 {
+			for x == 3111 {
+
+			}
+		}
 		gp = gcController.findRunnableGCWorker(_g_.m.p.ptr())
 	}
 	if gp == nil {
@@ -2510,18 +2585,48 @@ top:
 		// Otherwise two goroutines can completely occupy the local runqueue
 		// by constantly respawning each other.
 		if _g_.m.p.ptr().schedtick%61 == 0 && sched.runqsize > 0 {
+			if x == 3112 {
+				for x == 3112 {
+
+				}
+			}
 			lock(&sched.lock)
+			if x == 3113 {
+				for x == 3113 {
+
+				}
+			}
 			gp = globrunqget(_g_.m.p.ptr(), 1)
+			if x == 3114 {
+				for x == 3114 {
+
+				}
+			}
 			unlock(&sched.lock)
 		}
 	}
 	if gp == nil {
+		if x == 3115 {
+			for x == 3115 {
+
+			}
+		}
 		gp, inheritTime = runqget(_g_.m.p.ptr())
+		if x == 3115 {
+			for x == 3115 {
+
+			}
+		}
 		if gp != nil && _g_.m.spinning {
 			throw("schedule: spinning with local work")
 		}
 	}
 	if gp == nil {
+		if x == 3116 {
+			for x == 3116 {
+
+			}
+		}
 		gp, inheritTime = findrunnable() // blocks until work is available
 	}
 
@@ -2529,6 +2634,11 @@ top:
 	// so if it was marked as spinning we need to reset it now and potentially
 	// start a new spinning M.
 	if _g_.m.spinning {
+		if x == 3117 {
+			for x == 3117 {
+
+			}
+		}
 		resetspinning()
 	}
 
@@ -2536,14 +2646,39 @@ top:
 		// Scheduling of this goroutine is disabled. Put it on
 		// the list of pending runnable goroutines for when we
 		// re-enable user scheduling and look again.
+		if x == 3118 {
+			for x == 3118 {
+
+			}
+		}
 		lock(&sched.lock)
+		if x == 3118 {
+			for x == 3118 {
+
+			}
+		}
 		if schedEnabled(gp) {
 			// Something re-enabled scheduling while we
 			// were acquiring the lock.
+			if x == 3119 {
+				for x == 3119 {
+
+				}
+			}
 			unlock(&sched.lock)
 		} else {
+			if x == 3120 {
+				for x == 3120 {
+
+				}
+			}
 			sched.disable.runnable.pushBack(gp)
 			sched.disable.n++
+			if x == 3121 {
+				for x == 3121 {
+
+				}
+			}
 			unlock(&sched.lock)
 			goto top
 		}
@@ -2552,6 +2687,11 @@ top:
 	if gp.lockedm != 0 {
 		// Hands off own p to the locked m,
 		// then blocks waiting for a new p.
+		if x == 3122 {
+			for x == 3122 {
+
+			}
+		}
 		startlockedm(gp)
 		goto top
 	}
@@ -2602,7 +2742,7 @@ func park_m(gp *g) {
 			execute(gp, true) // Schedule it back, never returns.
 		}
 	}
-	schedule()
+	schedule(0)
 }
 
 func goschedImpl(gp *g) {
@@ -2617,7 +2757,7 @@ func goschedImpl(gp *g) {
 	globrunqput(gp)
 	unlock(&sched.lock)
 
-	schedule()
+	schedule(0)
 }
 
 // Gosched continuation on g0.
@@ -2696,7 +2836,7 @@ func goexit0(gp *g) {
 
 	if GOARCH == "wasm" { // no threads yet on wasm
 		gfput(_g_.m.p.ptr(), gp)
-		schedule() // never returns
+		schedule(0) // never returns
 	}
 
 	if _g_.m.lockedInt != 0 {
@@ -2719,7 +2859,7 @@ func goexit0(gp *g) {
 			_g_.m.lockedExt = 0
 		}
 	}
-	schedule()
+	schedule(0)
 }
 
 // save updates getg().sched to refer to pc and sp so that a following
@@ -3126,7 +3266,7 @@ func exitsyscall0(gp *g) {
 		execute(gp, false) // Never returns.
 	}
 	stopm()
-	schedule() // Never returns.
+	schedule(0) // Never returns.
 }
 
 func beforefork() {
