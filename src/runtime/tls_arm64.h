@@ -24,8 +24,7 @@
 #define TLS_windows
 #endif
 #ifdef TLS_windows
-#define TPIDR TPIDR_EL0
-#define MRS_TPIDR_R0 WORD $0xd53bd040 // MRS TPIDR_EL0, R0
+#define TLSG_IS_VARIABLE
 #endif
 
 // Define something that will break the build if

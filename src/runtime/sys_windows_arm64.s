@@ -205,7 +205,7 @@ TEXT runtime·ctrlhandler(SB),NOSPLIT|NOFRAME,$0
 TEXT runtime·profileloop(SB),NOSPLIT|NOFRAME,$0
 	// @ MOVD	$runtime·profileloop1(SB), R1			// sigmtramp needs handler function in R1
 	// @ B	runtime·externalthreadhandler(SB)
-	MOVD	$705, R19
+	MOVD	$7055, R19
 	BRK
 	RET
 
@@ -341,29 +341,38 @@ TEXT runtime·callbackasm1(SB),NOSPLIT|NOFRAME,$0
 
 // uint32 tstart_stdcall(M *newm);
 TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
-	// Todo(ragav): save non-volatile registers, if needed
-	// @ MOVD	m_g0(R0), g
-	// @ MOVD	R0, g_m(g)
-	// @ BL	runtime·save_g(SB)
+ 	// Todo(ragav): save non-volatile registers, if needed
+	SUB		$16, RSP
+	MOVD	R21, 0(RSP)
+	MOVD	LR,	R21
 
-	// @ // do per-thread TLS initialization
-	// @ BL	runtime·init_thread_tls(SB)
+	MOVD	m_g0(R0), g
+	MOVD	R0, g_m(g)
+	BL	runtime·save_g(SB)
 
-	// @ // Layout new m scheduler stack on os stack.
-	// @ MOVD	RSP, R0
-	// @ MOVD	R0, (g_stack+stack_hi)(g)
-	// @ SUB		$(64*1024), R0
-	// @ MOVD	R0, (g_stack+stack_lo)(g)
-	// @ MOVD	R0, g_stackguard0(g)
-	// @ MOVD	R0, g_stackguard1(g)
+	// do per-thread TLS initialization
+	BL	runtime·init_thread_tls(SB)
 
-	// @ // BL	runtime·emptyfunc(SB)	// fault if stack check is wrong
-	// @ BL	runtime·mstart(SB)
+	// Layout new m scheduler stack on os stack.
+	MOVD	RSP, R0
+	MOVD	R0, (g_stack+stack_hi)(g)
+	SUB		$(64*1024), R0
+	MOVD	R0, (g_stack+stack_lo)(g)
+	MOVD	R0, g_stackguard0(g)
+	MOVD	R0, g_stackguard1(g)
 
-	// @ // Exit the thread.
-	// @ MOVD	$0, R0
-	MOVD	$708, R19
-	BRK
+	BL	runtime·emptyfunc(SB)	// fault if stack check is wrong
+	BL	runtime·mstart(SB)
+
+	// Exit the thread.
+	MOVD	$0, R0
+
+	MOVD	R21, LR
+	MOVD	0(RSP), R21
+	ADD		$16, RSP
+	RET
+
+TEXT runtime·emptyfunc(SB),0,$0-0
 	RET
 
 // onosstack calls fn on OS stack.
@@ -521,34 +530,27 @@ TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
 #define time_hi2 8
 
 TEXT runtime·nanotime(SB),NOSPLIT,$0-8
-// @ 	MOVD	$0, R0
-// @ 	MOVB	runtime·useQPCTime(SB), R0
-// @ 	CMP		$0, R0
-// @ 	BNE		useQPC
-// @ 	MOVD	$_INTERRUPT_TIME, R3
-// @ loop:
-// @ 	MOVD	time_hi1(R3), R1
-// @ 	MOVD	time_lo(R3), R0
-// @ 	MOVD	time_hi2(R3), R2
-// @ 	CMP		R1, R2
-// @ 	BNE		loop
-
-// @ 	// wintime = R1:R0, multiply by 100
-// @ 	MOVD	$100, R2
-// @ 	// Todo(ragav): verify correctness
-// @ 	UMULL	R0, R2, R3    // R4:R3 = R1:R0 * R2
-// @ 	UMULH	R0, R2, R4
-// @ 	MADD	R1, R2, R4, R4
-
-// @ 	// wintime*100 = R4:R3
-// @ 	MOVD	R3, ret_lo+0(FP)
-// @ 	MOVD	R4, ret_hi+8(FP)
-// @ 	RET
-// @ useQPC:
-// @ 	B	runtime·nanotimeQPC(SB)		// tail call
-	MOVD	$713, R19
-	BRK
-	RET
+ 	MOVD	$0, R0
+ 	MOVB	runtime·useQPCTime(SB), R0
+ 	CMP		$0, R0
+ 	BNE		useQPC
+ 	MOVD	$_INTERRUPT_TIME, R3
+ loop:
+ 	MOVW	time_hi1(R3), R1
+ 	MOVW	time_lo(R3), R0
+ 	MOVW	time_hi2(R3), R2
+ 	CMP		R1, R2
+ 	BNE		loop
+// Note(ragav): need to verify the correctness of the following logic
+	LSL		$32, R1						// R1 = [time_hi:0]
+	BIC		$0xffffffff00000000, R0		// R0 = [0:time_low]
+	ORR		R1, R0, R1					// R1 = [time_hi:time_low]
+	MOVD	$100, R0		
+	MUL		R0, R1						// R1 = [time_hi:time_low]*100
+	MOVD	R1, ret+0(FP)
+ 	RET
+ useQPC:
+ 	B	runtime·nanotimeQPC(SB)		// tail call
 
 
 
@@ -663,44 +665,40 @@ TEXT time·now(SB),NOSPLIT,$0-20
 // TEXT runtime·load_g(SB),NOSPLIT|NOFRAME,$0
 //	RET
 
-// This is called from rt0_go, which runs on the system stack
-// using the initial stack allocated by the OS.
-// It calls back into standard C using the BL below.
-// To do that, the stack pointer must be 8-byte-aligned.
-TEXT runtime·_initcgo(SB),NOSPLIT|NOFRAME,$0
+TEXT runtime·alloc_tls(SB),NOSPLIT|NOFRAME,$0
 	// Save non-volatile registers
-	// @ SUB 	$8, RSP		// SP = SP - 8
-	// @ MOVD	R19, 0(RSP)
+	SUB 	$16, RSP		// SP = SP - 16
+	MOVD	R19, 0(RSP)
+	MOVD	LR, 8(RSP)
 
-	// @ MOVD	RSP, R19
-	// @ // Stack must be 16-byte aligned
-	// @ MOVD	RSP, R13
-	// @ BIC		$0xF, R13
-	// @ MOVD	R13, RSP
+	MOVD	RSP, R19
+	// Stack must be 16-byte aligned
+	MOVD	RSP, R13
+	BIC		$0xF, R13
+	MOVD	R13, RSP
 
-	// @ // Allocate a TLS slot to hold g across calls to external code
-	// @ MOVD 	$runtime·_TlsAlloc(SB), R0
-	// @ MOVD	(R0), R0
-	// @ BL	(R0)
+	// Allocate a TLS slot to hold g across calls to external code
+	MOVD 	$runtime·_TlsAlloc(SB), R0
+	MOVD	(R0), R0
+	BL	(R0)
 
-	// @ // Assert that slot is less than 64 so we can use _TEB->TlsSlots
-	// @ CMP		$64, R0
-	// @ MOVD	$runtime·abort(SB), R1
-	// @ BGE		2(PC)
-	// @ BL		(R1)
+	// Assert that slot is less than 64 so we can use _TEB->TlsSlots
+	CMP		$64, R0
+	MOVD	$runtime·abort(SB), R1
+	BLT		2(PC)
+	BL		(R1)
 
-	// @ // Save Slot into tls_g
-	// @ MOVD 	$runtime·tls_g(SB), R1
-	// @ MOVD	R0, (R1)
+	// Save Slot into tls_g
+	MOVD 	$runtime·tls_g(SB), R1
+	MOVD	R0, (R1)
 
-	// @ BL	runtime·init_thread_tls(SB)
+	BL	runtime·init_thread_tls(SB)
 
-	// @ MOVD	R19, R13
-	// @ // Restore non-volatile registers
-	// @ MOVD	0(RSP), R19
-	// @ ADD 	$8, RSP
-	MOVD	$715, R19
-	BRK
+	MOVD	R19, RSP
+	// Restore non-volatile registers
+	MOVD	0(RSP), R19
+	MOVD	8(RSP), LR
+	ADD 	$16, RSP
 	RET
 
 // void init_thread_tls()
@@ -720,19 +718,14 @@ TEXT runtime·_initcgo(SB),NOSPLIT|NOFRAME,$0
 // Clobbers R0-R3
 TEXT runtime·init_thread_tls(SB),NOSPLIT|NOFRAME,$0
 	// compute &_TEB->TlsSlots[tls_g]
-	// @ WORD	$0xaa1203e0		// MOVD	R18, R0
-	// @ ADD		$0xe10, R0
-	// @ MOVD 	$runtime·tls_g(SB), R1
-	// @ MOVD	(R1), R1
-	// @ LSL		$3, R1, R1
-	// @ ADD		R1, R0
+	WORD	$0xaa1203e0		// MOVD	R18, R0
+	ADD		$0xe10, R0
+	MOVD 	$runtime·tls_g(SB), R1
+	MOVD	(R1), R1
+	LSL		$2, R1, R1
+	ADD		R1, R0
 
-	// @ // save in g->m->tls[0]
-	// @ MOVD	g_m(g), R1
-	// @ MOVD	R0, m_tls(R1)
-	MOVD	$716, R19
-	BRK
+	// save in g->m->tls[0]
+	MOVD	g_m(g), R1
+	MOVD	R0, m_tls(R1)
 	RET
-
-// Holds the TLS Slot, which was allocated by TlsAlloc()
-GLOBL runtime·tls_g+0(SB), NOPTR, $4
