@@ -23,7 +23,7 @@ TEXT runtime·rt0_go(SB),NOSPLIT,$0
 	MOVD	g, m_g0(R0)
 	// save m0 to g0->m
 	MOVD	R0, g_m(g)
-	
+
 	// create istack out of the given (operating system) stack.
 	MOVD	RSP, R7
 	MOVD	$(-64*1024)(R7), R0
@@ -32,6 +32,7 @@ TEXT runtime·rt0_go(SB),NOSPLIT,$0
 	MOVD	R0, (g_stack+stack_lo)(g)
 	MOVD	R7, (g_stack+stack_hi)(g)
 
+	//Todo(ragav): remove the following breakpoint.
 	BRK
 
 #ifdef GOOS_windows
