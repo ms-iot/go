@@ -378,135 +378,132 @@ TEXT runtime·emptyfunc(SB),0,$0-0
 // onosstack calls fn on OS stack.
 // adapted from asm_arm.s : systemstack
 // func onosstack(fn unsafe.Pointer, arg uint32)
-// Note(ragav): highly likely to be wrong. Temporary implementation.
 TEXT runtime·onosstack(SB),NOSPLIT,$0
-	// Todo(ragav): save non-volatile registers, if needed (currently 19, 20, 21)
-// @ 	MOVD	fn+0(FP), R20		// R20 = fn
-// @ 	MOVW	arg+8(FP), R21		// R21 = arg
+	// Todo(ragav): save non-volatile registers, if needed (currently 19, 20, 21, LR)
+ 	MOVD	fn+0(FP), R20		// R20 = fn
+ 	MOVW	arg+8(FP), R21		// R21 = arg
 
-// @ 	// This function can be called when there is no g,
-// @ 	// for example, when we are handling a callback on a non-go thread.
-// @ 	// In this case we're already on the system stack.
-// @ 	CMP	$0, g
-// @ 	BEQ	noswitch
+ 	// This function can be called when there is no g,
+ 	// for example, when we are handling a callback on a non-go thread.
+ 	// In this case we're already on the system stack.
+ 	CMP	$0, g
+ 	BEQ	noswitch
 
-// @ 	MOVD	g_m(g), R1		// R1 = m
+ 	MOVD	g_m(g), R1		// R1 = m
 
-// @ 	MOVD	m_gsignal(R1), R2	// R2 = gsignal
-// @ 	CMP		g, R2
-// @ 	BEQ		noswitch
+ 	MOVD	m_gsignal(R1), R2	// R2 = gsignal
+ 	CMP		g, R2
+ 	BEQ		noswitch
 
-// @ 	MOVD	m_g0(R1), R2		// R2 = g0
-// @ 	CMP		g, R2
-// @ 	BEQ		noswitch
+ 	MOVD	m_g0(R1), R2		// R2 = g0
+ 	CMP		g, R2
+ 	BEQ		noswitch
 
-// @ 	MOVD	m_curg(R1), R3
-// @ 	CMP		g, R3
-// @ 	BEQ		switch
+ 	MOVD	m_curg(R1), R3
+ 	CMP		g, R3
+ 	BEQ		switch
 
-// @ 	// Bad: g is not gsignal, not g0, not curg. What is it?
-// @ 	// Hide call from linker nosplit analysis.
-// @ 	MOVD	$runtime·badsystemstack(SB), R0
-// @ 	BL	(R0)
-// @ 	B	runtime·abort(SB)
+ 	// Bad: g is not gsignal, not g0, not curg. What is it?
+ 	// Hide call from linker nosplit analysis.
+ 	MOVD	$runtime·badsystemstack(SB), R0
+ 	BL	(R0)
+ 	B	runtime·abort(SB)
 	
-// @ switch:
-// @ 	// save our state in g->sched. Pretend to
-// @ 	// be systemstack_switch if the G stack is scanned.
-// @ 	MOVD	$runtime·systemstack_switch(SB), R3
-// @ 	ADD		$8, R3, R3 // get past push {lr}
-// @ 	MOVD	R3, (g_sched+gobuf_pc)(g)
-// @ 	MOVD	RSP, R8
-// @ 	MOVD	R8, (g_sched+gobuf_sp)(g)
-// @ 	MOVD	LR, (g_sched+gobuf_lr)(g)
-// @ 	MOVD	g, (g_sched+gobuf_g)(g)
+ switch:
+ 	// save our state in g->sched. Pretend to
+ 	// be systemstack_switch if the G stack is scanned.
+ 	MOVD	$runtime·systemstack_switch(SB), R3
+ 	ADD		$8, R3, R3 // get past push {lr}
+ 	MOVD	R3, (g_sched+gobuf_pc)(g)
+ 	MOVD	RSP, R8
+ 	MOVD	R8, (g_sched+gobuf_sp)(g)
+ 	MOVD	LR, (g_sched+gobuf_lr)(g)
+ 	MOVD	g, (g_sched+gobuf_g)(g)
 
-// @ 	// switch to g0
-// @ 	MOVD	R2, g
-// @ 	MOVD	(g_sched+gobuf_sp)(R2), R3
-// @ 	// make it look like mstart called systemstack on g0, to stop traceback
-// @ 	SUB		$8, R3, R3
-// @ 	MOVD	$runtime·mstart(SB), R19
-// @ 	MOVD	R19, 0(R3)
-// @ 	MOVD	R3, RSP
+ 	// switch to g0
+ 	MOVD	R2, g
+ 	MOVD	(g_sched+gobuf_sp)(R2), R3
+ 	// make it look like mstart called systemstack on g0, to stop traceback
+ 	SUB		$8, R3, R3
+ 	MOVD	$runtime·mstart(SB), R19
+ 	MOVD	R19, 0(R3)
+ 	MOVD	R3, RSP
 
-// @ 	// call target function
-// @ 	MOVD	R6, R0		// arg
-// @ 	BL	(R5)
+ 	// call target function
+ 	MOVD	R6, R0		// arg
+ 	BL	(R5)
 
-// @ 	// switch back to g
-// @ 	MOVD	g_m(g), R1
-// @ 	MOVD	m_curg(R1), g
-// @ 	MOVD	(g_sched+gobuf_sp)(g), R8
-// @ 	MOVD	R8, RSP
-// @ 	MOVD	$0, R3
-// @ 	MOVD	R3, (g_sched+gobuf_sp)(g)
-// @ 	RET
+ 	// switch back to g
+ 	MOVD	g_m(g), R1
+ 	MOVD	m_curg(R1), g
+ 	MOVD	(g_sched+gobuf_sp)(g), R8
+ 	MOVD	R8, RSP
+ 	MOVD	$0, R3
+ 	MOVD	R3, (g_sched+gobuf_sp)(g)
+	// Todo(ragav): why isn't the LR being restored here?
+ 	RET
 
-// @ noswitch:
-// @ 	// Using a tail call here cleans up tracebacks since we won't stop
-// @ 	// at an intermediate systemstack.
-// @ 	MOVD.P	8(RSP), R30	// restore LR
-// @ 	MOVD	R21, R0		// arg
-// @ 	B	(R20)
-	MOVD	$709, R19
-	BRK
-	RET
+ noswitch:
+ 	// Using a tail call here cleans up tracebacks since we won't stop
+ 	// at an intermediate systemstack.
+
+ 	// Todo(ragav): Why is the following line here? 
+	// MOVD.P	8(RSP), R30	// restore LR
+ 	MOVD	R21, R0		// arg
+ 	B	(R20)
 
 // Runs on OS stack. Duration (in 100ns units) is in R0.
 TEXT runtime·usleep2(SB),NOSPLIT|NOFRAME,$0
 	// Save non-volatile registers
-	// @ SUB 	$8, RSP		// SP = SP - 8
-	// @ MOVD	R19, 0(RSP)
+	SUB 	$16, RSP		// SP = SP - 16
+	MOVD	R19, 0(RSP)
+	MOVD	LR, 8(RSP)
+	MOVD	RSP, R19		// Save SP
 
-	// @ MOVD	RSP, R19		// Save SP
-	// @ SUB		$16, RSP		// SP = SP - 16
+	// Stack must be 16-byte aligned
+	MOVD	RSP, R13
+	BIC		$0xF, R13
+	MOVD	R13, RSP
+
+	MOVD	$0, R8
+	SUB		R0, R8, R3		// R3 = -R0	Note(ragav): orignally RSB instruction was used
 	
-	// @ // Stack must be 16-byte aligned
-	// @ MOVD	RSP, R13
-	// @ BIC		$0xF, R13
-	// @ MOVD	R13, RSP
+	MOVD	$0, R1			// R1 = FALSE (alertable)
+	MOVD	$-1, R0			// R0 = handle
+	MOVD	RSP, R2			// R2 = pTime
+	MOVD	R3, (R2)
+	
+	MOVD	runtime·_NtWaitForSingleObject(SB), R3
+	BL		(R3)
+	MOVD	R19, RSP			// Restore SP
 
-	// @ MOVD	$0, R8
-	// @ SUB		R0, R8, R3		// R3 = -R0	Note(ragav): orignally RSB instruction was used
-	// @ MOVD	$0, R1			// R1 = FALSE (alertable)
-	// @ MOVD	$-1, R0			// R0 = handle
-	// @ MOVD	RSP, R2			// R2 = pTime
-	// @ MOVD	R3, 0(R2)		// time_lo
-	// @ MOVD	R0, 8(R2)		// time_hi
-	// @ MOVD	runtime·_NtWaitForSingleObject(SB), R3
-	// @ BL		(R3)
-	// @ MOVD	R19, RSP			// Restore SP
-
-	// @ // Restore non-volatile registers
-	// @ MOVD	0(RSP), R19
-	// @ ADD 	$8, RSP
-	MOVD	$710, R19
-	BRK
+	// Restore non-volatile registers
+	MOVD	0(RSP), R19
+	MOVD	8(RSP), LR
+	ADD 	$16, RSP
 	RET
 
 // Runs on OS stack.
 TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
 	// Save non-volatile registers
-	// @ SUB 	$8, RSP		// SP = SP - 8
-	// @ MOVD	R19, 0(RSP)
+	SUB 	$16, RSP		// SP = SP - 16
+	MOVD	R19, 0(RSP)
+	MOVD	LR, 8(RSP)
+	MOVD    RSP, R19
 
-	// @ MOVD    RSP, R19
-	
-	// @ // Stack must be 16-byte aligned
-	// @ MOVD	RSP, R13
-	// @ BIC		$0xF, R13
-	// @ MOVD	R13, RSP
-	
-	// @ MOVD	runtime·_SwitchToThread(SB), R0
-	// @ BL		(R0)
-	// @ MOVD 	R19, R13			// restore stack pointer 
-	
-	// @ // Restore non-volatile registers
-	// @ MOVD	0(RSP), R19
-	// @ ADD 	$8, RSP
-	MOVD	$711, R19
-	BRK
+	// Stack must be 16-byte aligned
+	MOVD	RSP, R13
+	BIC		$0xF, R13
+	MOVD	R13, RSP
+
+	MOVD	runtime·_SwitchToThread(SB), R0
+	BL		(R0)
+	MOVD 	R19, R13			// restore stack pointer
+
+	// Restore non-volatile registers
+	MOVD	0(RSP), R19
+	MOVD	8(RSP), LR 
+	ADD 	$16, RSP
 	RET
 
 // Note(ragav): commented because duplicate symbol
