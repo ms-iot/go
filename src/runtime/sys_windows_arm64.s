@@ -21,7 +21,7 @@ TEXT runtime·asmstdcall(SB),NOSPLIT|NOFRAME,$0
 	
 	// SetLastError(0)
 	WORD	$0xaa1203e1		// MOVD	R18, R1
-	MOVW	$0, 0x68(R1)	// Note(ragav): Windows ABI says R18 holds the base of TEB struct
+	MOVW	$0, 0x68(R1)	// According to Windows ABI says R18 holds the base of TEB struct
 
 	MOVD	16(R19), R16	// R16 = libcall->args (intra-procedure-call scratch register)
 
@@ -115,4 +115,66 @@ argsloaded:
 	MOVD	8(RSP), R20
 	MOVD	16(RSP), R21
 	ADD		$32, RSP		// SP = SP + 32
+	RET
+
+// uint32 tstart_stdcall(M *newm);
+TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
+ 	// Todo(ragav): save non-volatile registers, if needed
+	SUB		$16, RSP
+	MOVD	R21, 0(RSP)
+	MOVD	LR,	R21
+
+	MOVD	m_g0(R0), g
+	MOVD	R0, g_m(g)
+	BL	runtime·save_g(SB)
+
+	// do per-thread TLS initialization
+	BL	runtime·init_thread_tls(SB)
+
+	// Layout new m scheduler stack on os stack.
+	MOVD	RSP, R0
+	MOVD	R0, (g_stack+stack_hi)(g)
+	SUB		$(64*1024), R0
+	MOVD	R0, (g_stack+stack_lo)(g)
+	MOVD	R0, g_stackguard0(g)
+	MOVD	R0, g_stackguard1(g)
+
+	BL	runtime·emptyfunc(SB)	// fault if stack check is wrong
+	BL	runtime·mstart(SB)
+
+	// Exit the thread.
+	MOVD	$0, R0
+
+	MOVD	R21, LR
+	MOVD	0(RSP), R21
+	ADD		$16, RSP
+	RET
+
+// void init_thread_tls()
+//
+// Does per-thread TLS initialization. Saves a pointer to the TLS slot
+// holding G, in the current m.
+//
+//     g->m->tls[0] = &_TEB->TlsSlots[tls_g]
+//
+// The purpose of this is to enable the profiling handler to get the
+// current g associated with the thread. We cannot use m->curg because curg
+// only holds the current user g. If the thread is executing system code or
+// external code, m->curg will be NULL. The thread's TLS slot always holds
+// the current g, so save a reference to this location so the profiling
+// handler can get the real g from the thread's m.
+//
+// Clobbers R0-R3
+TEXT runtime·init_thread_tls(SB),NOSPLIT|NOFRAME,$0
+	// compute &_TEB->TlsSlots[tls_g]
+	WORD	$0xaa1203e0		// MOVD	R18, R0
+	ADD		$0xe10, R0
+	MOVD 	$runtime·tls_g(SB), R1
+	MOVD	(R1), R1
+	LSL		$2, R1, R1
+	ADD		R1, R0
+
+	// save in g->m->tls[0]
+	MOVD	g_m(g), R1
+	MOVD	R0, m_tls(R1)
 	RET
