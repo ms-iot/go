@@ -117,6 +117,113 @@ argsloaded:
 	ADD		$32, RSP		// SP = SP + 32
 	RET
 
+TEXT runtime·badsignal2(SB),NOSPLIT|NOFRAME,$0
+	MOVD	$1101, R19
+	BRK
+	RET
+
+TEXT runtime·getlasterror(SB),NOSPLIT,$0
+	WORD	$0xaa1203e1		// MOVD	R18, R1
+	MOVD	0x68(R1), R0
+	MOVD 	R0, ret+0(FP)
+	RET
+
+TEXT runtime·setlasterror(SB),NOSPLIT|NOFRAME,$0
+	WORD	$0xaa1203e1		// MOVD	R18, R1
+	MOVW	R0, 0x68(R1)
+	RET
+
+// Called by Windows as a Vectored Exception Handler (VEH).
+// First argument is pointer to struct containing
+// exception record and context pointers.
+// Handler function is stored in R1
+// Return 0 for 'not handled', -1 for handled.
+// int32_t sigtramp(
+//     PEXCEPTION_POINTERS ExceptionInfo,
+//     func *GoExceptionHandler);
+TEXT runtime·sigtramp(SB),NOSPLIT|NOFRAME,$0
+	MOVD	$701, R19
+	BRK
+	RET
+
+//
+// Trampoline to resume execution from exception handler.
+// This is part of the control flow guard workaround.
+// It switches stacks and jumps to the continuation address.
+ TEXT runtime·returntramp(SB),NOSPLIT|NOFRAME,$0
+	MOVD	$801, R19
+	BRK
+	RET
+
+TEXT runtime·exceptiontramp(SB),NOSPLIT|NOFRAME,$0
+	// @ MOVD	$runtime·exceptionhandler(SB), R1		// sigmtramp needs handler function in R1
+	// @ B	runtime·sigtramp(SB)
+	MOVD	$702, R19
+	BRK
+	RET
+
+TEXT runtime·firstcontinuetramp(SB),NOSPLIT|NOFRAME,$0
+	// @ MOVD	$runtime·firstcontinuehandler(SB), R1	// sigmtramp needs handler function in R1
+	// @ B	runtime·sigtramp(SB)
+	MOVD	$703, R19
+	BRK
+	RET
+
+TEXT runtime·lastcontinuetramp(SB),NOSPLIT|NOFRAME,$0
+	// @ MOVD	$runtime·lastcontinuehandler(SB), R1	// sigmtramp needs handler function in R1
+	// @ B	runtime·sigtramp(SB)
+	MOVD	$704, R19
+	BRK
+	RET
+
+TEXT runtime·ctrlhandler(SB),NOSPLIT|NOFRAME,$0
+	// @ MOVD	$runtime·ctrlhandler1(SB), R1			// sigmtramp needs handler function in R1
+	// @ B	runtime·externalthreadhandler(SB)
+	MOVD	$705, R19
+	BRK
+	RET
+
+TEXT runtime·profileloop(SB),NOSPLIT|NOFRAME,$0
+	// @ MOVD	$runtime·profileloop1(SB), R1			// sigmtramp needs handler function in R1
+	// @ B	runtime·externalthreadhandler(SB)
+	MOVD	$7055, R19
+	BRK
+	RET
+
+// int32 externalthreadhandler(uint32 arg, int (*func)(uint32))
+// stack layout: 
+//   +----------------+
+//   | callee-save    |
+//   | registers      |
+//   +----------------+
+//   | m              |
+//   +----------------+
+// 40| g              |
+//   +----------------+
+// 32| func ptr (r1)  |
+//   +----------------+
+// 24| argument (r0)  |
+//---+----------------+
+// 16 | param1         |
+//   +----------------+
+// 8 | param0         |
+//   +----------------+
+// 0 | retval         |
+//   +----------------+
+//
+TEXT runtime·externalthreadhandler(SB),NOFRAME,$0
+	// Note(ragav): Check if the function needs to be nosplit.
+	MOVD	$706, R19
+	BRK
+	RET
+
+GLOBL runtime·cbctxts(SB), NOPTR, $4
+
+TEXT runtime·callbackasm1(SB),NOSPLIT|NOFRAME,$0
+	MOVD	$707, R19
+	BRK
+	RET
+
 // uint32 tstart_stdcall(M *newm);
 TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
  	// Todo(ragav): save non-volatile registers, if needed
@@ -284,6 +391,14 @@ TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
 	ADD 	$16, RSP
 	RET
 
+// never called (cgo not supported)
+TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
+	// @ MOVD	$0xabcd, R0
+	// @ MOVD	R0, (R0)
+	MOVD	$712, R19
+	BRK
+	RET
+
 // See http://www.dcl.hpi.uni-potsdam.de/research/WRK/2007/08/getting-os-information-the-kuser_shared_data-structure/
 // Must read hi1, then lo, then hi2. The snapshot is valid if hi1 == hi2.
 #define _INTERRUPT_TIME 0x7ffe0008
@@ -314,6 +429,11 @@ TEXT runtime·nanotime(SB),NOSPLIT,$0-8
  	RET
  useQPC:
  	B	runtime·nanotimeQPC(SB)		// tail call
+
+TEXT time·now(SB),NOSPLIT,$0-20
+	MOVD	$714, R19
+	BRK
+	RET
 
 TEXT runtime·alloc_tls(SB),NOSPLIT|NOFRAME,$0
 	// Save non-volatile registers
