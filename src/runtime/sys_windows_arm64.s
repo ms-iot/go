@@ -150,6 +150,109 @@ TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
 	ADD		$16, RSP
 	RET
 
+TEXT runtime·emptyfunc(SB),0,$0-0
+	RET
+
+// onosstack calls fn on OS stack.
+// adapted from asm_arm.s : systemstack
+// func onosstack(fn unsafe.Pointer, arg uint32)
+TEXT runtime·onosstack(SB),NOSPLIT,$0
+	// Todo(ragav): save non-volatile registers, if needed (currently 19, 20, 21, LR)
+ 	MOVD	fn+0(FP), R20		// R20 = fn
+ 	MOVW	arg+8(FP), R21		// R21 = arg
+
+ 	// This function can be called when there is no g,
+ 	// for example, when we are handling a callback on a non-go thread.
+ 	// In this case we're already on the system stack.
+ 	CMP	$0, g
+ 	BEQ	noswitch
+
+ 	MOVD	g_m(g), R1		// R1 = m
+
+ 	MOVD	m_gsignal(R1), R2	// R2 = gsignal
+ 	CMP		g, R2
+ 	BEQ		noswitch
+
+ 	MOVD	m_g0(R1), R2		// R2 = g0
+ 	CMP		g, R2
+ 	BEQ		noswitch
+
+ 	MOVD	m_curg(R1), R3
+ 	CMP		g, R3
+ 	BEQ		switch
+
+ 	// Bad: g is not gsignal, not g0, not curg. What is it?
+ 	// Hide call from linker nosplit analysis.
+ 	MOVD	$runtime·badsystemstack(SB), R0
+ 	BL	(R0)
+ 	B	runtime·abort(SB)
+	
+ switch:
+ 	// save our state in g->sched. Pretend to
+ 	// be systemstack_switch if the G stack is scanned.
+ 	MOVD	$runtime·systemstack_switch(SB), R3
+ 	ADD		$8, R3, R3 // get past push {lr}
+ 	MOVD	R3, (g_sched+gobuf_pc)(g)
+ 	MOVD	RSP, R8
+ 	MOVD	R8, (g_sched+gobuf_sp)(g)
+ 	MOVD	LR, (g_sched+gobuf_lr)(g)
+ 	MOVD	g, (g_sched+gobuf_g)(g)
+
+ 	// switch to g0
+ 	MOVD	R2, g
+ 	MOVD	(g_sched+gobuf_sp)(R2), R3
+ 	// make it look like mstart called systemstack on g0, to stop traceback
+ 	SUB		$8, R3, R3
+ 	MOVD	$runtime·mstart(SB), R19
+ 	MOVD	R19, 0(R3)
+ 	MOVD	R3, RSP
+
+ 	// call target function
+ 	MOVD	R6, R0		// arg
+ 	BL	(R5)
+
+ 	// switch back to g
+ 	MOVD	g_m(g), R1
+ 	MOVD	m_curg(R1), g
+ 	MOVD	(g_sched+gobuf_sp)(g), R8
+ 	MOVD	R8, RSP
+ 	MOVD	$0, R3
+ 	MOVD	R3, (g_sched+gobuf_sp)(g)
+	// Note(ragav): why isn't the LR being restored here?
+ 	RET
+
+ noswitch:
+ 	// Using a tail call here cleans up tracebacks since we won't stop
+ 	// at an intermediate systemstack.
+
+ 	// Todo(ragav): Why is the following line here? 
+	// MOVD.P	8(RSP), R30	// restore LR
+ 	MOVD	R21, R0		// arg
+ 	B	(R20)
+
+// Runs on OS stack.
+TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
+	// Save non-volatile registers
+	SUB 	$16, RSP		// SP = SP - 16
+	MOVD	R19, 0(RSP)
+	MOVD	LR, 8(RSP)
+	MOVD    RSP, R19
+
+	// Stack must be 16-byte aligned
+	MOVD	RSP, R13
+	BIC		$0xF, R13
+	MOVD	R13, RSP
+
+	MOVD	runtime·_SwitchToThread(SB), R0
+	BL		(R0)
+	MOVD 	R19, R13			// restore stack pointer
+
+	// Restore non-volatile registers
+	MOVD	0(RSP), R19
+	MOVD	8(RSP), LR 
+	ADD 	$16, RSP
+	RET
+
 TEXT runtime·alloc_tls(SB),NOSPLIT|NOFRAME,$0
 	// Save non-volatile registers
 	SUB 	$16, RSP		// SP = SP - 16
