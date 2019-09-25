@@ -230,6 +230,37 @@ TEXT runtime·onosstack(SB),NOSPLIT,$0
  	MOVD	R21, R0		// arg
  	B	(R20)
 
+// Runs on OS stack. Duration (in 100ns units) is in R0.
+TEXT runtime·usleep2(SB),NOSPLIT|NOFRAME,$0
+	// Save non-volatile registers
+	SUB 	$16, RSP		// SP = SP - 16
+	MOVD	R19, 0(RSP)
+	MOVD	LR, 8(RSP)
+	MOVD	RSP, R19		// Save SP
+
+	// Stack must be 16-byte aligned
+	MOVD	RSP, R13
+	BIC		$0xF, R13
+	MOVD	R13, RSP
+
+	MOVD	$0, R8
+	SUB		R0, R8, R3		// R3 = -R0	Note(ragav): orignally RSB instruction was used
+	
+	MOVD	$0, R1			// R1 = FALSE (alertable)
+	MOVD	$-1, R0			// R0 = handle
+	MOVD	RSP, R2			// R2 = pTime
+	MOVD	R3, (R2)
+	
+	MOVD	runtime·_NtWaitForSingleObject(SB), R3
+	BL		(R3)
+	MOVD	R19, RSP			// Restore SP
+
+	// Restore non-volatile registers
+	MOVD	0(RSP), R19
+	MOVD	8(RSP), LR
+	ADD 	$16, RSP
+	RET
+
 // Runs on OS stack.
 TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
 	// Save non-volatile registers
@@ -245,13 +276,44 @@ TEXT runtime·switchtothread(SB),NOSPLIT|NOFRAME,$0
 
 	MOVD	runtime·_SwitchToThread(SB), R0
 	BL		(R0)
-	MOVD 	R19, R13			// restore stack pointer
+	MOVD 	R19, RSP			// restore stack pointer
 
 	// Restore non-volatile registers
 	MOVD	0(RSP), R19
 	MOVD	8(RSP), LR 
 	ADD 	$16, RSP
 	RET
+
+// See http://www.dcl.hpi.uni-potsdam.de/research/WRK/2007/08/getting-os-information-the-kuser_shared_data-structure/
+// Must read hi1, then lo, then hi2. The snapshot is valid if hi1 == hi2.
+#define _INTERRUPT_TIME 0x7ffe0008
+#define _SYSTEM_TIME 0x7ffe0014
+#define time_lo 0
+#define time_hi1 4
+#define time_hi2 8
+
+TEXT runtime·nanotime(SB),NOSPLIT,$0-8
+ 	MOVD	$0, R0
+ 	MOVB	runtime·useQPCTime(SB), R0
+ 	CMP		$0, R0
+ 	BNE		useQPC
+ 	MOVD	$_INTERRUPT_TIME, R3
+ loop:
+ 	MOVW	time_hi1(R3), R1
+ 	MOVW	time_lo(R3), R0
+ 	MOVW	time_hi2(R3), R2
+ 	CMP		R1, R2
+ 	BNE		loop
+
+	LSL		$32, R1						// R1 = [time_hi:0]
+	BIC		$0xffffffff00000000, R0		// R0 = [0:time_low]
+	ORR		R1, R0, R1					// R1 = [time_hi:time_low]
+	MOVD	$100, R0		
+	MUL		R0, R1						// R1 = [time_hi:time_low]*100
+	MOVD	R1, ret+0(FP)
+ 	RET
+ useQPC:
+ 	B	runtime·nanotimeQPC(SB)		// tail call
 
 TEXT runtime·alloc_tls(SB),NOSPLIT|NOFRAME,$0
 	// Save non-volatile registers
