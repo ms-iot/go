@@ -15,9 +15,16 @@ TEXT runtime·rt0_go(SB),NOSPLIT,$0
 	MOVW	R0, 8(RSP) // argc
 	MOVD	R1, 16(RSP) // argv
 
-	// create istack out of the given (operating system) stack.
-	// _cgo_init may update stackguard.
+	
 	MOVD	$runtime·g0(SB), g
+	// set the per-goroutine and per-mach "registers"
+	MOVD	$runtime·m0(SB), R0
+	// save m->g0 = g0
+	MOVD	g, m_g0(R0)
+	// save m0 to g0->m
+	MOVD	R0, g_m(g)
+
+	// create istack out of the given (operating system) stack.
 	MOVD	RSP, R7
 	MOVD	$(-64*1024)(R7), R0
 	MOVD	R0, g_stackguard0(g)
@@ -25,7 +32,11 @@ TEXT runtime·rt0_go(SB),NOSPLIT,$0
 	MOVD	R0, (g_stack+stack_lo)(g)
 	MOVD	R7, (g_stack+stack_hi)(g)
 
+#ifdef GOOS_windows
+	BL		runtime·alloc_tls(SB)
+#else
 	// if there is a _cgo_init, call it using the gcc ABI.
+	// _cgo_init may update stackguard.
 	MOVD	_cgo_init(SB), R12
 	CMP	$0, R12
 	BEQ	nocgo
@@ -42,6 +53,7 @@ TEXT runtime·rt0_go(SB),NOSPLIT,$0
 	SUB	$16, RSP		// reserve 16 bytes for sp-8 where fp may be saved.
 	BL	(R12)
 	ADD	$16, RSP
+#endif
 
 nocgo:
 	BL	runtime·save_g(SB)
@@ -50,14 +62,6 @@ nocgo:
 	ADD	$const__StackGuard, R0
 	MOVD	R0, g_stackguard0(g)
 	MOVD	R0, g_stackguard1(g)
-
-	// set the per-goroutine and per-mach "registers"
-	MOVD	$runtime·m0(SB), R0
-
-	// save m->g0 = g0
-	MOVD	g, m_g0(R0)
-	// save m0 to g0->m
-	MOVD	R0, g_m(g)
 
 	BL	runtime·check(SB)
 
@@ -1100,10 +1104,14 @@ TEXT _cgo_topofstack(SB),NOSPLIT,$24
 
 // void setg(G*); set g. for use by needm.
 TEXT runtime·setg(SB), NOSPLIT, $0-8
-	MOVD	gg+0(FP), g
-	// This only happens if iscgo, so jump straight to save_g
-	BL	runtime·save_g(SB)
-	RET
+//	#ifdef GOOS_windows
+//		BL	runtime·save_g(SB)
+//	#else
+		MOVD	gg+0(FP), g
+		// This only happens if iscgo, so jump straight to save_g
+		BL	runtime·save_g(SB)
+		RET
+//	#endif
 
 // void setg_gcc(G*); set g called from gcc
 TEXT setg_gcc<>(SB),NOSPLIT,$8

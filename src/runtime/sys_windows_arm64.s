@@ -150,6 +150,42 @@ TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
 	ADD		$16, RSP
 	RET
 
+TEXT runtime·alloc_tls(SB),NOSPLIT|NOFRAME,$0
+	// Save non-volatile registers
+	SUB 	$16, RSP		// SP = SP - 16
+	MOVD	R19, 0(RSP)
+	MOVD	LR, 8(RSP)
+
+	MOVD	RSP, R19
+	// Stack must be 16-byte aligned
+	MOVD	RSP, R13
+	BIC		$0xF, R13
+	MOVD	R13, RSP
+
+	// Allocate a TLS slot to hold g across calls to external code
+	MOVD 	$runtime·_TlsAlloc(SB), R0
+	MOVD	(R0), R0
+	BL	(R0)
+
+	// Assert that slot is less than 64 so we can use _TEB->TlsSlots
+	CMP		$64, R0
+	MOVD	$runtime·abort(SB), R1
+	BLT		2(PC)
+	BL		(R1)
+
+	// Save Slot into tls_g
+	MOVD 	$runtime·tls_g(SB), R1
+	MOVD	R0, (R1)
+
+	BL	runtime·init_thread_tls(SB)
+
+	MOVD	R19, RSP
+	// Restore non-volatile registers
+	MOVD	0(RSP), R19
+	MOVD	8(RSP), LR
+	ADD 	$16, RSP
+	RET
+
 // void init_thread_tls()
 //
 // Does per-thread TLS initialization. Saves a pointer to the TLS slot
