@@ -49,6 +49,7 @@ TEXT runtime·save_g(SB),NOSPLIT,$0
 	MOVB	runtime·iscgo(SB), R0
 	CMP	$0, R0
 	BEQ	nocgo
+
 	MRS_TPIDR_R0
 #ifdef GOOS_darwin
 	// Darwin sometimes returns unaligned pointers
@@ -57,6 +58,7 @@ TEXT runtime·save_g(SB),NOSPLIT,$0
 	MOVD	runtime·tls_g(SB), R27
 	ADD	R27, R0
 	MOVD	g, 0(R0)
+	
 nocgo:
 	RET
 #endif

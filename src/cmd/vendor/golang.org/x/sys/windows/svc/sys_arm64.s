@@ -8,7 +8,7 @@
 
 // func servicemain(argc uint32, argv **uint16)
 TEXT ·servicemain(SB),NOSPLIT|NOFRAME,$0
-    MOVD	R0, ·sArgc(SB)
+ 	MOVD	R0, ·sArgc(SB)
  	MOVD	R1, ·sArgv(SB)
 
  	MOVD	·sName(SB), R0

@@ -16,14 +16,17 @@ TEXT runtime·rt0_go(SB),NOSPLIT,$0
 	MOVD	R1, 16(RSP) // argv
 
 	MOVD	$runtime·g0(SB), g
+#ifdef GOOS_windows
 	// set the per-goroutine and per-mach "registers"
 	MOVD	$runtime·m0(SB), R0
 	// save m->g0 = g0
 	MOVD	g, m_g0(R0)
 	// save m0 to g0->m
 	MOVD	R0, g_m(g)
+#endif
 
 	// create istack out of the given (operating system) stack.
+	// _cgo_init may update stackguard.
 	MOVD	RSP, R7
 	MOVD	$(-64*1024)(R7), R0
 	MOVD	R0, g_stackguard0(g)
@@ -35,7 +38,6 @@ TEXT runtime·rt0_go(SB),NOSPLIT,$0
 	BL  	runtime·alloc_tls(SB)
 #else
 	// if there is a _cgo_init, call it using the gcc ABI.
-	// _cgo_init may update stackguard.
 	MOVD	_cgo_init(SB), R12
 	CMP	$0, R12
 	BEQ	nocgo
@@ -62,6 +64,14 @@ nocgo:
 	MOVD	R0, g_stackguard0(g)
 	MOVD	R0, g_stackguard1(g)
 
+#ifndef GOOS_windows
+	// set the per-goroutine and per-mach "registers"
+	MOVD	$runtime·m0(SB), R0
+	// save m->g0 = g0
+	MOVD	g, m_g0(R0)
+	// save m0 to g0->m
+	MOVD	R0, g_m(g)
+#endif
 	BL	runtime·check(SB)
 
 	MOVW	8(RSP), R0	// copy argc
