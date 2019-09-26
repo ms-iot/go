@@ -15,7 +15,6 @@ TEXT runtime·rt0_go(SB),NOSPLIT,$0
 	MOVW	R0, 8(RSP) // argc
 	MOVD	R1, 16(RSP) // argv
 
-	
 	MOVD	$runtime·g0(SB), g
 	// set the per-goroutine and per-mach "registers"
 	MOVD	$runtime·m0(SB), R0
@@ -33,7 +32,7 @@ TEXT runtime·rt0_go(SB),NOSPLIT,$0
 	MOVD	R7, (g_stack+stack_hi)(g)
 
 #ifdef GOOS_windows
-	BL		runtime·alloc_tls(SB)
+	BL  	runtime·alloc_tls(SB)
 #else
 	// if there is a _cgo_init, call it using the gcc ABI.
 	// _cgo_init may update stackguard.
@@ -1104,6 +1103,7 @@ TEXT _cgo_topofstack(SB),NOSPLIT,$24
 
 // void setg(G*); set g. for use by needm.
 TEXT runtime·setg(SB), NOSPLIT, $0-8
+// TODO(ragav): Clean up.
 //	#ifdef GOOS_windows
 //		BL	runtime·save_g(SB)
 //	#else
