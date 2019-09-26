@@ -39,7 +39,8 @@ type IMAGE_EXPORT_DIRECTORY struct {
 }
 
 const (
-	PEBASE = 0x00400000
+	PEBASE32 = 0x00400000
+	PEBASE64 = 0x140000000
 )
 
 var (
@@ -353,8 +354,14 @@ func (sect *peSection) checkOffset(off int64) {
 // checkSegment verifies COFF section sect matches address
 // and file offset provided in segment seg.
 func (sect *peSection) checkSegment(seg *sym.Segment) {
-	if seg.Vaddr-PEBASE != uint64(sect.virtualAddress) {
-		Errorf(nil, "%s.VirtualAddress = %#x, want %#x", sect.name, uint64(int64(sect.virtualAddress)), uint64(int64(seg.Vaddr-PEBASE)))
+	var pebase uint64
+	if pe64 != 0 {
+		pebase = PEBASE64
+	} else {
+		pebase = PEBASE32
+	}
+	if seg.Vaddr-pebase != uint64(sect.virtualAddress) {
+		Errorf(nil, "%s.VirtualAddress = %#x, want %#x", sect.name, uint64(int64(sect.virtualAddress)), uint64(int64(seg.Vaddr-pebase)))
 		errorexit()
 	}
 	if seg.Fileoff != uint64(sect.pointerToRawData) {
@@ -792,10 +799,10 @@ func (f *peFile) writeFileHeader(arch *sys.Arch, out *OutBuf, linkmode LinkMode)
 		switch arch.Family {
 		default:
 			Exitf("write COFF(ext): unknown PE architecture: %v", arch.Family)
-		case sys.AMD64, sys.I386, sys.ARM64:
+		case sys.AMD64, sys.I386:
 			fh.Characteristics = IMAGE_FILE_RELOCS_STRIPPED | IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_DEBUG_STRIPPED
 		//todo(ragav): check for correctness of arm64
-		case sys.ARM:
+		case sys.ARM, sys.ARM64:
 			fh.Characteristics = IMAGE_FILE_EXECUTABLE_IMAGE | IMAGE_FILE_DEBUG_STRIPPED
 		}
 	}
@@ -839,13 +846,13 @@ func (f *peFile) writeOptionalHeader(ctxt *Link) {
 	oh64.SizeOfUninitializedData = 0
 	oh.SizeOfUninitializedData = 0
 	if ctxt.LinkMode != LinkExternal {
-		oh64.AddressOfEntryPoint = uint32(Entryvalue(ctxt) - PEBASE)
-		oh.AddressOfEntryPoint = uint32(Entryvalue(ctxt) - PEBASE)
+		oh64.AddressOfEntryPoint = uint32(Entryvalue(ctxt) - PEBASE64)
+		oh.AddressOfEntryPoint = uint32(Entryvalue(ctxt) - PEBASE32)
 	}
 	oh64.BaseOfCode = f.textSect.virtualAddress
 	oh.BaseOfCode = f.textSect.virtualAddress
-	oh64.ImageBase = PEBASE
-	oh.ImageBase = PEBASE
+	oh64.ImageBase = PEBASE64
+	oh.ImageBase = PEBASE32
 	oh64.SectionAlignment = uint32(PESECTALIGN)
 	oh.SectionAlignment = uint32(PESECTALIGN)
 	oh64.FileAlignment = uint32(PEFILEALIGN)
@@ -948,6 +955,7 @@ var pefile peFile
 
 func Peinit(ctxt *Link) {
 	var l int
+	var pebase int64
 
 	switch ctxt.Arch.Family {
 	// 64-bit architectures
@@ -955,11 +963,13 @@ func Peinit(ctxt *Link) {
 		pe64 = 1
 		var oh64 pe.OptionalHeader64
 		l = binary.Size(&oh64)
+		pebase = PEBASE64
 
 	// 32-bit architectures
 	default:
 		var oh pe.OptionalHeader32
 		l = binary.Size(&oh)
+		pebase = PEBASE32
 
 	}
 
@@ -985,13 +995,13 @@ func Peinit(ctxt *Link) {
 
 	if ctxt.LinkMode == LinkInternal {
 		// some mingw libs depend on this symbol, for example, FindPESectionByName
-		ctxt.xdefine("__image_base__", sym.SDATA, PEBASE)
-		ctxt.xdefine("_image_base__", sym.SDATA, PEBASE)
+		ctxt.xdefine("__image_base__", sym.SDATA, pebase)
+		ctxt.xdefine("_image_base__", sym.SDATA, pebase)
 	}
 
 	HEADR = PEFILEHEADR
 	if *FlagTextAddr == -1 {
-		*FlagTextAddr = PEBASE + int64(PESECTHEADR)
+		*FlagTextAddr = pebase + int64(PESECTHEADR)
 	}
 	if *FlagDataAddr == -1 {
 		*FlagDataAddr = 0
@@ -1186,7 +1196,13 @@ func addimports(ctxt *Link, datsect *peSection) {
 	endoff := ctxt.Out.Offset()
 
 	// write FirstThunks (allocated in .data section)
-	ftbase := uint64(dynamic.Value) - uint64(datsect.virtualAddress) - PEBASE
+	var pebase int64
+	if pe64 != 0 {
+		pebase = PEBASE64
+	} else {
+		pebase = PEBASE32
+	}
+	ftbase := uint64(dynamic.Value) - uint64(datsect.virtualAddress) - uint64(pebase)
 
 	ctxt.Out.SeekSet(int64(uint64(datsect.pointerToRawData) + ftbase))
 	for d := dr; d != nil; d = d.next {
@@ -1226,7 +1242,7 @@ func addimports(ctxt *Link, datsect *peSection) {
 	// update data directory
 	pefile.dataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress = isect.virtualAddress
 	pefile.dataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size = isect.virtualSize
-	pefile.dataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].VirtualAddress = uint32(dynamic.Value - PEBASE)
+	pefile.dataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].VirtualAddress = uint32(dynamic.Value - pebase)
 	pefile.dataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].Size = uint32(dynamic.Size)
 
 	out.SeekSet(endoff)
@@ -1292,12 +1308,19 @@ func addexports(ctxt *Link) {
 
 	out := ctxt.Out
 
+	var pebase int64
+	if pe64 != 0 {
+		pebase = PEBASE64
+	} else {
+		pebase = PEBASE32
+	}
+
 	// put IMAGE_EXPORT_DIRECTORY
 	binary.Write(out, binary.LittleEndian, &e)
 
 	// put EXPORT Address Table
 	for i := 0; i < nexport; i++ {
-		out.Write32(uint32(dexport[i].Value - PEBASE))
+		out.Write32(uint32(dexport[i].Value - pebase))
 	}
 
 	// put EXPORT Name Pointer Table
@@ -1369,7 +1392,14 @@ func (rt *peBaseRelocTable) addentry(ctxt *Link, s *sym.Symbol, r *sym.Reloc) {
 	const pageSize = 0x1000
 	const pageMask = pageSize - 1
 
-	addr := s.Value + int64(r.Off) - int64(PEBASE)
+	var pebase int64
+	if pe64 != 0 {
+		pebase = PEBASE64
+	} else {
+		pebase = PEBASE32
+	}
+
+	addr := s.Value + int64(r.Off) - int64(pebase)
 	page := uint32(addr &^ pageMask)
 	off := uint32(addr & pageMask)
 
@@ -1453,7 +1483,7 @@ func addPEBaseReloc(ctxt *Link) {
 	default:
 		return
 	// Todo(ragav): check if ARM64 is needed here.
-	case sys.ARM:
+	case sys.ARM, sys.ARM64:
 	}
 
 	var rt peBaseRelocTable
