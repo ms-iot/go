@@ -147,5 +147,5 @@ type memoryBasicInformation struct {
 }
 
 func stackcheck() {
-	// TODO: not implemented on ARM
+	// TODO(ragav): not implemented on ARM64
 }

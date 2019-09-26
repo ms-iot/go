@@ -8,9 +8,9 @@
 #include "textflag.h"
 #include "tls_arm64.h"
 
-//todo(ragav): add support for windows
+//TODO(ragav): add support for windows
 TEXT runtime·load_g(SB),NOSPLIT,$0
-	// Todo(ragav): Following breakpoint is for debugging purposes only.
+	// TODO(ragav): Following breakpoint is for debugging purposes only.
 	MOVD	$700, R19
 	BRK
 	

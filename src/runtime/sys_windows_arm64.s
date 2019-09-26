@@ -204,7 +204,7 @@ TEXT runtime·profileloop(SB),NOSPLIT|NOFRAME,$0
 //   +----------------+
 // 24| argument (r0)  |
 //---+----------------+
-// 16 | param1         |
+// 16| param1         |
 //   +----------------+
 // 8 | param0         |
 //   +----------------+
