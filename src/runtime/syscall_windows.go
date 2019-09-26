@@ -40,7 +40,7 @@ func callbackasm()
 // hence 8 bytes.
 // On ARM64, runtime.callbackasm is a series of mov and branch instructions.
 // R16 is loaded with the callback index. Each entry is two instructions,
-// hence 16 bytes. Note(ragav): need to verify this.
+// hence 16 bytes. TODO(ragav): need to verify this.
 func callbackasmAddr(i int) uintptr {
 	var entrySize int
 	switch GOARCH {
