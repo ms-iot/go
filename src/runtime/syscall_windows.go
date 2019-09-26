@@ -52,7 +52,7 @@ func callbackasmAddr(i int) uintptr {
 		// On ARM, each entry is a MOV instruction
 		// followed by a branch instruction
 		entrySize = 8
-	//todo(ragav): check for the correctness of arm64 case
+	//TODO(ragav): check for the correctness of arm64 case
 	case "arm64":
 		entrySize = 16
 	}

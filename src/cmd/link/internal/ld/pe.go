@@ -1449,7 +1449,7 @@ func addPEBaseReloc(ctxt *Link) {
 	switch ctxt.Arch.Family {
 	default:
 		return
-	// Todo(ragav): Need to add Arm64 case here when we provide relocation support.
+	// TODO(ragav): Need to add ARM64 case here when we provide relocation support.
 	case sys.ARM:
 	}
 
