@@ -47,7 +47,8 @@ pushargsonstack:
     LSL     $3, R3          // R3 = R3<<3 = 8*(8+i)
     MOVD    (R3)(R16), R3   // R3 = args[8+i]
     LSL     $3, R2, R8      // R8 = R2<<3 = 8*(i)
-    MOVD    R3, (R8)(RSP)   // stack[i] = R3 = args[8+i]
+    MOVD    RSP, R9
+    MOVD    R3, (R8)(R9)   // stack[i] = R3 = args[8+i]
     ADD     $1, R2          // i++
     SUB     $8, R0, R3      // R3 = n - 8
     CMP     R3, R2          // while(i < (n - 8)),
@@ -434,11 +435,49 @@ TEXT runtime·nanotime(SB),NOSPLIT,$0-8
  useQPC:
     B   runtime·nanotimeQPC(SB)     // tail call
 
+TEXT time·now(SB),NOSPLIT,$0-24
+    MOVD    $0, R0
+    MOVB    runtime·useQPCTime(SB), R0
+    CMP     $0, R0
+    BNE     useQPC
+    MOVD    $_INTERRUPT_TIME, R3
+loop:
+    MOVW    time_hi1(R3), R1
+    MOVW    time_lo(R3), R0
+    MOVW    time_hi2(R3), R2
+    CMP     R1, R2
+    BNE     loop
+    LSL     $32, R1                     // R1 = [time_hi_00]
+    BIC     $0xffffffff00000000, R0     // R0 = [00_time_low]
+    ORR     R1, R0, R1                  // R1 = [time_hi_time_low] = [time]
+    MOVD    $100, R0        
+    MUL     R0, R1                      // R1 = [time]*100
+    MOVD    R1, mono+16(FP)
 
+    MOVW    $_SYSTEM_TIME, R3
+wall:
+    MOVW    time_hi1(R3), R1
+    MOVW    time_lo(R3), R0
+    MOVW    time_hi2(R3), R2
+    CMP     R1, R2
+    BNE     wall
+    LSL     $32, R1                     // R1 = [time_hi_00]
+    BIC     $0xffffffff00000000, R0     // R0 = [00_time_low]
+    ORR     R1, R0, R1                  // R1 = [time_hi_time_low] = [time]
+    MOVD    $116444736000000000, R0
+    SUB     R0, R1
+    MOVD    $100, R0
+    MUL     R0, R1                      // convert to nanosec
 
-TEXT time·now(SB),NOSPLIT,$0-20
-    MOVD    $714, R19
-    BRK
+    MOVD    $0x3b9aca00, R2             // R2 = 10^9
+    UDIV    R2, R1, R0                  // R0 = R1 / 10^9
+    MSUB    R0, R1, R2, R3              // R3 = R1 - (R0 * 10^9) = R1 % 10^9
+
+    MOVD    R0, sec+0(FP)
+    MOVW    R3, nsec+8(FP)
+    RET
+useQPC:
+    B   runtime·nanotimeQPC(SB)     // tail call
     RET
 
 TEXT runtime·alloc_tls(SB),NOSPLIT|NOFRAME,$0
