@@ -187,44 +187,44 @@ TEXT runtime·sigtramp(SB),NOSPLIT|NOFRAME,$0
     BL      runtime·save_g(SB)
 
     // traceback will think that we've done PUSH and SUB
-	// on this stack, so subtract them here to match.
-	// (we need room for sighandler arguments anyway).
-	// and re-save old SP for restoring later.
+    // on this stack, so subtract them here to match.
+    // (we need room for sighandler arguments anyway).
+    // and re-save old SP for restoring later.
 
-    SUB	    $(96+40+8+16), R3
+    SUB     $(96+40+8+16), R3
     MOVD    RSP, R13
-	MOVD	R13, 48(R3)		// save old stack pointer
-	MOVD	R3, RSP			// switch stack
+    MOVD    R13, 48(R3)     // save old stack pointer
+    MOVD    R3, RSP         // switch stack
 
 g0:
-	MOVD	0(R19), R2	// R2 = ExceptionPointers->ExceptionRecord
-	MOVD	8(R19), R3	// R3 = ExceptionPointers->ContextRecord
+    MOVD    0(R19), R2  // R2 = ExceptionPointers->ExceptionRecord
+    MOVD    8(R19), R3  // R3 = ExceptionPointers->ContextRecord
 
-	// make it look like mstart called us on g0, to stop traceback
-	MOVD    $runtime·mstart(SB), R22
+    // make it look like mstart called us on g0, to stop traceback
+    MOVD    $runtime·mstart(SB), R22
 
-	MOVD	R22, 0(RSP)	    // Save link register for traceback
-	MOVD	R2, 8(RSP)	    // Move arg0 (ExceptionRecord) into position
-	MOVD	R3, 16(RSP)	    // Move arg1 (ContextRecord) into position
-	MOVD	R21, 24(RSP)	// Move arg2 (original g) into position
-	BL	    (R20)		    // Call the go routine
-	MOVW	32(RSP), R22	// Fetch return value from stack
+    MOVD    R22, 0(RSP)     // Save link register for traceback
+    MOVD    R2, 8(RSP)      // Move arg0 (ExceptionRecord) into position
+    MOVD    R3, 16(RSP)     // Move arg1 (ContextRecord) into position
+    MOVD    R21, 24(RSP)    // Move arg2 (original g) into position
+    BL      (R20)           // Call the go routine
+    MOVW    32(RSP), R22    // Fetch return value from stack
 
-	// Compute the value of the g0 stack pointer after deallocating
-	// this frame, then allocating 16 bytes. We may need to store
-	// the resume SP and PC on the g0 stack to work around
-	// control flow guard when we resume from the exception.
-	ADD	    $(96+40+8), RSP, R16
+    // Compute the value of the g0 stack pointer after deallocating
+    // this frame, then allocating 16 bytes. We may need to store
+    // the resume SP and PC on the g0 stack to work around
+    // control flow guard when we resume from the exception.
+    ADD     $(96+40+8), RSP, R16
 
-	// switch back to original stack and g
+    // switch back to original stack and g
     MOVD    48(RSP), R13
-	MOVD	R13, RSP
-	MOVD	40(RSP), g
-	BL      runtime·save_g(SB)
+    MOVD    R13, RSP
+    MOVD    40(RSP), g
+    BL      runtime·save_g(SB)
 
 done:
-	MOVD	R22, R0				    // move retval into position
-	ADD	    $(16+40+8), RSP			// free locals
+    MOVD    R22, R0                 // move retval into position
+    ADD     $(16+40+8), RSP         // free locals
 
     // pop {r3, non-volatile registers, lr}
     MOVD    0(RSP), LR
@@ -241,40 +241,40 @@ done:
     MOVD    88(RSP), R3
     ADD     $96, RSP
 
-	// if return value is CONTINUE_SEARCH, do not set up control
-	// flow guard workaround
-	CMP	$0, R0
-	BEQ	return
+    // if return value is CONTINUE_SEARCH, do not set up control
+    // flow guard workaround
+    CMP $0, R0
+    BEQ return
 
-	// Check if we need to set up the control flow guard workaround.
-	// On Windows/ARM64, the stack pointer must lie within system
-	// stack limits when we resume from exception.
-	// Store the resume SP and PC on the g0 stack,
-	// and return to returntramp on the g0 stack. returntramp
-	// pops the saved PC and SP from the g0 stack, resuming execution
-	// at the desired location.
-	// If returntramp has already been set up by a previous exception
-	// handler, don't clobber the stored SP and PC on the stack.
-	MOVD	8(R3), R3			    // PEXCEPTION_POINTERS->Context
-	MOVD	0x108(R3), R2			// load PC from context record
-	MOVD	$runtime·returntramp(SB), R1
-	CMP	    R1, R2
-	BEQ	    return				// do not clobber saved SP/PC
+    // Check if we need to set up the control flow guard workaround.
+    // On Windows/ARM64, the stack pointer must lie within system
+    // stack limits when we resume from exception.
+    // Store the resume SP and PC on the g0 stack,
+    // and return to returntramp on the g0 stack. returntramp
+    // pops the saved PC and SP from the g0 stack, resuming execution
+    // at the desired location.
+    // If returntramp has already been set up by a previous exception
+    // handler, don't clobber the stored SP and PC on the stack.
+    MOVD    8(R3), R3               // PEXCEPTION_POINTERS->Context
+    MOVD    0x108(R3), R2           // load PC from context record
+    MOVD    $runtime·returntramp(SB), R1
+    CMP     R1, R2
+    BEQ     return              // do not clobber saved SP/PC
 
-	// Save resume SP and PC on g0 stack
-	MOVD	0x100(R3), R2			// load SP from context record
-	MOVD	R2, 0(R16)			    // Store resume SP on g0 stack
-	MOVD	0x108(R3), R2			// load PC from context record
-	MOVD	R2, 8(R16)			    // Store resume PC on g0 stack
+    // Save resume SP and PC on g0 stack
+    MOVD    0x100(R3), R2           // load SP from context record
+    MOVD    R2, 0(R16)              // Store resume SP on g0 stack
+    MOVD    0x108(R3), R2           // load PC from context record
+    MOVD    R2, 8(R16)              // Store resume PC on g0 stack
 
-	// Set up context record to return to returntramp on g0 stack
-	MOVD	R16, 0x100(R3)			// save g0 stack pointer
-						            // in context record
-	MOVD	$runtime·returntramp(SB), R2	// save resume address
-	MOVD	R2, 0x108(R3)			        // in context record
+    // Set up context record to return to returntramp on g0 stack
+    MOVD    R16, 0x100(R3)          // save g0 stack pointer
+                                    // in context record
+    MOVD    $runtime·returntramp(SB), R2    // save resume address
+    MOVD    R2, 0x108(R3)                   // in context record
 
 return:
-	B	(LR)				// return
+    B   (LR)                // return
 
 //
 // Trampoline to resume execution from exception handler.

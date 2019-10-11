@@ -10,58 +10,58 @@
 
 TEXT runtime·load_g(SB),NOSPLIT,$0
 #ifdef GOOS_windows
-	WORD	$0xaa1203e0					// MOVD	R18, R0 i.e. R0 has the base of TEB
-	ADD		$0xe10, R0					// Offset for TLS slots
-	MOVD 	$runtime·tls_g(SB), g		// pointer to tls_g
-	MOVD	(g), g						// index value of tls_g (in the TSL slots array)
-	LSL     $2, g, g      				// g = g<<2 offset for tls_g
-	MOVD	(g)(R0), g					// load g
-	RET
+    WORD    $0xaa1203e0                 // MOVD R18, R0 i.e. R0 has the base of TEB
+    ADD     $0xe10, R0                  // Offset for TLS slots
+    MOVD    $runtime·tls_g(SB), g       // pointer to tls_g
+    MOVD    (g), g                      // index value of tls_g (in the TSL slots array)
+    LSL     $2, g, g                    // g = g<<2 offset for tls_g
+    MOVD    (g)(R0), g                  // load g
+    RET
 #else
-	
-	MOVB	runtime·iscgo(SB), R0
-	CMP	$0, R0
-	BEQ	nocgo
+    
+    MOVB    runtime·iscgo(SB), R0
+    CMP $0, R0
+    BEQ nocgo
 
-	MRS_TPIDR_R0
+    MRS_TPIDR_R0
 #ifdef GOOS_darwin
-	// Darwin sometimes returns unaligned pointers
-	AND	$0xfffffffffffffff8, R0
+    // Darwin sometimes returns unaligned pointers
+    AND $0xfffffffffffffff8, R0
 #endif
-	MOVD	runtime·tls_g(SB), R27
-	ADD	R27, R0
-	MOVD	0(R0), g
+    MOVD    runtime·tls_g(SB), R27
+    ADD R27, R0
+    MOVD    0(R0), g
 
 nocgo:
-	RET
+    RET
 #endif
 
 TEXT runtime·save_g(SB),NOSPLIT,$0
 #ifdef GOOS_windows
-	WORD	$0xaa1203e0					// MOVD	R18, R0 i.e. R0 has the base of TEB
-	ADD		$0xe10, R0					// Offset for TLS slots
-	MOVD 	$runtime·tls_g(SB), R29		// pointer to tls_g
-	MOVD	(R29), R29					// index value of tls_g (in the TSL slots array)
-	LSL 	$2, R29, R8					// offset for tls_g
-	MOVD	g, (R8)(R0)					// save g to tls
-	MOVD	g, R0						// preserve R0 across call to setg<>
-	RET
-#else	
-	MOVB	runtime·iscgo(SB), R0
-	CMP	$0, R0
-	BEQ	nocgo
+    WORD    $0xaa1203e0                 // MOVD R18, R0 i.e. R0 has the base of TEB
+    ADD     $0xe10, R0                  // Offset for TLS slots
+    MOVD    $runtime·tls_g(SB), R29     // pointer to tls_g
+    MOVD    (R29), R29                  // index value of tls_g (in the TSL slots array)
+    LSL     $2, R29, R8                 // offset for tls_g
+    MOVD    g, (R8)(R0)                 // save g to tls
+    MOVD    g, R0                       // preserve R0 across call to setg<>
+    RET
+#else   
+    MOVB    runtime·iscgo(SB), R0
+    CMP $0, R0
+    BEQ nocgo
 
-	MRS_TPIDR_R0
+    MRS_TPIDR_R0
 #ifdef GOOS_darwin
-	// Darwin sometimes returns unaligned pointers
-	AND	$0xfffffffffffffff8, R0
+    // Darwin sometimes returns unaligned pointers
+    AND $0xfffffffffffffff8, R0
 #endif
-	MOVD	runtime·tls_g(SB), R27
-	ADD	R27, R0
-	MOVD	g, 0(R0)
-	
+    MOVD    runtime·tls_g(SB), R27
+    ADD R27, R0
+    MOVD    g, 0(R0)
+    
 nocgo:
-	RET
+    RET
 #endif
 
 #ifdef TLSG_IS_VARIABLE
