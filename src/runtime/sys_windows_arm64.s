@@ -143,53 +143,168 @@ TEXT runtime·setlasterror(SB),NOSPLIT|NOFRAME,$0
 //     PEXCEPTION_POINTERS ExceptionInfo,
 //     func *GoExceptionHandler);
 TEXT runtime·sigtramp(SB),NOSPLIT|NOFRAME,$0
-    MOVD    $701, R19
-    BRK
-    RET
+    // push {R0, non-volatile registers, LR}
+    SUB     $96, RSP
+    MOVD    LR, 0(RSP)
+    MOVD    R29, 8(RSP)
+    MOVD    R27, 16(RSP)
+    MOVD    R26, 24(RSP)
+    MOVD    R25, 32(RSP)
+    MOVD    R24, 40(RSP)
+    MOVD    R23, 48(RSP)
+    MOVD    R22, 56(RSP)
+    MOVD    R21, 64(RSP)
+    MOVD    R20, 72(RSP)
+    MOVD    R19, 80(RSP)
+    MOVD    R0, 88(RSP)
+
+    SUB     $(16+40+8), RSP        // reserve space for g, sp, and
+                                   // parameters/retval to go call
+
+    MOVD    R0, R19         // save param0
+    MOVD    R1, R20         // save param1
+
+    BL      runtime·load_g(SB)
+    CMP     $0, g           // is there a current g?
+    BNE     2(PC)
+    BL      runtime·badsignal2(SB)
+
+    // save g and SP in case of stack switch
+    MOVD    RSP, R5
+    MOVD    R5, 48(RSP)
+    MOVD    g, 40(RSP)
+
+    // do we need to switch to the g0 stack?
+    MOVD    g, R21          // R21 = g
+    MOVD    g_m(R21), R2    // R2 = m
+    MOVD    m_g0(R2), R22   // R22 = g0
+    CMP     R21, R22        // if curg == g0
+    BEQ     g0
+
+    // switch to g0 stack
+    MOVD    R22, g                      // g = g0
+    MOVD    (g_sched+gobuf_sp)(g), R3   // R3 = g->gobuf.sp
+    BL      runtime·save_g(SB)
+
+    // traceback will think that we've done PUSH and SUB
+	// on this stack, so subtract them here to match.
+	// (we need room for sighandler arguments anyway).
+	// and re-save old SP for restoring later.
+
+    SUB	    $(96+40+8+16), R3
+    MOVD    RSP, R13
+	MOVD	R13, 48(R3)		// save old stack pointer
+	MOVD	R3, RSP			// switch stack
+
+g0:
+	MOVD	0(R19), R2	// R2 = ExceptionPointers->ExceptionRecord
+	MOVD	8(R19), R3	// R3 = ExceptionPointers->ContextRecord
+
+	// make it look like mstart called us on g0, to stop traceback
+	MOVD    $runtime·mstart(SB), R22
+
+	MOVD	R22, 0(RSP)	    // Save link register for traceback
+	MOVD	R2, 8(RSP)	    // Move arg0 (ExceptionRecord) into position
+	MOVD	R3, 16(RSP)	    // Move arg1 (ContextRecord) into position
+	MOVD	R21, 24(RSP)	// Move arg2 (original g) into position
+	BL	    (R20)		    // Call the go routine
+	MOVW	32(RSP), R22	// Fetch return value from stack
+
+	// Compute the value of the g0 stack pointer after deallocating
+	// this frame, then allocating 16 bytes. We may need to store
+	// the resume SP and PC on the g0 stack to work around
+	// control flow guard when we resume from the exception.
+	ADD	    $(96+40+8), RSP, R16
+
+	// switch back to original stack and g
+    MOVD    48(RSP), R13
+	MOVD	R13, RSP
+	MOVD	40(RSP), g
+	BL      runtime·save_g(SB)
+
+done:
+	MOVD	R22, R0				    // move retval into position
+	ADD	    $(16+40+8), RSP			// free locals
+
+    // pop {r3, non-volatile registers, lr}
+    MOVD    0(RSP), LR
+    MOVD    8(RSP), R29
+    MOVD    16(RSP), R27
+    MOVD    24(RSP), R26
+    MOVD    32(RSP), R25
+    MOVD    40(RSP), R24
+    MOVD    48(RSP), R23
+    MOVD    56(RSP), R22
+    MOVD    64(RSP), R21
+    MOVD    72(RSP), R20
+    MOVD    80(RSP), R19
+    MOVD    88(RSP), R3
+    ADD     $96, RSP
+
+	// if return value is CONTINUE_SEARCH, do not set up control
+	// flow guard workaround
+	CMP	$0, R0
+	BEQ	return
+
+	// Check if we need to set up the control flow guard workaround.
+	// On Windows/ARM64, the stack pointer must lie within system
+	// stack limits when we resume from exception.
+	// Store the resume SP and PC on the g0 stack,
+	// and return to returntramp on the g0 stack. returntramp
+	// pops the saved PC and SP from the g0 stack, resuming execution
+	// at the desired location.
+	// If returntramp has already been set up by a previous exception
+	// handler, don't clobber the stored SP and PC on the stack.
+	MOVD	8(R3), R3			    // PEXCEPTION_POINTERS->Context
+	MOVD	0x108(R3), R2			// load PC from context record
+	MOVD	$runtime·returntramp(SB), R1
+	CMP	    R1, R2
+	BEQ	    return				// do not clobber saved SP/PC
+
+	// Save resume SP and PC on g0 stack
+	MOVD	0x100(R3), R2			// load SP from context record
+	MOVD	R2, 0(R16)			    // Store resume SP on g0 stack
+	MOVD	0x108(R3), R2			// load PC from context record
+	MOVD	R2, 8(R16)			    // Store resume PC on g0 stack
+
+	// Set up context record to return to returntramp on g0 stack
+	MOVD	R16, 0x100(R3)			// save g0 stack pointer
+						            // in context record
+	MOVD	$runtime·returntramp(SB), R2	// save resume address
+	MOVD	R2, 0x108(R3)			        // in context record
+
+return:
+	B	(LR)				// return
 
 //
 // Trampoline to resume execution from exception handler.
 // This is part of the control flow guard workaround.
 // It switches stacks and jumps to the continuation address.
  TEXT runtime·returntramp(SB),NOSPLIT|NOFRAME,$0
-    MOVD    $801, R19
-    BRK
-    RET
+    MOVD    0(RSP), R13
+    MOVD    8(RSP), R14
+    MOVD    R13, RSP
+    B       (R14)
 
 TEXT runtime·exceptiontramp(SB),NOSPLIT|NOFRAME,$0
-    // @ MOVD   $runtime·exceptionhandler(SB), R1       // sigmtramp needs handler function in R1
-    // @ B  runtime·sigtramp(SB)
-    MOVD    $702, R19
-    BRK
-    RET
+    MOVD   $runtime·exceptionhandler(SB), R1       // sigmtramp needs handler function in R1
+    B  runtime·sigtramp(SB)
 
 TEXT runtime·firstcontinuetramp(SB),NOSPLIT|NOFRAME,$0
-    // @ MOVD   $runtime·firstcontinuehandler(SB), R1   // sigmtramp needs handler function in R1
-    // @ B  runtime·sigtramp(SB)
-    MOVD    $703, R19
-    BRK
-    RET
+    MOVD   $runtime·firstcontinuehandler(SB), R1   // sigmtramp needs handler function in R1
+    B  runtime·sigtramp(SB)
 
 TEXT runtime·lastcontinuetramp(SB),NOSPLIT|NOFRAME,$0
-    // @ MOVD   $runtime·lastcontinuehandler(SB), R1    // sigmtramp needs handler function in R1
-    // @ B  runtime·sigtramp(SB)
-    MOVD    $704, R19
-    BRK
-    RET
+    MOVD   $runtime·lastcontinuehandler(SB), R1    // sigmtramp needs handler function in R1
+    B  runtime·sigtramp(SB)
 
 TEXT runtime·ctrlhandler(SB),NOSPLIT|NOFRAME,$0
-    // @ MOVD   $runtime·ctrlhandler1(SB), R1           // sigmtramp needs handler function in R1
-    // @ B  runtime·externalthreadhandler(SB)
-    MOVD    $705, R19
-    BRK
-    RET
+    MOVD   $runtime·ctrlhandler1(SB), R1
+    B  runtime·externalthreadhandler(SB)
 
 TEXT runtime·profileloop(SB),NOSPLIT|NOFRAME,$0
-    // @ MOVD   $runtime·profileloop1(SB), R1           // sigmtramp needs handler function in R1
-    // @ B  runtime·externalthreadhandler(SB)
-    MOVD    $7055, R19
-    BRK
-    RET
+    MOVD   $runtime·profileloop1(SB), R1
+    B  runtime·externalthreadhandler(SB)
 
 // int32 externalthreadhandler(uint32 arg, int (*func)(uint32))
 // stack layout: 
@@ -227,7 +342,6 @@ TEXT runtime·callbackasm1(SB),NOSPLIT|NOFRAME,$0
 
 // uint32 tstart_stdcall(M *newm);
 TEXT runtime·tstart_stdcall(SB),NOSPLIT|NOFRAME,$0
-    // Todo(ragav): save non-volatile registers, if needed
     SUB     $16, RSP
     MOVD    R21, 0(RSP)
     MOVD    LR, R21
@@ -262,7 +376,7 @@ TEXT runtime·emptyfunc(SB),0,$0-0
     RET
 
 // onosstack calls fn on OS stack.
-// adapted from asm_arm.s : systemstack
+// adapted from asm_arm64.s : systemstack
 // func onosstack(fn unsafe.Pointer, arg uint32)
 TEXT runtime·onosstack(SB), NOSPLIT, $0
     MOVD    fn+0(FP), R19   // R19 = fn
@@ -424,7 +538,6 @@ TEXT runtime·nanotime(SB),NOSPLIT,$0-8
     MOVW    time_hi2(R3), R2
     CMP     R1, R2
     BNE     loop
-// TODO(ragav): need to verify the correctness of the following logic
     LSL     $32, R1                     // R1 = [time_hi:0]
     BIC     $0xffffffff00000000, R0     // R0 = [0:time_low]
     ORR     R1, R0, R1                  // R1 = [time_hi:time_low]

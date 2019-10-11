@@ -73,7 +73,6 @@ TEXT runtime·callbackasm(SB),NOSPLIT|NOFRAME,$0
 	}
 }
 
-//TODO(ragav): check for correctness
 func genasmArm64() {
 	var buf bytes.Buffer
 

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// TODO(ragav): adapt to arm64
 package runtime
 
 const (
@@ -46,7 +45,7 @@ type systeminfo struct {
 	dwpagesize                  uint32
 	lpminimumapplicationaddress *byte
 	lpmaximumapplicationaddress *byte
-	dwactiveprocessormask       uint32
+	dwactiveprocessormask       uint64
 	dwnumberofprocessors        uint32
 	dwprocessortype             uint32
 	dwallocationgranularity     uint32
@@ -68,46 +67,62 @@ type neon128 struct {
 	high int64
 }
 
+// See: https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-arm64_nt_context
 type context struct {
 	contextflags uint32
-	r0           uint32
-	r1           uint32
-	r2           uint32
-	r3           uint32
-	r4           uint32
-	r5           uint32
-	r6           uint32
-	r7           uint32
-	r8           uint32
-	r9           uint32
-	r10          uint32
-	r11          uint32
-	r12          uint32
+	cpsr         uint32
+	r0           uint64
+	r1           uint64
+	r2           uint64
+	r3           uint64
+	r4           uint64
+	r5           uint64
+	r6           uint64
+	r7           uint64
+	r8           uint64
+	r9           uint64
+	r10          uint64
+	r11          uint64
+	r12          uint64
+	r13          uint64
+	r14          uint64
+	r15          uint64
+	r16          uint64
+	r17          uint64
+	r18          uint64
+	r19          uint64
+	r20          uint64
+	r21          uint64
+	r22          uint64
+	r23          uint64
+	r24          uint64
+	r25          uint64
+	r26          uint64
+	r27          uint64
+	r28          uint64
 
-	spr  uint32
-	lrr  uint32
-	pc   uint32
-	cpsr uint32
+	fp  uint64
+	lrr uint64
+	spr uint64
+	pc  uint64
 
-	fpscr   uint32
-	padding uint32
+	floatNeon [32]neon128
+	fpsr      uint32
+	fpcr      uint32
 
-	floatNeon [16]neon128
-
-	bvr      [8]uint32
-	bcr      [8]uint32
-	wvr      [1]uint32
-	wcr      [1]uint32
-	padding2 [2]uint32
+	bcr [8]uint32
+	bvr [8]uint64
+	wcr [2]uint32
+	wvr [2]uint64
 }
 
 func (c *context) ip() uintptr { return uintptr(c.pc) }
 func (c *context) sp() uintptr { return uintptr(c.spr) }
 func (c *context) lr() uintptr { return uintptr(c.lrr) }
 
-func (c *context) set_ip(x uintptr) { c.pc = uint32(x) }
-func (c *context) set_sp(x uintptr) { c.spr = uint32(x) }
-func (c *context) set_lr(x uintptr) { c.lrr = uint32(x) }
+func (c *context) set_ip(x uintptr) { c.pc = uint64(x) }
+func (c *context) set_sp(x uintptr) { c.spr = uint64(x) }
+func (c *context) set_lr(x uintptr) { c.lrr = uint64(x) }
 
 func dumpregs(r *context) {
 	print("r0   ", hex(r.r0), "\n")
@@ -123,6 +138,23 @@ func dumpregs(r *context) {
 	print("r10  ", hex(r.r10), "\n")
 	print("r11  ", hex(r.r11), "\n")
 	print("r12  ", hex(r.r12), "\n")
+	print("r13  ", hex(r.r13), "\n")
+	print("r14  ", hex(r.r14), "\n")
+	print("r15  ", hex(r.r15), "\n")
+	print("r16  ", hex(r.r16), "\n")
+	print("r17  ", hex(r.r17), "\n")
+	print("r18  ", hex(r.r18), "\n")
+	print("r19  ", hex(r.r19), "\n")
+	print("r20  ", hex(r.r20), "\n")
+	print("r21  ", hex(r.r21), "\n")
+	print("r22  ", hex(r.r22), "\n")
+	print("r23  ", hex(r.r23), "\n")
+	print("r24  ", hex(r.r24), "\n")
+	print("r25  ", hex(r.r25), "\n")
+	print("r26  ", hex(r.r26), "\n")
+	print("r27  ", hex(r.r27), "\n")
+	print("r28  ", hex(r.r28), "\n")
+	print("fp   ", hex(r.fp), "\n")
 	print("sp   ", hex(r.spr), "\n")
 	print("lr   ", hex(r.lrr), "\n")
 	print("pc   ", hex(r.pc), "\n")
@@ -130,8 +162,8 @@ func dumpregs(r *context) {
 }
 
 type overlapped struct {
-	internal     uint32
-	internalhigh uint32
+	internal     uint64
+	internalhigh uint64
 	anon0        [8]byte
 	hevent       *byte
 }
@@ -147,5 +179,5 @@ type memoryBasicInformation struct {
 }
 
 func stackcheck() {
-	// TODO(ragav): not implemented on ARM64
+	// TODO: not implemented on ARM64
 }
