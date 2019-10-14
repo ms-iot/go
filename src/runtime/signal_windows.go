@@ -48,8 +48,7 @@ func isAbort(r *context) bool {
 		// In the case of an abort, the exception IP is one byte after
 		// the INT3 (this differs from UNIX OSes).
 		return isAbortPC(r.ip() - 1)
-	//TODO(ragav): add a case for arm64
-	case "arm":
+	case "arm", "arm64":
 		return isAbortPC(r.ip())
 	default:
 		return false
@@ -133,13 +132,18 @@ func exceptionhandler(info *exceptionrecord, r *context, gp *g) int32 {
 	if r.ip() != 0 {
 		sp := unsafe.Pointer(r.sp())
 		sp = add(sp, ^(unsafe.Sizeof(uintptr(0)) - 1)) // sp--
+		if GOARCH == "arm64" {
+			// sp must be 16 byte aligned
+			// therefore, subtract 8 more bytes
+			sp = add(sp, ^(unsafe.Sizeof(uintptr(0)) - 1)) // sp--
+		}
 		r.set_sp(uintptr(sp))
 		switch GOARCH {
 		default:
 			panic("unsupported architecture")
 		case "386", "amd64":
 			*((*uintptr)(sp)) = r.ip()
-		case "arm":
+		case "arm", "arm64":
 			*((*uintptr)(sp)) = r.lr()
 			r.set_lr(r.ip())
 		}
@@ -202,7 +206,7 @@ func lastcontinuehandler(info *exceptionrecord, r *context, gp *g) int32 {
 	print("\n")
 
 	// TODO(jordanrh1): This may be needed for 386/AMD64 as well.
-	if GOARCH == "arm" {
+	if GOARCH == "arm" || GOARCH == "arm64" {
 		_g_.m.throwing = 1
 		_g_.m.caughtsig.set(gp)
 	}
