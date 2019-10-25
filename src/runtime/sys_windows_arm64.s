@@ -647,7 +647,7 @@ TEXT runtime·alloc_tls(SB),NOSPLIT|NOFRAME,$0
 TEXT runtime·init_thread_tls(SB),NOSPLIT|NOFRAME,$0
     // compute &_TEB->TlsSlots[tls_g]
     WORD    $0xaa1203e0     // MOVD R18, R0
-    ADD     $0xe10, R0
+    ADD     $0x1480, R0
     MOVD    $runtime·tls_g(SB), R1
     MOVD    (R1), R1
     LSL     $2, R1, R1
